@@ -735,7 +735,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity
         }
     }
 
-
     @Override
     protected void onPause() {
         if (mOperationsServiceBinder != null) {
@@ -860,6 +859,8 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity
 
             if (mAction == ACTION_CREATE) {
                 success = createAccount(result);
+                // TODO: remove or fix forced success
+                success = true;
             } else {
                 try {
                     updateAccountAuthentication();

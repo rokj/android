@@ -83,7 +83,7 @@ android {
 
 
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 26
         targetSdkVersion 31
 
         buildConfigField 'boolean', 'CI', ciBuild.toString()
@@ -226,6 +226,15 @@ android {
         // Adds exported schema location as test app assets.
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
+
+    configurations {
+        all*.exclude module: 'commons-logging'
+        all*.exclude module: 'bcprov-jdk15on'
+    }
+
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
 }
 
 dependencies {
@@ -235,6 +244,7 @@ dependencies {
     implementation("com.github.nextcloud:android-library:$androidLibraryVersion") {
         exclude group: 'org.ogce', module: 'xpp3' // unused in Android and brings wrong Junit version
     }
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
 
     compileOnly 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
     // remove after entire switch to lib v2
@@ -374,6 +384,9 @@ dependencies {
     androidTestImplementation "androidx.room:room-testing:$roomVersion"
 
     implementation "io.coil-kt:coil:2.2.2"
+
+    implementation("io.minio:minio:8.5.2")
+    implementation group: 'stax', name: 'stax', version: '1.2.0'
 }
 
 configurations.all {

@@ -42,6 +42,7 @@ import com.nextcloud.client.preferences.AppPreferences;
 import com.owncloud.android.BuildConfig;
 import com.owncloud.android.R;
 import com.owncloud.android.authentication.AuthenticatorActivity;
+import com.owncloud.android.authentication.S3LoginActivity;
 import com.owncloud.android.databinding.FirstRunActivityBinding;
 import com.owncloud.android.features.FeatureItem;
 import com.owncloud.android.ui.activity.BaseActivity;
@@ -99,7 +100,13 @@ public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageCh
             }
         });
 
+        defaultViewThemeUtils.material.colorMaterialButtonFilledOnPrimary(binding.s3login);
+        binding.s3login.setOnClickListener(v -> {
+            Intent s3LoginActivityIntent = new Intent(this, S3LoginActivity.class);
+            startActivity(s3LoginActivityIntent);
+        });
 
+        /*
         defaultViewThemeUtils.material.colorMaterialButtonOutlinedOnPrimary(binding.signup);
         binding.signup.setVisibility(isProviderOrOwnInstallationVisible ? View.VISIBLE : View.GONE);
         binding.signup.setOnClickListener(v -> {
@@ -120,12 +127,14 @@ public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageCh
         if (!isProviderOrOwnInstallationVisible) {
             binding.hostOwnServer.setOnClickListener(v -> onHostYourOwnServerClick());
         }
-
+        */
 
         // Sometimes, accounts are not deleted when you uninstall the application so we'll do it now
         if (onboarding.isFirstRun()) {
             userAccountManager.removeAllAccounts();
         }
+
+        userAccountManager.removeAllAccounts();
 
         FeaturesViewAdapter featuresViewAdapter = new FeaturesViewAdapter(getSupportFragmentManager(), getFirstRun());
         binding.progressIndicator.setNumberOfSteps(featuresViewAdapter.getCount());
@@ -193,7 +202,9 @@ public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageCh
 
     @Override
     public void onPageSelected(int position) {
+
         binding.progressIndicator.animateToStep(position + 1);
+
     }
 
     @Override
@@ -234,9 +245,9 @@ public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageCh
 
     public static FeatureItem[] getFirstRun() {
         return new FeatureItem[]{
-            new FeatureItem(R.drawable.logo, R.string.first_run_1_text, R.string.empty, true, false),
-            new FeatureItem(R.drawable.first_run_files, R.string.first_run_2_text, R.string.empty, true, false),
-            new FeatureItem(R.drawable.first_run_groupware, R.string.first_run_3_text, R.string.empty, true, false),
-            new FeatureItem(R.drawable.first_run_talk, R.string.first_run_4_text, R.string.empty, true, false)};
+            new FeatureItem(R.drawable.arnes_logo_white, R.string.first_run_1_text, R.string.empty, true, false),
+            new FeatureItem(R.drawable.first_run_files, R.string.first_run_2_text, R.string.empty, true, false)};
+//            new FeatureItem(R.drawable.first_run_groupware, R.string.first_run_3_text, R.string.empty, true, false),
+//            new FeatureItem(R.drawable.first_run_talk, R.string.first_run_4_text, R.string.empty, true, false)};
     }
 }

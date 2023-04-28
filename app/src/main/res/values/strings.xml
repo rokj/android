@@ -63,6 +63,8 @@
     <string name="recommend_text">I want to invite you to use %1$s on your device.\nDownload here: %2$s</string>
     <string name="recommend_urls">%1$s or %2$s</string>
 
+    <string name="access_key_hint">Access key</string>
+    <string name="secret_key_hint">Secret key</string>
     <string name="auth_host_url">Server address https://…</string>
     <string name="sync_string_files">Files</string>
     <string name="uploader_btn_upload_text">Upload</string>
@@ -271,6 +273,7 @@
     <string name="auth_wrong_connection_title">Could not establish connection</string>
     <string name="auth_secure_connection">Secure connection established</string>
     <string name="auth_unauthorized">Wrong username or password</string>
+    <string name="s3_auth_unauthorized">Wrong access key or secret key</string>
     <string name="auth_oauth_error">Unsuccessful authorization</string>
     <string name="auth_oauth_error_access_denied">Access denied by authorization server</string>
     <string name="auth_unsupported_multiaccount">%1$s does not support multiple accounts</string>
@@ -751,8 +754,9 @@
     <string name="prefs_e2e_no_device_credentials">To show mnemonic please enable device credentials.</string>
     <string name="login">Log in</string>
     <string name="signup_with_provider">Sign up with provider</string>
+    <string name="login_with_s3_provider">Login</string>
     <string name="host_your_own_server">Host your own server</string>
-    <string name="first_run_1_text">Keep your data secure and under your control</string>
+    <string name="first_run_1_text">Arnes</string>
     <string name="first_run_2_text">Secure collaboration &amp; file exchange</string>
     <string name="first_run_3_text">Easy-to-use web mail, calendering &amp; contacts</string>
     <string name="first_run_4_text">Screensharing, online meetings &amp; web conferences</string>
@@ -1077,4 +1081,13 @@
     <string name="document_scan_export_dialog_images">Multiple images</string>
     <string name="download_cannot_create_file">Cannot create local file</string>
     <string name="download_download_invalid_local_file_name">Invalid filename for local file</string>
+    <string name="title_activity_s3_login">S3LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
 </resources>

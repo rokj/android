@@ -23,7 +23,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#E65A00"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,7 +39,8 @@
             android:id="@+id/contentPanel"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            />
 
         <com.owncloud.android.ui.whatsnew.ProgressIndicator
             android:id="@+id/progressIndicator"
@@ -63,7 +66,9 @@
             android:id="@+id/buttonLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginBottom="40dp"
+            >
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/login"
@@ -76,7 +81,8 @@
                 android:textStyle="bold"
                 android:text="@string/login"
                 android:padding="@dimen/standard_padding"
-                app:cornerRadius="@dimen/button_corner_radius" />
+                app:cornerRadius="@dimen/button_corner_radius"
+                />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/signup"
@@ -90,6 +96,23 @@
                 android:textStyle="bold"
                 android:padding="@dimen/standard_padding"
                 android:text="@string/signup_with_provider"
+                app:cornerRadius="@dimen/button_corner_radius"
+                android:visibility="gone"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/s3login"
+                android:theme="@style/S3LoginButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:maxWidth="500dp"
+                android:minWidth="300dp"
+                android:textStyle="bold"
+                android:textColor="#E65A00"
+                android:padding="@dimen/standard_padding"
+                android:text="@string/login_with_s3_provider"
                 app:cornerRadius="@dimen/button_corner_radius" />
         </LinearLayout>
 
@@ -101,7 +124,9 @@
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
-            android:text="@string/host_your_own_server"/>
+            android:text="@string/host_your_own_server"
+            android:visibility="gone"
+            />
     </LinearLayout>
 
 </LinearLayout>

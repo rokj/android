@@ -206,6 +206,13 @@
         <item name="strokeColor">@color/login_btn_stroke</item>
     </style>
 
+    <style name="S3LoginButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="colorAccent">@color/transparent</item>
+        <item name="android:textColor">#E65A00</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="strokeColor">@color/login_btn_stroke</item>
+    </style>
+
     <style name="Button.Primary" parent="Button">
         <item name="colorButtonNormal">@color/primary_button_background_color</item>
         <item name="android:textColor">@color/primary_button_text_color</item>

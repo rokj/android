@@ -6,6 +6,7 @@
   Copyright (C) 2015-2016 ownCloud Inc.
   Copyright (C) 2016 Nextcloud
   Copyright (C) 2019 Tobias Kaminsky
+  Copyright (C) 2023 Rok Jaklič
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -20,14 +21,18 @@
   You should have received a copy of the GNU Affero General Public
   License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/scroll"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
-    android:fillViewport="true"
-    android:orientation="vertical">
+    android:background="#E65A00"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".authentication.S3LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,31 +52,27 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:maxWidth="@dimen/default_login_width"
             android:minWidth="@dimen/default_login_width"
-            android:gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/standard_half_padding">
 
             <FrameLayout
-                android:id="@+id/host_url_frame"
+                android:id="@+id/s3_access_key_frame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/host_url_container"
+                    android:id="@+id/s3_access_key_container"
                     style="@style/Widget.App.Login.TextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/auth_host_url"
-                    android:theme="@style/TextInputLayoutLogin"
-                    app:endIconContentDescription="@string/test_server_button"
-                    app:endIconDrawable="@drawable/arrow_right"
-                    app:endIconMode="custom"
-                    app:endIconTint="@color/login_text_color">
+                    android:hint="@string/access_key_hint"
+                    android:theme="@style/TextInputLayoutLogin">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/host_url_input"
+                        android:id="@+id/s3_access_key_input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top"
@@ -82,29 +83,65 @@
                         android:paddingStart="@dimen/standard_padding"
                         android:paddingEnd="@dimen/alternate_padding_right"
                         android:scrollbars="vertical"
-                        android:textColor="#FF0057">
-
-                        <requestFocus />
-
-                    </com.google.android.material.textfield.TextInputEditText>
+                        android:textColor="@color/login_text_color" />
 
                 </com.google.android.material.textfield.TextInputLayout>
             </FrameLayout>
 
-            <TextView
-                android:id="@+id/host_url_input_helper_text"
+            <FrameLayout
+                android:id="@+id/s3_secret_key_frame"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:lineSpacingMultiplier="1.2"
-                android:paddingStart="@dimen/standard_padding"
-                android:paddingTop="@dimen/standard_quarter_padding"
-                android:paddingEnd="@dimen/standard_half_padding"
-                android:paddingBottom="@dimen/standard_eight_padding"
-                android:text="@string/login_url_helper_text"
-                android:textColor="@color/white_helper_text" />
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/s3_secret_key_container"
+                    style="@style/Widget.App.Login.TextInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/secret_key_hint"
+                    android:theme="@style/TextInputLayoutLogin">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/s3_secret_key_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
+                        android:importantForAutofill="no"
+                        android:inputType="textNoSuggestions"
+                        android:lines="1"
+                        android:minLines="1"
+                        android:paddingStart="@dimen/standard_padding"
+                        android:paddingEnd="@dimen/alternate_padding_right"
+                        android:scrollbars="vertical"
+                        android:textColor="@color/login_text_color" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/s3_real_login_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/real_s3login"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
+                    android:background="@color/white"
+                    android:maxWidth="500dp"
+                    android:minWidth="300dp"
+                    android:padding="@dimen/standard_padding"
+                    android:text="@string/login_with_s3_provider"
+                    android:textColor="#E65A00"
+                    android:textStyle="bold"
+                    app:cornerRadius="@dimen/button_corner_radius" />
+
+            </FrameLayout>
 
             <TextView
-                android:id="@+id/server_status_text"
+                android:id="@+id/s3_server_status_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/auth_testing_connection"
@@ -121,7 +158,7 @@
                 app:drawableStartCompat="@android:drawable/stat_notify_sync" />
 
             <TextView
-                android:id="@+id/auth_status_text"
+                android:id="@+id/s3_auth_status_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/auth_unauthorized"
@@ -133,19 +170,10 @@
                 android:paddingBottom="@dimen/standard_eight_padding"
                 android:text="@string/auth_unauthorized"
                 android:textColor="@color/login_text_color"
-                app:drawableStartCompat="@android:drawable/stat_notify_sync" />
-
-            <ImageButton
-                android:id="@+id/scan_qr"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/transparent"
-                android:contentDescription="@string/scanQR_description"
-                android:src="@drawable/qrcode_scan"
-                android:theme="@style/Button.Login" />
+                android:visibility="gone" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
