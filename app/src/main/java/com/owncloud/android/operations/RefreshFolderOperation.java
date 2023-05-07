@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.nextcloud.android.lib.resources.directediting.DirectEditingObtainRemoteOperation;
 import com.nextcloud.client.account.User;
 import com.nextcloud.common.NextcloudClient;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.datamodel.ArbitraryDataProvider;
 import com.owncloud.android.datamodel.ArbitraryDataProviderImpl;
 import com.owncloud.android.datamodel.DecryptedFolderMetadata;
@@ -47,6 +48,7 @@ import com.owncloud.android.lib.resources.files.model.RemoteFile;
 import com.owncloud.android.lib.resources.shares.GetSharesForFileRemoteOperation;
 import com.owncloud.android.lib.resources.shares.OCShare;
 import com.owncloud.android.lib.resources.shares.ShareType;
+import com.owncloud.android.lib.resources.shares.ShareeUser;
 import com.owncloud.android.lib.resources.users.GetPredefinedStatusesRemoteOperation;
 import com.owncloud.android.lib.resources.users.PredefinedStatus;
 import com.owncloud.android.syncadapter.FileSyncAdapter;
@@ -57,6 +59,7 @@ import com.owncloud.android.utils.MimeType;
 import com.owncloud.android.utils.MimeTypeUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +68,10 @@ import java.util.Vector;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import io.minio.ListObjectsArgs;
+import io.minio.Result;
+import io.minio.messages.Bucket;
+import io.minio.messages.Item;
 
 import static com.owncloud.android.datamodel.OCFile.PATH_SEPARATOR;
 
@@ -364,8 +371,10 @@ public class RefreshFolderOperation extends RemoteOperation {
         // remote request
         result = new ReadFileRemoteOperation(remotePath).execute(client);
 
-        if (result.isSuccess()) {
-            OCFile remoteFolder = FileStorageUtils.fillOCFile((RemoteFile) result.getData().get(0));
+        List<Object> data = readRemoteFolder(remotePath);
+
+        if (data.size() > 0) {
+            OCFile remoteFolder = FileStorageUtils.fillOCFile((RemoteFile) data.get(0));
 
             if (!mIgnoreETag) {
                 // check if remote and local folder are different
@@ -400,13 +409,18 @@ public class RefreshFolderOperation extends RemoteOperation {
     }
 
 
-    private RemoteOperationResult fetchAndSyncRemoteFolder(OwnCloudClient client) {
+    public RemoteOperationResult fetchAndSyncRemoteFolder(OwnCloudClient client) {
         String remotePath = mLocalFolder.getRemotePath();
+        // remove
         RemoteOperationResult result = new ReadFolderRemoteOperation(remotePath).execute(client);
+        RemoteOperationResult result2 = new ReadFolderRemoteOperation(remotePath).execute(client);
+
+        List<Object> data = readRemoteFolder(remotePath);
         Log_OC.d(TAG, "Synchronizing " + user.getAccountName() + remotePath);
 
-        if (result.isSuccess()) {
-            synchronizeData(result.getData());
+        if (data.size() > 0) {
+            synchronizeData(data);
+
             if (mConflictsFound > 0 || mFailsInKeptInSyncFound > 0) {
                 result = new RemoteOperationResult(ResultCode.SYNC_CONFLICT);
                 // should be a different result code, but will do the job
@@ -418,6 +432,73 @@ public class RefreshFolderOperation extends RemoteOperation {
         }
 
         return result;
+    }
+
+    private List<Object> readRemoteFolder(String remotePath) {
+        Iterable<Result<Item>> objects;
+        List<Object> data = new ArrayList<>();
+        String[] path = remotePath.split("/");
+        String bucket = "";
+        String prefix = "";
+        List<Bucket> buckets;
+
+        if (remotePath.equals("/")) {
+            try {
+                buckets = MainApp.minioClient.listBuckets();
+                for (int i = 0; i < buckets.size(); i++) {
+                    RemoteFile remoteFile = new RemoteFile();
+                    Bucket tmpBucket = buckets.get(i);
+                    remoteFile.setMimeType("DIR");
+                    remoteFile.setRemotePath("/" + tmpBucket.name());
+
+                    ShareeUser[] sharees = new ShareeUser[0];
+                    remoteFile.setSharees(sharees);
+
+                    data.add(remoteFile);
+                }
+            } catch (Exception e) {
+                Log_OC.d("minio", e.toString());
+            }
+        }
+
+        if (path.length == 0) {
+            return data;
+        }
+
+        if (path.length >= 1) {
+            bucket = path[0];
+        }
+
+        if (path.length > 2) {
+            for (int i = 0; i < path.length - 1; i++) {
+                prefix = remotePath.replaceAll(bucket + "/", "");
+            }
+        }
+
+        try {
+            objects = MainApp.minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).prefix(prefix).recursive(true).build());
+
+            for (Result<Item> item : objects) {
+                RemoteFile remoteFile = new RemoteFile();
+                if (item.get().isDir()) {
+                    remoteFile.setMimeType(MimeType.DIRECTORY);
+                } else {
+                    remoteFile.setMimeType(MimeType.FILE);
+                }
+                remoteFile.setRemotePath("/" + remotePath + "/" + item.get().objectName());
+                remoteFile.setEtag(item.get().etag());
+                remoteFile.setModifiedTimestamp(item.get().lastModified().toEpochSecond());
+
+                ShareeUser[] sharees = new ShareeUser[0];
+                remoteFile.setSharees(sharees);
+
+                data.add(remoteFile);
+            }
+        } catch (Exception e) {
+            Log_OC.d("minio", e.toString());
+        }
+
+        return data;
     }
 
     private void removeLocalFolder() {

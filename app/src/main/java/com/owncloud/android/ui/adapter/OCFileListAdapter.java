@@ -153,10 +153,14 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mStorageManager = new FileDataStorageManager(user, activity.getContentResolver());
         }
 
-        userId = AccountManager
-            .get(activity)
-            .getUserData(this.user.toPlatformAccount(),
-                         com.owncloud.android.lib.common.accounts.AccountUtils.Constants.KEY_USER_ID);
+        userId = "0";
+
+//        userId = AccountManager
+//            .get(activity)
+//            .getUserData(this.user.toPlatformAccount(),
+//                         com.owncloud.android.lib.common.accounts.AccountUtils.Constants.KEY_USER_ID);
+
+
 
         this.viewThemeUtils = viewThemeUtils;
 

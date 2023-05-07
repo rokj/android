@@ -116,6 +116,7 @@ import dagger.android.HasAndroidInjector;
 import de.cotech.hw.SecurityKeyManager;
 import de.cotech.hw.SecurityKeyManagerConfig;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.minio.MinioClient;
 
 import static com.owncloud.android.ui.activity.ContactsPreferenceActivity.PREFERENCE_CONTACTS_AUTOMATIC_BACKUP;
 
@@ -191,6 +192,9 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
     private boolean mBound;
 
     private static AppComponent appComponent;
+
+    public static MinioClient minioClient;
+    public static UserAccountManager userAccountManager;
 
     /**
      * Temporary hack
@@ -339,6 +343,14 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
         backgroundJobManager.startMediaFoldersDetectionJob();
 
         registerGlobalPassCodeProtection();
+
+        minioClient =
+            MinioClient.builder()
+                .endpoint("https://moja.shramba.arnes.si")
+                .credentials("EAN71J9WLBWFUIMD5ZTO", "ST39OWIyTQnwWGCGlxCM7mfoLRTyx2woiAGT6OjM")
+                .build();
+
+        userAccountManager = accountManager;
     }
 
     private void registerGlobalPassCodeProtection() {

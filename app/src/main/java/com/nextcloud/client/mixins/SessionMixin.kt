@@ -68,6 +68,12 @@ class SessionMixin constructor(
         }
 
         currentAccount?.let {
+            val fafa = accountManager.getUser()
+
+            val tmpouser = getUser()
+            val tmpouser1 = getUser().get()
+            val user = getUser().orElse(null)
+
             val storageManager = FileDataStorageManager(getUser().get(), contentResolver)
             this.storageManager = storageManager
         }
@@ -75,11 +81,21 @@ class SessionMixin constructor(
 
     fun setUser(user: User) {
         setAccount(user.toPlatformAccount())
+        // this.user = user
     }
 
     fun getUser(): Optional<User> = when (val it = this.currentAccount) {
         null -> Optional.empty()
         else -> accountManager.getUser(it.name)
+    }
+
+    fun setStorageManager(user: User) {
+        val storageManager = FileDataStorageManager(user, contentResolver)
+        this.storageManager = storageManager
+    }
+
+    fun getStorageManager(user: User) {
+
     }
 
     /**

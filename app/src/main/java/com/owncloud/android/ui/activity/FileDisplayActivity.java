@@ -374,7 +374,7 @@ public class FileDisplayActivity extends FileActivity
         }
 
         upgradeNotificationForInstantUpload();
-        checkOutdatedServer();
+        // checkOutdatedServer();
     }
 
     private Activity getActivity() {
@@ -2365,9 +2365,9 @@ public class FileDisplayActivity extends FileActivity
     @Override
     public void onStart() {
         super.onStart();
-        final Optional<User> optionalUser = getUser();
+        // final Optional<User> optionalUser = getUser();
         final FileDataStorageManager storageManager = getStorageManager();
-        if (optionalUser.isPresent() && storageManager != null) {
+        if (storageManager != null) {
             /// Check whether the 'main' OCFile handled by the Activity is contained in the
             // current Account
             OCFile file = getFile();
@@ -2393,25 +2393,25 @@ public class FileDisplayActivity extends FileActivity
             }
             setFile(file);
 
-            User user = optionalUser.get();
+            // User user = optionalUser.get();
             setupDrawer();
 
-            mSwitchAccountButton.setTag(user.getAccountName());
-            DisplayUtils.setAvatar(user, this, getResources()
-                                       .getDimension(R.dimen.nav_drawer_menu_avatar_radius), getResources(),
-                                   mSwitchAccountButton, this);
-            final boolean userChanged = !user.nameEquals(lastDisplayedUser.orElse(null));
-            if (userChanged) {
+//            mSwitchAccountButton.setTag(user.getAccountName());
+//            DisplayUtils.setAvatar(user, this, getResources()
+//                                       .getDimension(R.dimen.nav_drawer_menu_avatar_radius), getResources(),
+//                                   mSwitchAccountButton, this);
+//            final boolean userChanged = !user.nameEquals(lastDisplayedUser.orElse(null));
+//            if (userChanged) {
                 Log_OC.d(TAG, "Initializing Fragments in onAccountChanged..");
                 initFragments();
                 if (file.isFolder() && TextUtils.isEmpty(searchQuery)) {
                     startSyncFolderOperation(file, false);
                 }
-            } else {
-                updateActionBarTitleAndHomeButton(file.isFolder() ? null : file);
-            }
+//            } else {
+//                updateActionBarTitleAndHomeButton(file.isFolder() ? null : file);
+//            }
         }
-        lastDisplayedUser = optionalUser;
+        // lastDisplayedUser = optionalUser;
 
         EventBus.getDefault().post(new TokenPushEvent());
         checkForNewDevVersionNecessary(getApplicationContext());

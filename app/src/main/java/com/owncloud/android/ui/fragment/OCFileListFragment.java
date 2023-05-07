@@ -418,16 +418,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
     protected void setAdapter(Bundle args) {
         boolean hideItemOptions = args != null && args.getBoolean(ARG_HIDE_ITEM_OPTIONS, false);
 
-        mAdapter = new OCFileListAdapter(
-            getActivity(),
-            accountManager.getUser(),
-            preferences,
-            mContainerActivity,
-            this,
-            hideItemOptions,
-            isGridViewPreferred(mFile),
-            viewThemeUtils
-        );
+        mAdapter = new OCFileListAdapter(getActivity(), accountManager.getUser(), preferences, mContainerActivity, this, hideItemOptions, isGridViewPreferred(mFile), viewThemeUtils);
 
         setRecyclerViewAdapter(mAdapter);
 
