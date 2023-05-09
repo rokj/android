@@ -70,7 +70,7 @@ public class FileMenuFilter {
     private final Context context;
     private final boolean overflowMenu;
     private final User user;
-    private final String userId;
+    // private final String userId;
     private final FileDataStorageManager storageManager;
     private final EditorUtils editorUtils;
 
@@ -125,10 +125,6 @@ public class FileMenuFilter {
         this.context = context;
         this.overflowMenu = overflowMenu;
         this.user = user;
-        userId = AccountManager
-            .get(context)
-            .getUserData(this.user.toPlatformAccount(),
-                         com.owncloud.android.lib.common.accounts.AccountUtils.Constants.KEY_USER_ID);
     }
 
     /**
@@ -178,7 +174,7 @@ public class FileMenuFilter {
         filterSetPictureAs(toHide);
         filterStream(toHide);
         filterLock(toHide, fileLockingEnabled);
-        filterUnlock(toHide, fileLockingEnabled);
+        // filterUnlock(toHide, fileLockingEnabled);
         filterPinToHome(toHide);
 
         return toHide;
@@ -239,7 +235,8 @@ public class FileMenuFilter {
             toHide.add(R.id.action_unlock_file);
         } else {
             OCFile file = files.iterator().next();
-            if (!FileLockingHelper.canUserUnlockFile(userId, file)) {
+            // if (!FileLockingHelper.canUserUnlockFile(userId, file)) {
+            if (!FileLockingHelper.canUserUnlockFile(null, file)) {
                 toHide.add(R.id.action_unlock_file);
             }
         }

@@ -275,50 +275,50 @@ public class FileSyncAdapter extends AbstractOwnCloudSyncAdapter {
         }
 
         // folder synchronization
-        RefreshFolderOperation synchFolderOp = new RefreshFolderOperation(folder,
-                                                                          mCurrentSyncTime,
-                                                                          true,
-                                                                          false,
-                                                                          getStorageManager(),
-                                                                          getUser(),
-                                                                          getContext());
-        RemoteOperationResult result = synchFolderOp.execute(getClient());
+//        RefreshFolderOperation synchFolderOp = new RefreshFolderOperation(folder,
+//                                                                          mCurrentSyncTime,
+//                                                                          true,
+//                                                                          false,
+//                                                                          getStorageManager(),
+//                                                                          getUser(),
+//                                                                          getContext());
+//        RemoteOperationResult result = synchFolderOp.execute(getClient());
 
-        // synchronized folder -> notice to UI - ALWAYS, although !result.isSuccess
-        sendLocalBroadcast(EVENT_FULL_SYNC_FOLDER_CONTENTS_SYNCED, folder.getRemotePath(), result);
+//        // synchronized folder -> notice to UI - ALWAYS, although !result.isSuccess
+//        sendLocalBroadcast(EVENT_FULL_SYNC_FOLDER_CONTENTS_SYNCED, folder.getRemotePath(), result);
+//
+//        // check the result of synchronizing the folder
+//        if (result.isSuccess() || result.getCode() == ResultCode.SYNC_CONFLICT) {
+//
+//            if (result.getCode() == ResultCode.SYNC_CONFLICT) {
+//                mConflictsFound += synchFolderOp.getConflictsFound();
+//                mFailsInFavouritesFound += synchFolderOp.getFailsInKeptInSyncFound();
+//            }
+//            if (synchFolderOp.getForgottenLocalFiles().size() > 0) {
+//                mForgottenLocalFiles.putAll(synchFolderOp.getForgottenLocalFiles());
+//            }
+//            if (result.isSuccess()) {
+//                // synchronize children folders
+//                List<OCFile> children = synchFolderOp.getChildren();
+//                // beware of the 'hidden' recursion here!
+//                syncChildren(children);
+//            }
+//
+//        } else if (result.getCode() != ResultCode.FILE_NOT_FOUND) {
+//            // in failures, the statistics for the global result are updated
+//            if (ResultCode.UNAUTHORIZED == result.getCode()) {
+//                mSyncResult.stats.numAuthExceptions++;
+//
+//            } else if (result.getException() instanceof DavException) {
+//                mSyncResult.stats.numParseExceptions++;
+//
+//            } else if (result.getException() instanceof IOException) {
+//                mSyncResult.stats.numIoExceptions++;
+//            }
+//            mFailedResultsCounter++;
+//            mLastFailedResult = result;
 
-        // check the result of synchronizing the folder
-        if (result.isSuccess() || result.getCode() == ResultCode.SYNC_CONFLICT) {
-
-            if (result.getCode() == ResultCode.SYNC_CONFLICT) {
-                mConflictsFound += synchFolderOp.getConflictsFound();
-                mFailsInFavouritesFound += synchFolderOp.getFailsInKeptInSyncFound();
-            }
-            if (synchFolderOp.getForgottenLocalFiles().size() > 0) {
-                mForgottenLocalFiles.putAll(synchFolderOp.getForgottenLocalFiles());
-            }
-            if (result.isSuccess()) {
-                // synchronize children folders
-                List<OCFile> children = synchFolderOp.getChildren();
-                // beware of the 'hidden' recursion here!
-                syncChildren(children);
-            }
-
-        } else if (result.getCode() != ResultCode.FILE_NOT_FOUND) {
-            // in failures, the statistics for the global result are updated
-            if (ResultCode.UNAUTHORIZED == result.getCode()) {
-                mSyncResult.stats.numAuthExceptions++;
-
-            } else if (result.getException() instanceof DavException) {
-                mSyncResult.stats.numParseExceptions++;
-
-            } else if (result.getException() instanceof IOException) {
-                mSyncResult.stats.numIoExceptions++;
-            }
-            mFailedResultsCounter++;
-            mLastFailedResult = result;
-
-        } // else, ResultCode.FILE_NOT_FOUND is ignored, remote folder was
+        //} // else, ResultCode.FILE_NOT_FOUND is ignored, remote folder was
           // removed from other thread or other client during the synchronization,
           // before this thread fetched its contents
 

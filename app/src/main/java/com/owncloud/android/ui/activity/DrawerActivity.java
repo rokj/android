@@ -457,9 +457,9 @@ public abstract class DrawerActivity extends ToolbarActivity
         } else if (itemId == R.id.nav_logout) {
             mCheckedMenuItem = -1;
             menuItem.setChecked(false);
-            final Optional<User> optionalUser = getUser();
-            if (optionalUser.isPresent()) {
-                UserInfoActivity.openAccountRemovalConfirmationDialog(optionalUser.get(), getSupportFragmentManager());
+            User optionalUser = getUser();
+            if (optionalUser != null) {
+                UserInfoActivity.openAccountRemovalConfirmationDialog(optionalUser, getSupportFragmentManager());
             }
         } else if (itemId == R.id.nav_shared) {
             startSharedSearch(menuItem);
@@ -986,7 +986,7 @@ public abstract class DrawerActivity extends ToolbarActivity
 
             // current account has changed
             if (data.getBooleanExtra(ManageAccountsActivity.KEY_CURRENT_ACCOUNT_CHANGED, false)) {
-                setAccount(accountManager.getCurrentAccount(), false);
+                // setAccount(accountManager.getCurrentAccount(), false);
                 restart();
             }
         } else if (requestCode == PassCodeManager.PASSCODE_ACTIVITY && data != null) {
@@ -1117,8 +1117,8 @@ public abstract class DrawerActivity extends ToolbarActivity
                 // fetch capabilities as early as possible
                 if ((getCapabilities() == null || getCapabilities().getAccountName().isEmpty())
                     && getStorageManager() != null) {
-                    GetCapabilitiesOperation getCapabilities = new GetCapabilitiesOperation(getStorageManager());
-                    getCapabilities.execute(getBaseContext());
+                    // GetCapabilitiesOperation getCapabilities = new GetCapabilitiesOperation(getStorageManager());
+                    // getCapabilities.execute(getBaseContext());
                 }
 
                 User user = accountManager.getUser();

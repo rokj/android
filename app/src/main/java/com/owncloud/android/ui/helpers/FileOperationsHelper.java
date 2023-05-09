@@ -209,7 +209,7 @@ public class FileOperationsHelper {
 
     public void startSyncForFileAndIntent(OCFile file, Intent intent) {
         new Thread(() -> {
-            User user = fileActivity.getUser().orElseThrow(RuntimeException::new);
+            User user = fileActivity.getUser();
             FileDataStorageManager storageManager = new FileDataStorageManager(user,
                                                                                fileActivity.getContentResolver());
 
@@ -305,9 +305,9 @@ public class FileOperationsHelper {
                 queryIntentActivities(openFileWithIntent, PackageManager.GET_RESOLVED_FILTER);
 
             if (launchables.isEmpty()) {
-                Optional<User> optionalUser = fileActivity.getUser();
+                User optionalUser = fileActivity.getUser();
 
-                if (optionalUser.isPresent() && editorUtils.isEditorAvailable(optionalUser.get(), file.getMimeType())) {
+                if (optionalUser != null && editorUtils.isEditorAvailable(optionalUser, file.getMimeType())) {
                     openFileWithTextEditor(file, fileActivity);
                 } else {
                     Account account = fileActivity.getAccount();
@@ -649,7 +649,7 @@ public class FileOperationsHelper {
     public void showShareFile(OCFile file) {
         Intent intent = new Intent(fileActivity, ShareActivity.class);
         intent.putExtra(FileActivity.EXTRA_FILE, file);
-        intent.putExtra(FileActivity.EXTRA_USER, fileActivity.getUser().orElseThrow(RuntimeException::new));
+        intent.putExtra(FileActivity.EXTRA_USER, fileActivity.getUser());
         fileActivity.startActivity(intent);
     }
 
@@ -887,6 +887,9 @@ public class FileOperationsHelper {
             intent.putExtra(OperationsService.EXTRA_ACCOUNT, fileActivity.getAccount());
             intent.putExtra(OperationsService.EXTRA_REMOTE_PATH, file.getRemotePath());
             intent.putExtra(OperationsService.EXTRA_SYNC_FILE_CONTENTS, true);
+            // TODO Rok Jaklic
+            // MainApp.userAccountManager
+            intent.putExtra(OperationsService.EXTRA_SERVER_URL, "https://moja.shramba.arnes.si");
             mWaitingForOpId = fileActivity.getOperationsServiceBinder().queueNewOperation(intent);
             fileActivity.showLoadingDialog(fileActivity.getApplicationContext().
                                                getString(R.string.wait_a_moment));
@@ -990,7 +993,7 @@ public class FileOperationsHelper {
      * @param file OCFile
      */
     public void cancelTransference(OCFile file) {
-        User currentUser = fileActivity.getUser().orElseThrow(IllegalStateException::new);
+        User currentUser = fileActivity.getUser();
         if (file.isFolder()) {
             OperationsService.OperationsServiceBinder opsBinder =
                 fileActivity.getOperationsServiceBinder();

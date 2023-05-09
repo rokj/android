@@ -138,9 +138,9 @@ public class ManageAccountsActivity extends FileActivity implements UserListAdap
         List<User> users = accountManager.getAllUsers();
         originalUsers = toAccountNames(users);
 
-        Optional<User> currentUser = getUser();
-        if (currentUser.isPresent()) {
-            originalCurrentUser = currentUser.get().getAccountName();
+        User currentUser = getUser();
+        if (currentUser != null) {
+            originalCurrentUser = currentUser.getAccountName();
         }
 
         arbitraryDataProvider = new ArbitraryDataProviderImpl(this);

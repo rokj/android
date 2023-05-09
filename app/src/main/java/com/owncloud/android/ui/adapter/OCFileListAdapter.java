@@ -787,14 +787,14 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     // also sync folder content
                     if (ocFile.isFolder()) {
                         long currentSyncTime = System.currentTimeMillis();
-                        RemoteOperation refreshFolderOperation = new RefreshFolderOperation(ocFile,
-                                                                                            currentSyncTime,
-                                                                                            true,
-                                                                                            false,
-                                                                                            mStorageManager,
-                                                                                            user,
-                                                                                            activity);
-                        refreshFolderOperation.execute(user, activity);
+//                        RemoteOperation refreshFolderOperation = new RefreshFolderOperation(ocFile,
+//                                                                                            currentSyncTime,
+//                                                                                            true,
+//                                                                                            false,
+//                                                                                            mStorageManager,
+//                                                                                            user,
+//                                                                                            activity);
+//                        refreshFolderOperation.execute(user, activity);
                     }
                 }
 

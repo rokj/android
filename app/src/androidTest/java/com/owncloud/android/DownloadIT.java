@@ -50,25 +50,25 @@ public class DownloadIT extends AbstractOnServerIT {
 
     @After
     public void after() {
-        RemoteOperationResult result = new RefreshFolderOperation(getStorageManager().getFileByPath("/"),
-                                                                  System.currentTimeMillis() / 1000L,
-                                                                  false,
-                                                                  true,
-                                                                  getStorageManager(),
-                                                                  user,
-                                                                  targetContext)
-            .execute(client);
+//        RemoteOperationResult result = new RefreshFolderOperation(getStorageManager().getFileByPath("/"),
+//                                                                  System.currentTimeMillis() / 1000L,
+//                                                                  false,
+//                                                                  true,
+//                                                                  getStorageManager(),
+//                                                                  user,
+//                                                                  targetContext)
+//            .execute(client);
 
         // cleanup only if folder exists
-        if (result.isSuccess() && getStorageManager().getFileByDecryptedRemotePath(FOLDER) != null) {
-            new RemoveFileOperation(getStorageManager().getFileByDecryptedRemotePath(FOLDER),
-                                    false,
-                                    user,
-                                    false,
-                                    targetContext,
-                                    getStorageManager())
-                .execute(client);
-        }
+//        if (result.isSuccess() && getStorageManager().getFileByDecryptedRemotePath(FOLDER) != null) {
+//            new RemoveFileOperation(getStorageManager().getFileByDecryptedRemotePath(FOLDER),
+//                                    false,
+//                                    user,
+//                                    false,
+//                                    targetContext,
+//                                    getStorageManager())
+//                .execute(client);
+//        }
     }
 
     @Test

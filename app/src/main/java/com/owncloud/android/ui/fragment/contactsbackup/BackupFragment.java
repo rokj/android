@@ -145,7 +145,7 @@ public class BackupFragment extends FileFragment implements DatePickerDialog.OnD
         }
 
         final ContactsPreferenceActivity contactsPreferenceActivity = (ContactsPreferenceActivity) getActivity();
-        user = contactsPreferenceActivity.getUser().orElseThrow(RuntimeException::new);
+        user = contactsPreferenceActivity.getUser();
 
         ActionBar actionBar = contactsPreferenceActivity != null ? contactsPreferenceActivity.getSupportActionBar() : null;
 
@@ -282,11 +282,12 @@ public class BackupFragment extends FileFragment implements DatePickerDialog.OnD
                 OCFile folder = storageManager.getFileByPath(path[0]);
 
                 if (folder != null) {
-                    RefreshFolderOperation operation = new RefreshFolderOperation(folder, System.currentTimeMillis(),
-                                                                                  false, false, storageManager, user, context);
-
-                    RemoteOperationResult result = operation.execute(user, context);
-                    return result.isSuccess();
+//                    RefreshFolderOperation operation = new RefreshFolderOperation(folder, System.currentTimeMillis(),
+//                                                                                  false, false, storageManager, user, context);
+//
+//                    RemoteOperationResult result = operation.execute(user, context);
+//                    return result.isSuccess();
+                    return null;
                 } else {
                     return Boolean.FALSE;
                 }
@@ -406,9 +407,9 @@ public class BackupFragment extends FileFragment implements DatePickerDialog.OnD
     private void startContactsBackupJob() {
         ContactsPreferenceActivity activity = (ContactsPreferenceActivity) getActivity();
         if (activity != null) {
-            Optional<User> optionalUser = activity.getUser();
-            if (optionalUser.isPresent()) {
-                backgroundJobManager.startImmediateContactsBackup(optionalUser.get());
+            User optionalUser = activity.getUser();
+            if (optionalUser != null) {
+                backgroundJobManager.startImmediateContactsBackup(optionalUser);
             }
         }
     }
@@ -416,9 +417,9 @@ public class BackupFragment extends FileFragment implements DatePickerDialog.OnD
     private void startCalendarBackupJob() {
         ContactsPreferenceActivity activity = (ContactsPreferenceActivity) getActivity();
         if (activity != null) {
-            Optional<User> optionalUser = activity.getUser();
-            if (optionalUser.isPresent()) {
-                backgroundJobManager.startImmediateCalendarBackup(optionalUser.get());
+            User optionalUser = activity.getUser();
+            if (optionalUser != null) {
+                backgroundJobManager.startImmediateCalendarBackup(optionalUser);
             }
         }
     }
@@ -429,11 +430,11 @@ public class BackupFragment extends FileFragment implements DatePickerDialog.OnD
         if (activity == null) {
             return;
         }
-        Optional<User> optionalUser = activity.getUser();
-        if (!optionalUser.isPresent()) {
+        User optionalUser = activity.getUser();
+        if (optionalUser == null) {
             return;
         }
-        User user = optionalUser.get();
+        User user = optionalUser;
         if (enabled) {
             if (isContactsBackupEnabled()) {
                 Log_OC.d(TAG, "Scheduling contacts backup job");
@@ -670,7 +671,7 @@ public class BackupFragment extends FileFragment implements DatePickerDialog.OnD
             DisplayUtils.showSnackMessage(getView().findViewById(R.id.contacts_linear_layout),
                                           R.string.contacts_preferences_no_file_found);
         } else {
-            final User user = contactsPreferenceActivity.getUser().orElseThrow(RuntimeException::new);
+            final User user = contactsPreferenceActivity.getUser();
             OCFile[] files = new OCFile[backupToRestore.size()];
             Fragment contactListFragment = BackupListFragment.newInstance(backupToRestore.toArray(files), user);
 

@@ -506,7 +506,7 @@ public abstract class FileActivity extends DrawerActivity
         if (!result.isSuccess()) {
             if (result.getCode() == ResultCode.SYNC_CONFLICT) {
                 Intent intent = ConflictsResolveActivity.createIntent(syncedFile,
-                                                                      getUser().orElseThrow(RuntimeException::new),
+                                                                      getUser(),
                                                                       -1,
                                                                       null,
                                                                       this);

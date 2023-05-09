@@ -528,7 +528,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
     public void uploadFiles() {
         UploadFilesActivity.startUploadActivityForResult(
             getActivity(),
-            ((FileActivity) getActivity()).getUser().orElseThrow(RuntimeException::new),
+            ((FileActivity) getActivity()).getUser(),
             FileDisplayActivity.REQUEST_CODE__SELECT_FILES_FROM_FILE_SYSTEM,
                                                         getCurrentFile().isEncrypted()
                                                         );
@@ -953,7 +953,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
 
                 if (file.isFolder()) {
                     if (file.isEncrypted()) {
-                        User user = ((FileActivity) mContainerActivity).getUser().orElseThrow(RuntimeException::new);
+                        User user = ((FileActivity) mContainerActivity).getUser();
 
                         // check if e2e app is enabled
                         OCCapability ocCapability = mContainerActivity.getStorageManager()

@@ -31,7 +31,7 @@ import com.nextcloud.java.util.Optional
 import com.owncloud.android.datamodel.FileDataStorageManager
 import com.owncloud.android.lib.resources.status.OCCapability
 import com.owncloud.android.ui.activity.BaseActivity
-import com.owncloud.android.utils.theme.CapabilityUtils
+// import com.owncloud.android.utils.theme.CapabilityUtils
 
 /**
  * Session mixin collects all account / user handling logic currently
@@ -54,10 +54,10 @@ class SessionMixin constructor(
         private set
     var storageManager: FileDataStorageManager? = null
         private set
-    val capabilities: OCCapability?
-        get() = getUser()
-            .map { CapabilityUtils.getCapability(it, activity) }
-            .orElse(null)
+    var capabilities: OCCapability? = null
+        private set
+    var user: User? = null
+        private set
 
     fun setAccount(account: Account?) {
         val validAccount = account != null && accountManager.setCurrentOwnCloudAccount(account.name)
@@ -68,34 +68,32 @@ class SessionMixin constructor(
         }
 
         currentAccount?.let {
-            val fafa = accountManager.getUser()
-
-            val tmpouser = getUser()
-            val tmpouser1 = getUser().get()
-            val user = getUser().orElse(null)
-
-            val storageManager = FileDataStorageManager(getUser().get(), contentResolver)
+            val storageManager = FileDataStorageManager(this.user, contentResolver)
             this.storageManager = storageManager
         }
     }
 
     fun setUser(user: User) {
-        setAccount(user.toPlatformAccount())
-        // this.user = user
+        // setAccount(user.toPlatformAccount())
+        this.user = user
     }
 
-    fun getUser(): Optional<User> = when (val it = this.currentAccount) {
-        null -> Optional.empty()
-        else -> accountManager.getUser(it.name)
-    }
+    // fun getUser(): Optional<User> = when (val it = this.currentAccount) {
+    //     null -> Optional.empty()
+    //     else -> accountManager.getUser(it.name)
+    // }
+
+    // fun getUser(): User? {
+    //     return this.user
+    // }
 
     fun setStorageManager(user: User) {
         val storageManager = FileDataStorageManager(user, contentResolver)
         this.storageManager = storageManager
     }
 
-    fun getStorageManager(user: User) {
-
+    fun getStorageManager(user: User): FileDataStorageManager? {
+        return this.storageManager
     }
 
     /**
@@ -120,16 +118,16 @@ class SessionMixin constructor(
      * Launches the account creation activity.
      */
     fun startAccountCreation() {
-        accountManager.startAccountCreation(activity)
+        // accountManager.startAccountCreation(activity)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val current = accountManager.currentAccount
-        val currentAccount = this.currentAccount
-        if (current != null && currentAccount != null && !currentAccount.name.equals(current.name)) {
-            this.currentAccount = current
-        }
+        // val current = accountManager.currentAccount
+        // val currentAccount = this.currentAccount
+        // if (current != null && currentAccount != null && !currentAccount.name.equals(current.name)) {
+        //     this.currentAccount = current
+        // }
     }
 
     /**
@@ -138,22 +136,24 @@ class SessionMixin constructor(
      */
     override fun onRestart() {
         super.onRestart()
-        val validAccount = currentAccount != null && accountManager.exists(currentAccount)
-        if (!validAccount) {
-            swapToDefaultAccount()
-        }
+        // val validAccount = currentAccount != null && accountManager.exists(currentAccount)
+        // if (!validAccount) {
+        //     swapToDefaultAccount()
+        // }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val account = accountManager.currentAccount
-        setAccount(account)
+        // val account = accountManager.currentAccount
+        // setAccount(account)
+        val storageManager = FileDataStorageManager(this.user, contentResolver)
+        this.storageManager = storageManager
     }
 
     override fun onResume() {
         super.onResume()
-        if (currentAccount == null) {
-            swapToDefaultAccount()
-        }
+        // if (currentAccount == null) {
+        //     swapToDefaultAccount()
+        // }
     }
 }

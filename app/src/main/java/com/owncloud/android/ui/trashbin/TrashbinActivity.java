@@ -87,7 +87,7 @@ public class TrashbinActivity extends DrawerActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final User currentUser = getUser().orElse(accountProvider.getUser());
+        final User currentUser = getUser();
         final String targetAccount = getIntent().getStringExtra(Intent.EXTRA_USER);
         if (targetAccount != null && !currentUser.nameEquals(targetAccount)) {
             final Optional<User> targetUser = getUserAccountManager().getUser(targetAccount);
@@ -101,7 +101,7 @@ public class TrashbinActivity extends DrawerActivity implements
         }
 
         final RemoteTrashbinRepository trashRepository =
-            new RemoteTrashbinRepository(getUser().orElse(accountProvider.getUser()), clientFactory);
+            new RemoteTrashbinRepository(getUser(), clientFactory);
         trashbinPresenter = new TrashbinPresenter(trashRepository, this);
 
         binding = TrashbinActivityBinding.inflate(getLayoutInflater());
@@ -143,7 +143,7 @@ public class TrashbinActivity extends DrawerActivity implements
             getStorageManager(),
             preferences,
             this,
-            getUser().orElse(accountProvider.getUser()),
+            getUser(),
             viewThemeUtils
         );
         recyclerView.setAdapter(trashbinListAdapter);
@@ -307,7 +307,7 @@ public class TrashbinActivity extends DrawerActivity implements
         binding.list.setVisibility(View.VISIBLE);
         binding.swipeContainingList.setRefreshing(false);
 
-        binding.emptyList.emptyListViewText.setText(getUser().get().getAccountName());
+        binding.emptyList.emptyListViewText.setText(getUser().getAccountName());
         binding.emptyList.emptyListViewText.setVisibility(View.VISIBLE);
         binding.emptyList.emptyListView.setVisibility(View.VISIBLE);
     }

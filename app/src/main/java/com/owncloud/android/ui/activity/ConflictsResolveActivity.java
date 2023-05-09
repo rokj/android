@@ -113,7 +113,7 @@ public class ConflictsResolveActivity extends FileActivity implements OnConflict
         listener = decision -> {
             OCFile file = newFile; // local file got changed, so either upload it or replace it again by server
             // version
-            User user = getUser().orElseThrow(RuntimeException::new);
+            User user = getUser();
             switch (decision) {
                 case CANCEL:
                     // nothing to do
@@ -144,7 +144,7 @@ public class ConflictsResolveActivity extends FileActivity implements OnConflict
                     if (!shouldDeleteLocal()) {
                         // Overwrite local file
                         Intent intent = new Intent(getBaseContext(), FileDownloader.class);
-                        intent.putExtra(FileDownloader.EXTRA_USER, getUser().orElseThrow(RuntimeException::new));
+                        intent.putExtra(FileDownloader.EXTRA_USER, getUser());
                         intent.putExtra(FileDownloader.EXTRA_FILE, file);
                         intent.putExtra(EXTRA_CONFLICT_UPLOAD_ID, conflictUploadId);
                         startService(intent);
@@ -216,9 +216,9 @@ public class ConflictsResolveActivity extends FileActivity implements OnConflict
     }
 
     private void startDialog() {
-        Optional<User> userOptional = getUser();
+        User userOptional = getUser();
 
-        if (!userOptional.isPresent()) {
+        if (userOptional == null) {
             Log_OC.e(TAG, "User not present");
             showErrorAndFinish();
         }
@@ -234,7 +234,7 @@ public class ConflictsResolveActivity extends FileActivity implements OnConflict
         if (existingFile != null && getStorageManager().fileExists(newFile.getRemotePath())) {
             ConflictsResolveDialog dialog = ConflictsResolveDialog.newInstance(existingFile,
                                                                                newFile,
-                                                                               userOptional.get());
+                                                                               userOptional);
             dialog.show(fragmentTransaction, "conflictDialog");
         } else {
             // Account was changed to a different one - just finish

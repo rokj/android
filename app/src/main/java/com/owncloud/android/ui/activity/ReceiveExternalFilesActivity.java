@@ -264,8 +264,8 @@ public class ReceiveExternalFilesActivity extends FileActivity
         super.onSaveInstanceState(outState);
         outState.putString(KEY_PARENTS, generatePath(mParents));
         outState.putParcelable(KEY_FILE, mFile);
-        if (getUser().isPresent()) {
-            outState.putParcelable(FileActivity.EXTRA_USER, getUser().orElseThrow(RuntimeException::new));
+        if (getUser() != null) {
+            outState.putParcelable(FileActivity.EXTRA_USER, getUser());
         }
 
         Log_OC.d(TAG, "onSaveInstanceState() end");
@@ -646,7 +646,7 @@ public class ReceiveExternalFilesActivity extends FileActivity
         OCFile ocFile = files.get(position);
         if (ocFile.isFolder()) {
             if (ocFile.isEncrypted() &&
-                !FileOperationsHelper.isEndToEndEncryptionSetup(this, getUser().orElseThrow(IllegalAccessError::new))) {
+                !FileOperationsHelper.isEndToEndEncryptionSetup(this, getUser())) {
                 DisplayUtils.showSnackMessage(this, R.string.e2e_not_yet_setup);
 
                 return;
@@ -771,7 +771,7 @@ public class ReceiveExternalFilesActivity extends FileActivity
                                                          new String[]{"dirname"},
                                                          new int[]{R.id.filename},
                                                          getStorageManager(),
-                                                         getUser().get(),
+                                                         getUser(),
                                                          viewThemeUtils);
 
                 binding.list.setAdapter(sa);
@@ -828,15 +828,15 @@ public class ReceiveExternalFilesActivity extends FileActivity
         mSyncInProgress = true;
 
         // perform folder synchronization
-        RemoteOperation syncFolderOp = new RefreshFolderOperation(folder,
-                                                                  currentSyncTime,
-                                                                  false,
-                                                                  false,
-                                                                  getStorageManager(),
-                                                                  getUser().orElseThrow(RuntimeException::new),
-                                                                  getApplicationContext()
-        );
-        syncFolderOp.execute(getAccount(), this, null, null);
+//        RemoteOperation syncFolderOp = new RefreshFolderOperation(folder,
+//                                                                  currentSyncTime,
+//                                                                  false,
+//                                                                  false,
+//                                                                  getStorageManager(),
+//                                                                  getUser(),
+//                                                                  getApplicationContext()
+//        );
+//        syncFolderOp.execute(getAccount(), this, null, null);
     }
 
     private List<OCFile> sortFileList(List<OCFile> files) {
@@ -893,7 +893,7 @@ public class ReceiveExternalFilesActivity extends FileActivity
     public void uploadFile(String tmpName, String filename) {
         FileUploader.uploadNewFile(
             getBaseContext(),
-            getUser().orElseThrow(RuntimeException::new),
+            getUser(),
             tmpName,
             mFile.getRemotePath() + filename,
             FileUploader.LOCAL_BEHAVIOUR_COPY,
@@ -913,7 +913,7 @@ public class ReceiveExternalFilesActivity extends FileActivity
             this,
             mStreamsToUpload,
             mUploadPath,
-            getUser().orElseThrow(RuntimeException::new),
+            getUser(),
             FileUploader.LOCAL_BEHAVIOUR_DELETE,
             true, // Show waiting dialog while file is being copied from private storage
             this  // Copy temp task listener

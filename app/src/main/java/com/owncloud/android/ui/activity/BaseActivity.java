@@ -3,22 +3,29 @@ package com.owncloud.android.ui.activity;
 import android.accounts.Account;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
 
+import com.nextcloud.client.account.Server;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.account.UserAccountManager;
+import com.nextcloud.client.account.UserImpl;
 import com.nextcloud.client.di.Injectable;
 import com.nextcloud.client.mixins.MixinRegistry;
 import com.nextcloud.client.mixins.SessionMixin;
 import com.nextcloud.client.preferences.AppPreferences;
 import com.nextcloud.client.preferences.DarkMode;
-import com.nextcloud.java.util.Optional;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
+import com.owncloud.android.lib.common.OwnCloudAccount;
 import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.status.OCCapability;
+import com.owncloud.android.lib.resources.status.OwnCloudVersion;
+
+import java.net.URI;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -34,7 +41,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
      */
     private boolean themeChangePending;
     private boolean paused;
-    protected boolean enableAccountHandling = false;
+    protected boolean enableAccountHandling = true;
 
     private MixinRegistry mixinRegistry = new MixinRegistry();
     private SessionMixin sessionMixin;
@@ -59,6 +66,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
         sessionMixin = new SessionMixin(this,
                                         getContentResolver(),
                                         accountManager);
+
+        Server server = new Server(URI.create("https://moja.shramba.arnes.si"),
+                   OwnCloudVersion.nextcloud_20);
+        User user = new UserImpl(this, "rokj", server);
+        sessionMixin.setUser(user);
 
         // user = new User();
         // sessionMixin.setStorageManager();
@@ -168,7 +180,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
         return sessionMixin.getCurrentAccount();
     }
 
-    public Optional<User> getUser() {
+    public User getUser() {
         return sessionMixin.getUser();
     }
 

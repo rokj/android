@@ -97,14 +97,14 @@ public class FetchRemoteFileTask extends AsyncTask<Void, Void, String> {
             }
 
             long currentSyncTime = System.currentTimeMillis();
-            RemoteOperation refreshFolderOperation = new RefreshFolderOperation(toSync,
-                                                                                currentSyncTime,
-                                                                                true,
-                                                                                true,
-                                                                                storageManager,
-                                                                                user,
-                                                                                fileDisplayActivity);
-            refreshFolderOperation.execute(user, fileDisplayActivity);
+//            RemoteOperation refreshFolderOperation = new RefreshFolderOperation(toSync,
+//                                                                                currentSyncTime,
+//                                                                                true,
+//                                                                                true,
+//                                                                                storageManager,
+//                                                                                user,
+//                                                                                fileDisplayActivity);
+//            refreshFolderOperation.execute(user, fileDisplayActivity);
 
             fileDisplayActivity.setFile(ocFile);
         } else {

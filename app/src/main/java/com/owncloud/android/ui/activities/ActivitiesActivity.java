@@ -214,7 +214,7 @@ public class ActivitiesActivity extends DrawerActivity implements ActivityListIn
             showDetailsIntent = new Intent(getBaseContext(), FileDisplayActivity.class);
         }
         showDetailsIntent.putExtra(EXTRA_FILE, ocFile);
-        showDetailsIntent.putExtra(EXTRA_USER, getUser().orElseThrow(RuntimeException::new));
+        showDetailsIntent.putExtra(EXTRA_USER, getUser());
         startActivity(showDetailsIntent);
 
     }

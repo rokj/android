@@ -86,7 +86,7 @@ import static com.owncloud.android.datamodel.OCFile.PATH_SEPARATOR;
  *  Does NOT enter in the child folders to synchronize their contents also.
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-public class RefreshFolderOperation extends RemoteOperation {
+public class RefreshFolderOperation {
 
     private static final String TAG = RefreshFolderOperation.class.getSimpleName();
 
@@ -227,23 +227,24 @@ public class RefreshFolderOperation extends RemoteOperation {
      *
      * {@inheritDoc}
      */
-    @Override
-    protected RemoteOperationResult run(OwnCloudClient client) {
+
+    public RemoteOperationResult run() {
+        OwnCloudClient client;
         RemoteOperationResult result;
         mFailsInKeptInSyncFound = 0;
         mConflictsFound = 0;
         mForgottenLocalFiles.clear();
 
         if (OCFile.ROOT_PATH.equals(mLocalFolder.getRemotePath()) && !mSyncFullAccount && !mOnlyFileMetadata) {
-            updateOCVersion(client);
-            updateUserProfile();
+            // updateOCVersion(client);
+            // updateUserProfile();
         }
 
-        result = checkForChanges(client);
+        result = checkForChanges();
 
         if (result.isSuccess()) {
             if (mRemoteFolderChanged) {
-                result = fetchAndSyncRemoteFolder(client);
+                result = fetchAndSyncRemoteFolder();
             } else {
                 mChildren = mStorageManager.getFolderContent(mLocalFolder, false);
             }
@@ -265,9 +266,10 @@ public class RefreshFolderOperation extends RemoteOperation {
             );
         }
 
-        if (result.isSuccess() && !mSyncFullAccount && !mOnlyFileMetadata) {
-            refreshSharesForFolder(client); // share result is ignored
-        }
+        // TODO: Rok Jaklic
+//        if (result.isSuccess() && !mSyncFullAccount && !mOnlyFileMetadata) {
+//            refreshSharesForFolder(client); // share result is ignored
+//        }
 
         if (!mSyncFullAccount) {
             sendLocalBroadcast(
@@ -361,22 +363,20 @@ public class RefreshFolderOperation extends RemoteOperation {
         }
     }
 
-    private RemoteOperationResult checkForChanges(OwnCloudClient client) {
+    private RemoteOperationResult checkForChanges() {
+        OwnCloudClient client;
         mRemoteFolderChanged = true;
-        RemoteOperationResult result;
+        RemoteOperationResult result = new RemoteOperationResult(ResultCode.OK);
         String remotePath = mLocalFolder.getRemotePath();
 
         Log_OC.d(TAG, "Checking changes in " + user.getAccountName() + remotePath);
-
-        // remote request
-        result = new ReadFileRemoteOperation(remotePath).execute(client);
 
         List<Object> data = readRemoteFolder(remotePath);
 
         if (data.size() > 0) {
             OCFile remoteFolder = FileStorageUtils.fillOCFile((RemoteFile) data.get(0));
 
-            if (!mIgnoreETag) {
+            if (!mIgnoreETag && !remotePath.equals("/")) {
                 // check if remote and local folder are different
                 String remoteFolderETag = remoteFolder.getEtag();
                 if (remoteFolderETag != null) {
@@ -393,27 +393,27 @@ public class RefreshFolderOperation extends RemoteOperation {
 
         } else {
             // check failed
-            if (result.getCode() == ResultCode.FILE_NOT_FOUND) {
-                removeLocalFolder();
-            }
-            if (result.isException()) {
-                Log_OC.e(TAG, "Checked " + user.getAccountName() + remotePath + " : " +
-                        result.getLogMessage(), result.getException());
-            } else {
-                Log_OC.e(TAG, "Checked " + user.getAccountName() + remotePath + " : " +
-                        result.getLogMessage());
-            }
+//            if (result.getCode() == ResultCode.FILE_NOT_FOUND) {
+//                removeLocalFolder();
+//            }
+//            if (result.isException()) {
+//                Log_OC.e(TAG, "Checked " + user.getAccountName() + remotePath + " : " +
+//                        result.getLogMessage(), result.getException());
+//            } else {
+//                Log_OC.e(TAG, "Checked " + user.getAccountName() + remotePath + " : " +
+//                        result.getLogMessage());
+//            }
         }
 
         return result;
     }
 
 
-    public RemoteOperationResult fetchAndSyncRemoteFolder(OwnCloudClient client) {
+    public RemoteOperationResult fetchAndSyncRemoteFolder() {
         String remotePath = mLocalFolder.getRemotePath();
         // remove
-        RemoteOperationResult result = new ReadFolderRemoteOperation(remotePath).execute(client);
-        RemoteOperationResult result2 = new ReadFolderRemoteOperation(remotePath).execute(client);
+//        RemoteOperationResult result = new ReadFolderRemoteOperation(remotePath).execute(client);
+//        RemoteOperationResult result2 = new ReadFolderRemoteOperation(remotePath).execute(client);
 
         List<Object> data = readRemoteFolder(remotePath);
         Log_OC.d(TAG, "Synchronizing " + user.getAccountName() + remotePath);
@@ -422,14 +422,16 @@ public class RefreshFolderOperation extends RemoteOperation {
             synchronizeData(data);
 
             if (mConflictsFound > 0 || mFailsInKeptInSyncFound > 0) {
-                result = new RemoteOperationResult(ResultCode.SYNC_CONFLICT);
+                // result = new RemoteOperationResult(ResultCode.SYNC_CONFLICT);
                 // should be a different result code, but will do the job
             }
         } else {
-            if (result.getCode() == ResultCode.FILE_NOT_FOUND) {
-                removeLocalFolder();
-            }
+            // TODO: Rok Jaklic remove not found files
+//            if (result.getCode() == ResultCode.FILE_NOT_FOUND) {
+//                removeLocalFolder();
+//            }
         }
+        RemoteOperationResult result = new RemoteOperationResult(ResultCode.OK);
 
         return result;
     }
@@ -466,7 +468,7 @@ public class RefreshFolderOperation extends RemoteOperation {
         }
 
         if (path.length >= 1) {
-            bucket = path[0];
+            bucket = path[1];
         }
 
         if (path.length > 2) {
@@ -476,7 +478,7 @@ public class RefreshFolderOperation extends RemoteOperation {
         }
 
         try {
-            objects = MainApp.minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).prefix(prefix).recursive(true).build());
+            objects = MainApp.minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).prefix(prefix).recursive(false).build());
 
             for (Result<Item> item : objects) {
                 RemoteFile remoteFile = new RemoteFile();
@@ -485,7 +487,10 @@ public class RefreshFolderOperation extends RemoteOperation {
                 } else {
                     remoteFile.setMimeType(MimeType.FILE);
                 }
-                remoteFile.setRemotePath("/" + remotePath + "/" + item.get().objectName());
+
+                String remotePathForSave = remotePath + item.get().objectName();
+                remotePathForSave.replaceAll("[/]+", "/");
+                remoteFile.setRemotePath(remotePathForSave);
                 remoteFile.setEtag(item.get().etag());
                 remoteFile.setModifiedTimestamp(item.get().lastModified().toEpochSecond());
 
@@ -551,12 +556,13 @@ public class RefreshFolderOperation extends RemoteOperation {
         // update size
         mLocalFolder.setFileLength(remoteFolder.getFileLength());
 
-        DecryptedFolderMetadata metadata = getDecryptedFolderMetadata(encryptedAncestor,
-                                                                      mLocalFolder,
-                                                                      getClient(),
-                                                                      user,
-                                                                      mContext);
+//        DecryptedFolderMetadata metadata = getDecryptedFolderMetadata(encryptedAncestor,
+//                                                                      mLocalFolder,
+//                                                                      getClient(),
+//                                                                      user,
+//                                                                      mContext);
 
+        DecryptedFolderMetadata metadata = null;
         // get current data about local contents of the folder to synchronize
         Map<String, OCFile> localFilesMap = prefillLocalFilesMap(metadata,
                                                                  mStorageManager.getFolderContent(mLocalFolder, false));
@@ -567,7 +573,7 @@ public class RefreshFolderOperation extends RemoteOperation {
         OCFile updatedFile;
         RemoteFile remote;
 
-        for (int i = 1; i < folderAndFiles.size(); i++) {
+        for (int i = 0; i < folderAndFiles.size(); i++) {
             /// new OCFile instance with the data from the server
             remote = (RemoteFile) folderAndFiles.get(i);
             remoteFile = FileStorageUtils.fillOCFile(remote);

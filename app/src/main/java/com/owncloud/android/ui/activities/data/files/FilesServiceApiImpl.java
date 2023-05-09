@@ -106,14 +106,14 @@ public class FilesServiceApiImpl implements FilesServiceApi {
 
                     if (remoteOcFile.isFolder()) {
                         // perform folder synchronization
-                        RemoteOperation synchFolderOp = new RefreshFolderOperation(remoteOcFile,
-                                                                                   System.currentTimeMillis(),
-                                                                                   false,
-                                                                                   true,
-                                                                                   baseActivity.getStorageManager(),
-                                                                                   baseActivity.getUser().orElseThrow(RuntimeException::new),
-                                                                                   context);
-                        synchFolderOp.execute(ownCloudClient);
+//                        RemoteOperation synchFolderOp = new RefreshFolderOperation(remoteOcFile,
+//                                                                                   System.currentTimeMillis(),
+//                                                                                   false,
+//                                                                                   true,
+//                                                                                   baseActivity.getStorageManager(),
+//                                                                                   baseActivity.getUser(),
+//                                                                                   context);
+//                        synchFolderOp.execute(ownCloudClient);
                     }
                 }
                 return Boolean.TRUE;

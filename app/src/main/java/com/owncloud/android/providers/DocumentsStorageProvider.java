@@ -407,21 +407,21 @@ public class DocumentsStorageProvider extends DocumentsProvider {
         Context context = getNonNullContext();
         User user = document.getUser();
 
-        RemoteOperationResult updateParent = new RefreshFolderOperation(targetFolder.getFile(),
-                                                                        System.currentTimeMillis(),
-                                                                        false,
-                                                                        false,
-                                                                        true,
-                                                                        storageManager,
-                                                                        user,
-                                                                        context)
-            .execute(targetFolder.getClient());
-
-        if (!updateParent.isSuccess()) {
-            Log_OC.e(TAG, updateParent.toString());
-            throw new FileNotFoundException("Failed to copy document with documentId " + sourceDocumentId
-                                                + " to " + targetParentDocumentId);
-        }
+//        RemoteOperationResult updateParent = new RefreshFolderOperation(targetFolder.getFile(),
+//                                                                        System.currentTimeMillis(),
+//                                                                        false,
+//                                                                        false,
+//                                                                        true,
+//                                                                        storageManager,
+//                                                                        user,
+//                                                                        context)
+//            .execute(targetFolder.getClient());
+//
+//        if (!updateParent.isSuccess()) {
+//            Log_OC.e(TAG, updateParent.toString());
+//            throw new FileNotFoundException("Failed to copy document with documentId " + sourceDocumentId
+//                                                + " to " + targetParentDocumentId);
+//        }
 
         String newPath = targetFolder.getRemotePath() + document.getFile().getFileName();
 
@@ -512,15 +512,15 @@ public class DocumentsStorageProvider extends DocumentsProvider {
                                                 displayName + " and documentId " + targetFolder.getDocumentId());
         }
 
-        RemoteOperationResult updateParent = new RefreshFolderOperation(targetFolder.getFile(), System.currentTimeMillis(),
-                                                                        false, false, true, storageManager,
-                                                                        targetFolder.getUser(), context)
-            .execute(targetFolder.getClient());
-
-        if (!updateParent.isSuccess()) {
-            Log_OC.e(TAG, updateParent.toString());
-            throw new FileNotFoundException("Failed to create document with documentId " + targetFolder.getDocumentId());
-        }
+//        RemoteOperationResult updateParent = new RefreshFolderOperation(targetFolder.getFile(), System.currentTimeMillis(),
+//                                                                        false, false, true, storageManager,
+//                                                                        targetFolder.getUser(), context)
+//            .execute(targetFolder.getClient());
+//
+//        if (!updateParent.isSuccess()) {
+//            Log_OC.e(TAG, updateParent.toString());
+//            throw new FileNotFoundException("Failed to create document with documentId " + targetFolder.getDocumentId());
+//        }
 
         Document newFolder = new Document(storageManager, newDirPath);
 
@@ -576,20 +576,20 @@ public class DocumentsStorageProvider extends DocumentsProvider {
 
         Context context = getNonNullContext();
 
-        RemoteOperationResult updateParent = new RefreshFolderOperation(targetFolder.getFile(),
-                                                                        System.currentTimeMillis(),
-                                                                        false,
-                                                                        false,
-                                                                        true,
-                                                                        targetFolder.getStorageManager(),
-                                                                        user,
-                                                                        context)
-            .execute(client);
-
-        if (!updateParent.isSuccess()) {
-            Log_OC.e(TAG, updateParent.toString());
-            throw new FileNotFoundException("Failed to create document with documentId " + targetFolder.getDocumentId());
-        }
+//        RemoteOperationResult updateParent = new RefreshFolderOperation(targetFolder.getFile(),
+//                                                                        System.currentTimeMillis(),
+//                                                                        false,
+//                                                                        false,
+//                                                                        true,
+//                                                                        targetFolder.getStorageManager(),
+//                                                                        user,
+//                                                                        context)
+//            .execute(client);
+//
+//        if (!updateParent.isSuccess()) {
+//            Log_OC.e(TAG, updateParent.toString());
+//            throw new FileNotFoundException("Failed to create document with documentId " + targetFolder.getDocumentId());
+//        }
 
         Document newFile = new Document(targetFolder.getStorageManager(), newFilePath);
 
@@ -771,15 +771,17 @@ public class DocumentsStorageProvider extends DocumentsProvider {
         @Override
         public final RemoteOperationResult doInBackground(Void... params) {
             Log_OC.d(TAG, "run ReloadFolderDocumentTask(), id=" + folder.getDocumentId());
-            return new RefreshFolderOperation(folder.getFile(),
-                                              System.currentTimeMillis(),
-                                              false,
-                                              true,
-                                              true,
-                                              folder.getStorageManager(),
-                                              folder.getUser(),
-                                              MainApp.getAppContext())
-                .execute(folder.getClient());
+//            return new RefreshFolderOperation(folder.getFile(),
+//                                              System.currentTimeMillis(),
+//                                              false,
+//                                              true,
+//                                              true,
+//                                              folder.getStorageManager(),
+//                                              folder.getUser(),
+//                                              MainApp.getAppContext())
+//                .execute(folder.getClient());
+
+            return null;
         }
 
         @Override

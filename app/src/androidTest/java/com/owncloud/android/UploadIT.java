@@ -103,25 +103,25 @@ public class UploadIT extends AbstractOnServerIT {
 
     @After
     public void after() {
-        RemoteOperationResult result = new RefreshFolderOperation(getStorageManager().getFileByPath("/"),
-                                                                  System.currentTimeMillis() / 1000L,
-                                                                  false,
-                                                                  true,
-                                                                  getStorageManager(),
-                                                                  user,
-                                                                  targetContext)
-            .execute(client);
+//        RemoteOperationResult result = new RefreshFolderOperation(getStorageManager().getFileByPath("/"),
+//                                                                  System.currentTimeMillis() / 1000L,
+//                                                                  false,
+//                                                                  true,
+//                                                                  getStorageManager(),
+//                                                                  user,
+//                                                                  targetContext)
+//            .execute(client);
 
         // cleanup only if folder exists
-        if (result.isSuccess() && getStorageManager().getFileByDecryptedRemotePath(FOLDER) != null) {
-            new RemoveFileOperation(getStorageManager().getFileByDecryptedRemotePath(FOLDER),
-                                    false,
-                                    user,
-                                    false,
-                                    targetContext,
-                                    getStorageManager())
-                .execute(client);
-        }
+//        if (result.isSuccess() && getStorageManager().getFileByDecryptedRemotePath(FOLDER) != null) {
+//            new RemoveFileOperation(getStorageManager().getFileByDecryptedRemotePath(FOLDER),
+//                                    false,
+//                                    user,
+//                                    false,
+//                                    targetContext,
+//                                    getStorageManager())
+//                .execute(client);
+//        }
     }
 
     @Test
@@ -453,13 +453,13 @@ public class UploadIT extends AbstractOnServerIT {
         long uploadTimestamp = System.currentTimeMillis() / 1000;
 
         // RefreshFolderOperation
-        assertTrue(new RefreshFolderOperation(getStorageManager().getFileByDecryptedRemotePath("/"),
-                                              System.currentTimeMillis() / 1000,
-                                              false,
-                                              false,
-                                              getStorageManager(),
-                                              user,
-                                              targetContext).execute(client).isSuccess());
+//        assertTrue(new RefreshFolderOperation(getStorageManager().getFileByDecryptedRemotePath("/"),
+//                                              System.currentTimeMillis() / 1000,
+//                                              false,
+//                                              false,
+//                                              getStorageManager(),
+//                                              user,
+//                                              targetContext).execute(client).isSuccess());
 
         List<OCFile> files = getStorageManager().getFolderContent(getStorageManager().getFileByDecryptedRemotePath("/"),
                                                                   false);

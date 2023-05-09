@@ -223,16 +223,17 @@ open class FolderPickerActivity :
         mSyncInProgress = true
 
         // perform folder synchronization
-        val refreshFolderOperation: RemoteOperation<*> = RefreshFolderOperation(
-            folder,
-            currentSyncTime,
-            false,
-            ignoreETag,
-            storageManager,
-            user.orElseThrow { RuntimeException("User not set") },
-            applicationContext
-        )
-        refreshFolderOperation.execute(account, this, null, null)
+        // TODO: Rok Jaklic
+        // val refreshFolderOperation: RemoteOperation<*> = RefreshFolderOperation(
+        //     folder,
+        //     currentSyncTime,
+        //     false,
+        //     ignoreETag,
+        //     storageManager,
+        //     user,
+        //     applicationContext
+        // )
+        // refreshFolderOperation.execute(account, this, null, null)
         listOfFilesFragment!!.isLoading = true
         setBackgroundText()
     }

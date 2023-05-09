@@ -63,8 +63,8 @@ public class ShareActivity extends FileActivity {
         setContentView(binding.getRoot());
 
         OCFile file = getFile();
-        Optional<User> optionalUser = getUser();
-        if (!optionalUser.isPresent()) {
+        User optionalUser = getUser();
+        if (optionalUser == null) {
             finish();
             return;
         }
@@ -104,7 +104,7 @@ public class ShareActivity extends FileActivity {
         Activity activity = this;
         new Thread(() -> {
             RemoteOperationResult result = new ReadFileRemoteOperation(getFile().getRemotePath())
-                .execute(optionalUser.get(),
+                .execute(optionalUser,
                          activity);
 
             if (result.isSuccess()) {
@@ -119,7 +119,7 @@ public class ShareActivity extends FileActivity {
         if (savedInstanceState == null) {
             // Add Share fragment on first creation
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            Fragment fragment = FileDetailSharingFragment.newInstance(getFile(), optionalUser.get());
+            Fragment fragment = FileDetailSharingFragment.newInstance(getFile(), optionalUser);
             ft.replace(R.id.share_fragment_container, fragment, TAG_SHARE_FRAGMENT);
             ft.commit();
         }

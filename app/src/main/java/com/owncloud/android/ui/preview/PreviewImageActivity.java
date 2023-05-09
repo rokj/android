@@ -187,8 +187,8 @@ public class PreviewImageActivity extends FileActivity implements
     @Override
     public void onStart() {
         super.onStart();
-        Optional<User> optionalUser = getUser();
-        if (optionalUser.isPresent()) {
+        User optionalUser = getUser();
+        if (optionalUser != null) {
             OCFile file = getFile();
             /// Validate handled file (first image to preview)
             if (file == null) {
@@ -208,7 +208,7 @@ public class PreviewImageActivity extends FileActivity implements
                 setFile(file);  // reset after getting it fresh from storageManager
                 getSupportActionBar().setTitle(getFile().getFileName());
                 //if (!stateWasRecovered) {
-                initViewPager(optionalUser.get());
+                initViewPager(optionalUser);
                 //}
 
             } else {
@@ -371,7 +371,7 @@ public class PreviewImageActivity extends FileActivity implements
             Log_OC.d(TAG, "requestForDownload called without binder to download service");
 
         } else if (!mDownloaderBinder.isDownloading(getUserAccountManager().getUser(), file)) {
-            final User user = getUser().orElseThrow(RuntimeException::new);
+            final User user = getUser();
             Intent i = new Intent(this, FileDownloader.class);
             i.putExtra(FileDownloader.EXTRA_USER, user);
             i.putExtra(FileDownloader.EXTRA_FILE, file);

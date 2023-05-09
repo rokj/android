@@ -28,6 +28,7 @@
 
 package com.owncloud.android.ui.activity;
 
+import android.accounts.Account;
 import android.accounts.AuthenticatorException;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -407,19 +408,6 @@ public class FileDisplayActivity extends FileActivity
                 })
                 .setIcon(R.drawable.nav_synced_folders)
                 .show();
-        }
-    }
-
-    private void checkOutdatedServer() {
-        Optional<User> user = getUser();
-
-        if (getResources().getBoolean(R.bool.show_outdated_server_warning) && user.isPresent()) {
-            OwnCloudVersion serverVersion = user.get().getServer().getVersion();
-            // show outdated warning
-            if (MainApp.OUTDATED_SERVER_VERSION.isSameMajorVersion(serverVersion) &&
-                getCapabilities().getExtendedSupport().isFalse()) {
-                DisplayUtils.showServerOutdatedSnackbar(this, Snackbar.LENGTH_LONG);
-            }
         }
     }
 
@@ -931,7 +919,7 @@ public class FileDisplayActivity extends FileActivity
 
             FileUploader.uploadNewFile(
                 this,
-                getUser().orElseThrow(RuntimeException::new),
+                getUser(),
                 filePaths,
                 remotePaths,
                 null,           // MIME type will be detected from file name
@@ -973,7 +961,7 @@ public class FileDisplayActivity extends FileActivity
             this,
             streamsToUpload,
             remotePath,
-            getUser().orElseThrow(RuntimeException::new),
+            getUser(),
             behaviour,
             false, // Not show waiting dialog while file is being copied from private storage
             null  // Not needed copy temp task listener
@@ -1236,10 +1224,8 @@ public class FileDisplayActivity extends FileActivity
                     intent.getStringExtra(FileSyncAdapter.EXTRA_FOLDER_PATH);
                 RemoteOperationResult synchResult = (RemoteOperationResult)
                     DataHolderUtil.getInstance().retrieve(intent.getStringExtra(FileSyncAdapter.EXTRA_RESULT));
-                boolean sameAccount = getAccount() != null &&
-                    accountName.equals(getAccount().name) && getStorageManager() != null;
 
-                if (sameAccount) {
+                if (getStorageManager() != null) {
 
                     if (FileSyncAdapter.EVENT_FULL_SYNC_START.equals(event)) {
                         mSyncInProgress = true;
@@ -1565,7 +1551,7 @@ public class FileDisplayActivity extends FileActivity
      * @param activeTab the active tab in the details view
      */
     public void showDetails(OCFile file, int activeTab) {
-        User currentUser = getUser().orElseThrow(RuntimeException::new);
+        User currentUser = getUser();
 
         resetScrolling(true);
 
@@ -1848,10 +1834,10 @@ public class FileDisplayActivity extends FileActivity
      */
     private void onRenameFileOperationFinish(RenameFileOperation operation,
                                              RemoteOperationResult result) {
-        Optional<User> optionalUser = getUser();
+        User optionalUser = getUser();
         OCFile renamedFile = operation.getFile();
-        if (result.isSuccess() && optionalUser.isPresent()) {
-            final User currentUser = optionalUser.get();
+        if (result.isSuccess()) {
+            final User currentUser = optionalUser;
             Fragment leftFragment = getLeftFragment();
             if (leftFragment instanceof FileFragment) {
                 final FileFragment fileFragment = (FileFragment) leftFragment;
@@ -1943,9 +1929,9 @@ public class FileDisplayActivity extends FileActivity
     public void onTransferStateChanged(OCFile file, boolean downloading, boolean uploading) {
         updateListOfFilesFragment(false);
         Fragment leftFragment = getLeftFragment();
-        Optional<User> optionalUser = getUser();
-        if (leftFragment instanceof FileDetailFragment && file.equals(((FileDetailFragment) leftFragment).getFile()) && optionalUser.isPresent()) {
-            final User currentUser = optionalUser.get();
+        User optionalUser = getUser();
+        if (leftFragment instanceof FileDetailFragment && file.equals(((FileDetailFragment) leftFragment).getFile()) && optionalUser != null) {
+            final User currentUser = optionalUser;
             if (downloading || uploading) {
                 ((FileDetailFragment) leftFragment).updateFileDetails(file, currentUser);
             } else {
@@ -1961,7 +1947,7 @@ public class FileDisplayActivity extends FileActivity
 
 
     private void requestForDownload() {
-        User user = getUser().orElseThrow(RuntimeException::new);
+        User user = getUser();
         //if (!mWaitingToPreview.isDownloading()) {
         if (!mDownloaderBinder.isDownloading(user, mWaitingToPreview)) {
             Intent i = new Intent(this, FileDownloader.class);
@@ -2009,7 +1995,7 @@ public class FileDisplayActivity extends FileActivity
 
         // the execution is slightly delayed to allow the activity get the window focus if it's being started
         // or if the method is called from a dialog that is being dismissed
-        if (TextUtils.isEmpty(searchQuery) && getUser().isPresent()) {
+        if (TextUtils.isEmpty(searchQuery) && getUser() != null) {
             getHandler().postDelayed(
                 new Runnable() {
                     @Override
@@ -2019,21 +2005,23 @@ public class FileDisplayActivity extends FileActivity
                             mSyncInProgress = true;
 
                             // perform folder synchronization
-                            RemoteOperation synchFolderOp = new RefreshFolderOperation(folder,
+                            RefreshFolderOperation synchFolderOp = new RefreshFolderOperation(folder,
                                                                                        currentSyncTime,
                                                                                        false,
                                                                                        ignoreETag,
                                                                                        getStorageManager(),
-                                                                                       getUser().orElseThrow(RuntimeException::new),
+                                                                                       getUser(),
                                                                                        getApplicationContext()
                             );
-                            synchFolderOp.execute(
-                                getAccount(),
-                                MainApp.getAppContext(),
-                                FileDisplayActivity.this,
-                                null,
-                                null
-                                                 );
+
+                            synchFolderOp.run();
+//                            synchFolderOp.execute(
+//                                getUser(),
+//                                MainApp.getAppContext(),
+//                                FileDisplayActivity.this,
+//                                null,
+//                                null
+//                                                 );
 
                             OCFileListFragment fragment = getListOfFilesFragment();
 
@@ -2053,7 +2041,7 @@ public class FileDisplayActivity extends FileActivity
     }
 
     private void requestForDownload(OCFile file, String downloadBehaviour, String packageName, String activityName) {
-        final User currentUser = getUser().orElseThrow(RuntimeException::new);
+        final User currentUser = getUser();
         if (!mDownloaderBinder.isDownloading(currentUser, mWaitingToPreview)) {
             Intent i = new Intent(this, FileDownloader.class);
             i.putExtra(FileDownloader.EXTRA_USER, currentUser);
@@ -2103,7 +2091,7 @@ public class FileDisplayActivity extends FileActivity
     public void startImagePreview(OCFile file, boolean showPreview) {
         Intent showDetailsIntent = new Intent(this, PreviewImageActivity.class);
         showDetailsIntent.putExtra(EXTRA_FILE, file);
-        showDetailsIntent.putExtra(EXTRA_USER, getUser().orElseThrow(RuntimeException::new));
+        showDetailsIntent.putExtra(EXTRA_USER, getUser());
         if (showPreview) {
             startActivity(showDetailsIntent);
         } else {
@@ -2122,7 +2110,7 @@ public class FileDisplayActivity extends FileActivity
     public void startImagePreview(OCFile file, VirtualFolderType type, boolean showPreview) {
         Intent showDetailsIntent = new Intent(this, PreviewImageActivity.class);
         showDetailsIntent.putExtra(PreviewImageActivity.EXTRA_FILE, file);
-        showDetailsIntent.putExtra(EXTRA_USER, getUser().orElseThrow(RuntimeException::new));
+        showDetailsIntent.putExtra(EXTRA_USER, getUser());
         showDetailsIntent.putExtra(PreviewImageActivity.EXTRA_VIRTUAL_TYPE, type);
 
         if (showPreview) {
@@ -2147,13 +2135,13 @@ public class FileDisplayActivity extends FileActivity
                                   boolean autoplay,
                                   boolean showPreview,
                                   boolean streamMedia) {
-        Optional<User> user = getUser();
-        if (!user.isPresent()) {
+        User user = getUser();
+        if (user == null) {
             return; // not reachable under normal conditions
         }
         if (showPreview && file.isDown() && !file.isDownloading() || streamMedia) {
             configureToolbarForMediaPreview(file);
-            Fragment mediaFragment = PreviewMediaFragment.newInstance(file, user.get(), startPlaybackPosition, autoplay);
+            Fragment mediaFragment = PreviewMediaFragment.newInstance(file, user, startPlaybackPosition, autoplay);
             setLeftFragment(mediaFragment);
         } else {
             Intent previewIntent = new Intent();
@@ -2179,12 +2167,12 @@ public class FileDisplayActivity extends FileActivity
      * @param file Text {@link OCFile} to preview.
      */
     public void startTextPreview(OCFile file, boolean showPreview) {
-        Optional<User> optUser = getUser();
-        if (!optUser.isPresent()) {
+        User optUser = getUser();
+        if (optUser == null) {
             // remnants of old unsafe system; do not crash, silently stop
             return;
         }
-        User user = optUser.get();
+        User user = optUser;
         if (showPreview) {
             showSortListGroup(false);
             PreviewTextFileFragment fragment = PreviewTextFileFragment.create(user, file, searchOpen, searchQuery);
@@ -2218,7 +2206,7 @@ public class FileDisplayActivity extends FileActivity
     }
 
     public void startContactListFragment(OCFile file) {
-        final User user = getUser().orElseThrow(RuntimeException::new);
+        final User user = getUser();
         ContactsPreferenceActivity.startActivityWithContactsFile(this, user, file);
     }
 
@@ -2247,7 +2235,7 @@ public class FileDisplayActivity extends FileActivity
      * @param parentFolder {@link OCFile} containing above file
      */
     public void startDownloadForPreview(OCFile file, OCFile parentFolder) {
-        final User currentUser = getUser().orElseThrow(RuntimeException::new);
+        final User currentUser = getUser();
         Fragment detailFragment = FileDetailFragment.newInstance(file, parentFolder, currentUser);
         setLeftFragment(detailFragment);
         mWaitingToPreview = file;
@@ -2405,7 +2393,7 @@ public class FileDisplayActivity extends FileActivity
                 Log_OC.d(TAG, "Initializing Fragments in onAccountChanged..");
                 initFragments();
                 if (file.isFolder() && TextUtils.isEmpty(searchQuery)) {
-                    startSyncFolderOperation(file, false);
+                    // startSyncFolderOperation(file, false);
                 }
 //            } else {
 //                updateActionBarTitleAndHomeButton(file.isFolder() ? null : file);
@@ -2437,9 +2425,9 @@ public class FileDisplayActivity extends FileActivity
         if (userName == null && fileId == null && intent.getData() != null) {
             openDeepLink(intent.getData());
         } else {
-            Optional<User> optionalUser = userName == null ? getUser() : getUserAccountManager().getUser(userName);
-            if (optionalUser.isPresent()) {
-                openFile(optionalUser.get(), fileId);
+            User optionalUser = getUser();
+            if (optionalUser != null) {
+                openFile(optionalUser, fileId);
             } else {
                 dismissLoadingDialog();
                 DisplayUtils.showSnackMessage(this, getString(R.string.associated_account_not_found));

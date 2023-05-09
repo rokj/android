@@ -249,7 +249,7 @@ public class FileDetailFragment extends FileFragment implements OnClickListener,
         final List<Integer> additionalFilter = new ArrayList<>(
             Arrays.asList(
                 R.id.action_lock_file,
-                R.id.action_unlock_file,
+//                R.id.action_unlock_file,
                 R.id.action_edit,
                 R.id.action_favorite,
                 R.id.action_unset_favorite,

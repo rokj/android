@@ -68,20 +68,24 @@ public class UserImpl implements User {
     private static final String PREF_SELECT_OC_ACCOUNT = "select_oc_account";
 
     private Context context;
+    private String accountName;
+    private Server server;
 
-    public static UserImpl fromContext(Context context) {
-        return new UserImpl(context);
+    public static UserImpl fromContext(Context context, String accountName, Server server) {
+        return new UserImpl(context, accountName, server);
     }
 
     @Inject
-    public UserImpl(Context context) {
+    public UserImpl(Context context, String accountName, Server server) {
         this.context = context;
+        this.accountName = accountName;
+        this.server = server;
     }
 
     @NonNull
     @Override
     public String getAccountName() {
-        return null;
+        return this.accountName;
     }
 
     @NonNull

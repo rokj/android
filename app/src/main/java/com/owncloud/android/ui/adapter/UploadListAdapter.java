@@ -412,13 +412,13 @@ public class UploadListAdapter extends SectionedRecyclerViewAdapter<SectionedVie
                 itemViewHolder.binding.thumbnail.setImageBitmap(thumbnail);
             } else {
                 // generate new Thumbnail
-                Optional<User> user = parentActivity.getUser();
-                if (allowedToCreateNewThumbnail && user.isPresent()) {
+                User user = parentActivity.getUser();
+                if (allowedToCreateNewThumbnail && user != null) {
                     final ThumbnailsCacheManager.ThumbnailGenerationTask task =
                             new ThumbnailsCacheManager.ThumbnailGenerationTask(
                                 itemViewHolder.binding.thumbnail,
                                 parentActivity.getStorageManager(),
-                                user.get()
+                                user
                             );
                     if (thumbnail == null) {
                         if (MimeTypeUtil.isVideo(fakeFileToCheatThumbnailsCacheManagerInterface)) {
@@ -558,18 +558,18 @@ public class UploadListAdapter extends SectionedRecyclerViewAdapter<SectionedVie
         view.binding.uploadListItemLayout.setClickable(false);
         view.binding.uploadStatus.setText(R.string.uploads_view_upload_status_fetching_server_version);
         Context context = MainApp.getAppContext();
-        new RefreshFolderOperation(folder,
-                                   clock.getCurrentTime(),
-                                   false,
-                                   false,
-                                   true,
-                                   storageManager,
-                                   user,
-                                   context)
-            .execute(user, context, (caller, result) -> {
-                view.binding.uploadListItemLayout.setClickable(true);
-                listener.onRemoteOperationFinish(caller, result);
-            }, parentActivity.getHandler());
+//        new RefreshFolderOperation(folder,
+//                                   clock.getCurrentTime(),
+//                                   false,
+//                                   false,
+//                                   true,
+//                                   storageManager,
+//                                   user,
+//                                   context)
+//            .execute(user, context, (caller, result) -> {
+//                view.binding.uploadListItemLayout.setClickable(true);
+//                listener.onRemoteOperationFinish(caller, result);
+//            }, parentActivity.getHandler());
     }
 
     private void openConflictActivity(OCFile file, OCUpload upload) {

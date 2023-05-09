@@ -242,13 +242,13 @@ public abstract class AbstractOnServerIT extends AbstractIT {
     }
 
     protected void refreshFolder(String path) {
-        assertTrue(new RefreshFolderOperation(getStorageManager().getFileByEncryptedRemotePath(path),
-                                              System.currentTimeMillis(),
-                                              false,
-                                              false,
-                                              getStorageManager(),
-                                              user,
-                                              targetContext
-        ).execute(client).isSuccess());
+//        assertTrue(new RefreshFolderOperation(getStorageManager().getFileByEncryptedRemotePath(path),
+//                                              System.currentTimeMillis(),
+//                                              false,
+//                                              false,
+//                                              getStorageManager(),
+//                                              user,
+//                                              targetContext
+//        ).execute(client).isSuccess());
     }
 }

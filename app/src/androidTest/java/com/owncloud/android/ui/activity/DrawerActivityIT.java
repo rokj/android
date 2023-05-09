@@ -111,7 +111,7 @@ public class DrawerActivityIT extends AbstractIT {
 
         sut.setUser(user1);
 
-        assertEquals(account1, sut.getUser().get().toPlatformAccount());
+        assertEquals(account1, sut.getUser().toPlatformAccount());
 
         onView(withId(R.id.switch_account_button)).perform(click());
 
@@ -119,7 +119,7 @@ public class DrawerActivityIT extends AbstractIT {
 
         waitForIdleSync();
 
-        assertEquals(account2, sut.getUser().get().toPlatformAccount());
+        assertEquals(account2, sut.getUser().toPlatformAccount());
 
         onView(withId(R.id.switch_account_button)).perform(click());
         onView(withText(account1.name)).perform(click());

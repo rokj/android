@@ -37,7 +37,7 @@ class UriUploaderIT : AbstractIT() {
             activity,
             listOf(Uri.parse(path)),
             "",
-            activity.user.orElseThrow(::RuntimeException),
+            activity.user,
             FileUploader.LOCAL_BEHAVIOUR_MOVE,
             false,
             null

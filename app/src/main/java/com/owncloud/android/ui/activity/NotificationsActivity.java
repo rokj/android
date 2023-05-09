@@ -69,7 +69,7 @@ public class NotificationsActivity extends DrawerActivity implements Notificatio
     private NotificationListAdapter adapter;
     private Snackbar snackbar;
     private OwnCloudClient client;
-    private Optional<User> optionalUser;
+    private User optionalUser;
 
     @Inject ClientFactory clientFactory;
 
@@ -86,8 +86,8 @@ public class NotificationsActivity extends DrawerActivity implements Notificatio
         // use account from intent (opened via android notification can have a different account than current one)
         if (getIntent() != null && getIntent().getExtras() != null) {
             String accountName = getIntent().getExtras().getString(NotificationWork.KEY_NOTIFICATION_ACCOUNT);
-            if (accountName != null && optionalUser.isPresent()) {
-                User user = optionalUser.get();
+            if (accountName != null && optionalUser != null) {
+                User user = optionalUser;
                 if (user.getAccountName().equalsIgnoreCase(accountName)) {
                     accountManager.setCurrentOwnCloudAccount(accountName);
                     setUser(getUserAccountManager().getUser());
@@ -107,7 +107,7 @@ public class NotificationsActivity extends DrawerActivity implements Notificatio
         // setup drawer
         setupDrawer(R.id.nav_notifications);
 
-        if (!optionalUser.isPresent()) {
+        if (optionalUser == null) {
             // show error
             runOnUiThread(() -> setEmptyContent(
                               getString(R.string.notifications_no_results_headline),
@@ -148,7 +148,7 @@ public class NotificationsActivity extends DrawerActivity implements Notificatio
                                          Snackbar.LENGTH_INDEFINITE);
             } else {
                 final ArbitraryDataProvider arbitraryDataProvider = new ArbitraryDataProviderImpl(this);
-                final String accountName = optionalUser.isPresent() ? optionalUser.get().getAccountName() : "";
+                final String accountName = optionalUser != null ? optionalUser.getAccountName() : "";
                 final boolean usesOldLogin = arbitraryDataProvider.getBooleanValue(accountName,
                                                                                    UserAccountManager.ACCOUNT_USES_STANDARD_PASSWORD);
 
@@ -246,9 +246,9 @@ public class NotificationsActivity extends DrawerActivity implements Notificatio
     }
 
     private void initializeClient() {
-        if (client == null && optionalUser.isPresent()) {
+        if (client == null && optionalUser != null) {
             try {
-                User user = optionalUser.get();
+                User user = optionalUser;
                 client = clientFactory.create(user);
             } catch (ClientFactory.CreationException e) {
                 Log_OC.e(TAG, "Error initializing client", e);

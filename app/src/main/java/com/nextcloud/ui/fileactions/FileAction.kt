@@ -39,20 +39,20 @@ enum class FileAction(@IdRes val id: Int, @StringRes val title: Int, @DrawableRe
 
     // File moving
     RENAME_FILE(R.id.action_rename_file, R.string.common_rename, R.drawable.ic_rename),
-    MOVE(R.id.action_move, R.string.actionbar_move, R.drawable.ic_move),
-    COPY(R.id.action_copy, R.string.actionbar_copy, R.drawable.ic_content_copy),
+    // MOVE(R.id.action_move, R.string.actionbar_move, R.drawable.ic_move),
+    // COPY(R.id.action_copy, R.string.actionbar_copy, R.drawable.ic_content_copy),
 
     // favorites
-    FAVORITE(R.id.action_favorite, R.string.favorite, R.drawable.ic_star),
+    // FAVORITE(R.id.action_favorite, R.string.favorite, R.drawable.ic_star),
     UNSET_FAVORITE(R.id.action_unset_favorite, R.string.unset_favorite, R.drawable.ic_star_outline),
 
     // Uploads and downloads
     DOWNLOAD_FILE(R.id.action_download_file, R.string.filedetails_download, R.drawable.ic_cloud_download),
-    SYNC_FILE(R.id.action_sync_file, R.string.filedetails_sync_file, R.drawable.ic_cloud_sync_on),
+    // SYNC_FILE(R.id.action_sync_file, R.string.filedetails_sync_file, R.drawable.ic_cloud_sync_on),
     CANCEL_SYNC(R.id.action_cancel_sync, R.string.common_cancel_sync, R.drawable.ic_cloud_sync_off),
 
     // File sharing
-    EXPORT_FILE(R.id.action_export_file, R.string.filedetails_export, R.drawable.ic_export),
+    // EXPORT_FILE(R.id.action_export_file, R.string.filedetails_export, R.drawable.ic_export),
     SEND_SHARE_FILE(R.id.action_send_share_file, R.string.action_send_share, R.drawable.ic_share),
     SEND_FILE(R.id.action_send_file, R.string.common_send, R.drawable.ic_share),
     OPEN_FILE_WITH(R.id.action_open_file_with, R.string.actionbar_open_with, R.drawable.ic_external),
@@ -61,14 +61,14 @@ enum class FileAction(@IdRes val id: Int, @StringRes val title: Int, @DrawableRe
 
     // Encryption
     SET_ENCRYPTED(R.id.action_encrypted, R.string.encrypted, R.drawable.ic_encrypt),
-    UNSET_ENCRYPTED(R.id.action_unset_encrypted, R.string.unset_encrypted, R.drawable.ic_decrypt),
+    UNSET_ENCRYPTED(R.id.action_unset_encrypted, R.string.unset_encrypted, R.drawable.ic_decrypt);
 
     // locks
-    UNLOCK_FILE(R.id.action_unlock_file, R.string.unlock_file, R.drawable.ic_lock_open_white),
-    LOCK_FILE(R.id.action_lock_file, R.string.lock_file, R.drawable.ic_lock),
+    // UNLOCK_FILE(R.id.action_unlock_file, R.string.unlock_file, R.drawable.ic_lock_open_white),
+    // LOCK_FILE(R.id.action_lock_file, R.string.lock_file, R.drawable.ic_lock),
 
     // Shortcuts
-    PIN_TO_HOMESCREEN(R.id.action_pin_to_homescreen, R.string.pin_home, R.drawable.add_to_home_screen);
+    // PIN_TO_HOMESCREEN(R.id.action_pin_to_homescreen, R.string.pin_home, R.drawable.add_to_home_screen);
 
     companion object {
         /**
@@ -76,22 +76,22 @@ enum class FileAction(@IdRes val id: Int, @StringRes val title: Int, @DrawableRe
          */
         @JvmField
         val SORTED_VALUES = listOf(
-            UNLOCK_FILE,
+            // UNLOCK_FILE,
             EDIT,
-            FAVORITE,
+            // FAVORITE,
             UNSET_FAVORITE,
             SEE_DETAILS,
-            LOCK_FILE,
+            // LOCK_FILE,
             RENAME_FILE,
-            MOVE,
-            COPY,
+            // MOVE,
+            // COPY,
             DOWNLOAD_FILE,
-            EXPORT_FILE,
+            // EXPORT_FILE,
             STREAM_MEDIA,
             SEND_SHARE_FILE,
             SEND_FILE,
             OPEN_FILE_WITH,
-            SYNC_FILE,
+            // SYNC_FILE,
             CANCEL_SYNC,
             SELECT_ALL,
             SELECT_NONE,
@@ -99,7 +99,7 @@ enum class FileAction(@IdRes val id: Int, @StringRes val title: Int, @DrawableRe
             UNSET_ENCRYPTED,
             SET_AS_WALLPAPER,
             REMOVE_FILE,
-            PIN_TO_HOMESCREEN
+            // PIN_TO_HOMESCREEN
         )
     }
 }
