@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/standard_padding"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/arnes_logo_white" />
+            android:src="@drawable/stree_orange" />
 
         <LinearLayout
             android:layout_width="wrap_content"

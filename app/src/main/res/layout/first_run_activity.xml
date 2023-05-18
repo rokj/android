@@ -71,20 +71,6 @@
             >
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/login"
-                android:theme="@style/Button.Login"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:maxWidth="400dp"
-                android:minWidth="300dp"
-                android:textStyle="bold"
-                android:text="@string/login"
-                android:padding="@dimen/standard_padding"
-                app:cornerRadius="@dimen/button_corner_radius"
-                />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/signup"
                 android:theme="@style/OutlineLoginButton"
                 android:layout_width="wrap_content"

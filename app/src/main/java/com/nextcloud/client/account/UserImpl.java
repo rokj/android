@@ -31,6 +31,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -70,6 +71,22 @@ public class UserImpl implements User {
     private Context context;
     private String accountName;
     private Server server;
+
+    public static final Parcelable.Creator<UserImpl> CREATOR = new Parcelable.Creator<UserImpl>() {
+
+        @Override
+        public UserImpl createFromParcel(Parcel source) {
+            return new UserImpl(source);
+        }
+
+        @Override
+        public UserImpl[] newArray(int size) {
+            return new UserImpl[size];
+        }
+    };
+
+    public UserImpl(Parcel source) {
+    }
 
     public static UserImpl fromContext(Context context, String accountName, Server server) {
         return new UserImpl(context, accountName, server);

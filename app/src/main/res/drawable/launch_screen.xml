@@ -25,7 +25,7 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/arnes_logo_white" />
+            android:src="@drawable/stree_orange" />
     </item>
 
 </layer-list>

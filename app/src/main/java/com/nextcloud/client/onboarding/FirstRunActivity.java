@@ -91,17 +91,16 @@ public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageCh
 
         setSlideshowSize(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
-
-        defaultViewThemeUtils.material.colorMaterialButtonFilledOnPrimary(binding.login);
-        binding.login.setOnClickListener(v -> {
-            if (getIntent().getBooleanExtra(EXTRA_ALLOW_CLOSE, false)) {
-                Intent authenticatorActivityIntent = new Intent(this, AuthenticatorActivity.class);
-                authenticatorActivityIntent.putExtra(AuthenticatorActivity.EXTRA_USE_PROVIDER_AS_WEBLOGIN, false);
-                startActivityForResult(authenticatorActivityIntent, FIRST_RUN_RESULT_CODE);
-            } else {
-                finish();
-            }
-        });
+//        defaultViewThemeUtils.material.colorMaterialButtonFilledOnPrimary(binding.login);
+//        binding.login.setOnClickListener(v -> {
+//            if (getIntent().getBooleanExtra(EXTRA_ALLOW_CLOSE, false)) {
+//                Intent authenticatorActivityIntent = new Intent(this, AuthenticatorActivity.class);
+//                authenticatorActivityIntent.putExtra(AuthenticatorActivity.EXTRA_USE_PROVIDER_AS_WEBLOGIN, false);
+//                startActivityForResult(authenticatorActivityIntent, FIRST_RUN_RESULT_CODE);
+//            } else {
+//                finish();
+//            }
+//        });
 
         defaultViewThemeUtils.material.colorMaterialButtonFilledOnPrimary(binding.s3login);
         binding.s3login.setOnClickListener(v -> {
@@ -133,11 +132,11 @@ public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageCh
         */
 
         // Sometimes, accounts are not deleted when you uninstall the application so we'll do it now
-        if (onboarding.isFirstRun()) {
-            userAccountManager.removeAllAccounts();
-        }
-
-        userAccountManager.removeAllAccounts();
+//        if (onboarding.isFirstRun()) {
+//            userAccountManager.removeAllAccounts();
+//        }
+//
+//        userAccountManager.removeAllAccounts();
 
         FeaturesViewAdapter featuresViewAdapter = new FeaturesViewAdapter(getSupportFragmentManager(), getFirstRun());
         binding.progressIndicator.setNumberOfSteps(featuresViewAdapter.getCount());
@@ -248,7 +247,7 @@ public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageCh
 
     public static FeatureItem[] getFirstRun() {
         return new FeatureItem[]{
-            new FeatureItem(R.drawable.arnes_logo_white, R.string.first_run_1_text, R.string.empty, true, false),
+            new FeatureItem(R.drawable.stree_orange, R.string.first_run_1_text, R.string.empty, true, false),
             new FeatureItem(R.drawable.first_run_files, R.string.first_run_2_text, R.string.empty, true, false)};
 //            new FeatureItem(R.drawable.first_run_groupware, R.string.first_run_3_text, R.string.empty, true, false),
 //            new FeatureItem(R.drawable.first_run_talk, R.string.first_run_4_text, R.string.empty, true, false)};

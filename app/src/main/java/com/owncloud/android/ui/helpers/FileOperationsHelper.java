@@ -310,8 +310,7 @@ public class FileOperationsHelper {
                 if (optionalUser != null && editorUtils.isEditorAvailable(optionalUser, file.getMimeType())) {
                     openFileWithTextEditor(file, fileActivity);
                 } else {
-                    Account account = fileActivity.getAccount();
-                    OCCapability capability = fileActivity.getStorageManager().getCapability(account.name);
+                    OCCapability capability = fileActivity.getStorageManager().getCapability(optionalUser.getAccountName());
                     if (capability.getRichDocumentsMimeTypeList().contains(file.getMimeType()) &&
                         capability.getRichDocumentsDirectEditing().isTrue()) {
                         openFileAsRichDocument(file, fileActivity);
@@ -887,13 +886,18 @@ public class FileOperationsHelper {
             intent.putExtra(OperationsService.EXTRA_ACCOUNT, fileActivity.getAccount());
             intent.putExtra(OperationsService.EXTRA_REMOTE_PATH, file.getRemotePath());
             intent.putExtra(OperationsService.EXTRA_SYNC_FILE_CONTENTS, true);
-            // TODO Rok Jaklic
-            // MainApp.userAccountManager
-            intent.putExtra(OperationsService.EXTRA_SERVER_URL, "https://moja.shramba.arnes.si");
-            mWaitingForOpId = fileActivity.getOperationsServiceBinder().queueNewOperation(intent);
-            fileActivity.showLoadingDialog(fileActivity.getApplicationContext().
-                                               getString(R.string.wait_a_moment));
+            User user = fileActivity.getUser();
+            if (user != null) {
+                String accountName = user.getAccountName();
 
+                intent.putExtra(OperationsService.EXTRA_USER, accountName);
+                // TODO Rok Jaklic
+                // MainApp.userAccountManager
+                intent.putExtra(OperationsService.EXTRA_SERVER_URL, "https://moja.shramba.arnes.si");
+                mWaitingForOpId = fileActivity.getOperationsServiceBinder().queueNewOperation(intent);
+                fileActivity.showLoadingDialog(fileActivity.getApplicationContext().
+                                                   getString(R.string.wait_a_moment));
+            }
         } else {
             Intent intent = new Intent(fileActivity, OperationsService.class);
             intent.setAction(OperationsService.ACTION_SYNC_FOLDER);

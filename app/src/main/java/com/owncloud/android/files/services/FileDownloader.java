@@ -38,10 +38,13 @@ import android.os.Message;
 import android.os.Process;
 import android.util.Pair;
 
+import com.nextcloud.client.account.Server;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.account.UserAccountManager;
+import com.nextcloud.client.account.UserImpl;
 import com.nextcloud.client.files.downloader.DownloadTask;
 import com.nextcloud.java.util.Optional;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 import com.owncloud.android.authentication.AuthenticatorActivity;
 import com.owncloud.android.datamodel.FileDataStorageManager;
@@ -55,6 +58,9 @@ import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult.ResultCode;
 import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.files.FileUtils;
+import com.owncloud.android.lib.resources.files.model.RemoteFile;
+import com.owncloud.android.lib.resources.shares.ShareeUser;
+import com.owncloud.android.lib.resources.status.OwnCloudVersion;
 import com.owncloud.android.operations.DownloadFileOperation;
 import com.owncloud.android.operations.DownloadType;
 import com.owncloud.android.providers.DocumentsStorageProvider;
@@ -71,10 +77,13 @@ import com.owncloud.android.utils.MimeTypeUtil;
 import com.owncloud.android.utils.theme.ViewThemeUtils;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
 import java.security.SecureRandom;
 import java.util.AbstractList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -84,6 +93,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import dagger.android.AndroidInjection;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.minio.DownloadObjectArgs;
+import io.minio.GetObjectArgs;
+import io.minio.messages.Bucket;
 
 public class FileDownloader extends Service
         implements OnDatatransferProgressListener, OnAccountsUpdateListener {
@@ -206,7 +218,9 @@ public class FileDownloader extends Service
             Log_OC.e(TAG, "Not enough information provided in intent");
             return START_NOT_STICKY;
         } else {
-            final User user = intent.getParcelableExtra(EXTRA_USER);
+            final String accountName = intent.getStringExtra(EXTRA_USER);
+            Server server = new Server(URI.create("https://moja.shramba.arnes.si"), OwnCloudVersion.nextcloud_20);
+            final User user = new UserImpl(this, accountName, server);
             final OCFile file = intent.getParcelableExtra(EXTRA_FILE);
             final String behaviour = intent.getStringExtra(OCFileListFragment.DOWNLOAD_BEHAVIOUR);
 
@@ -450,50 +464,54 @@ public class FileDownloader extends Service
         mCurrentDownload = mPendingDownloads.get(downloadKey);
 
         if (mCurrentDownload != null) {
-            // Detect if the account exists
-            if (accountManager.exists(mCurrentDownload.getUser().toPlatformAccount())) {
-                notifyDownloadStart(mCurrentDownload);
-                RemoteOperationResult downloadResult = null;
-                try {
-                    /// prepare client object to send the request to the ownCloud server
-                    Account currentDownloadAccount = mCurrentDownload.getUser().toPlatformAccount();
-                    Optional<User> currentDownloadUser = accountManager.getUser(currentDownloadAccount.name);
-                    if (!currentUser.equals(currentDownloadUser)) {
-                        currentUser = currentDownloadUser;
-                        mStorageManager = new FileDataStorageManager(currentUser.get(), getContentResolver());
-                    }   // else, reuse storage manager from previous operation
+            notifyDownloadStart(mCurrentDownload);
+            RemoteOperationResult downloadResult = null;
+            try {
+                String[] path = downloadKey.split("/");
+                String bucket = "";
+                String prefix = "";
 
-                    // always get client from client manager, to get fresh credentials in case
-                    // of update
-                    OwnCloudAccount ocAccount = currentDownloadUser.get().toOwnCloudAccount();
-                    mDownloadClient = OwnCloudClientManagerFactory.getDefaultSingleton().
-                            getClientFor(ocAccount, this);
-
-
-                    /// perform the download
-                    downloadResult = mCurrentDownload.execute(mDownloadClient);
-                    if (downloadResult.isSuccess() && mCurrentDownload.getDownloadType() == DownloadType.DOWNLOAD) {
-                        saveDownloadedFile();
-                    }
-
-                } catch (Exception e) {
-                    Log_OC.e(TAG, "Error downloading", e);
-                    downloadResult = new RemoteOperationResult(e);
-
-                } finally {
-                    Pair<DownloadFileOperation, String> removeResult = mPendingDownloads.removePayload(
-                        mCurrentDownload.getUser().getAccountName(), mCurrentDownload.getRemotePath());
-
-                    if (downloadResult == null) {
-                        downloadResult = new RemoteOperationResult(new RuntimeException("Error downloading…"));
-                    }
-
-                    /// notify result
-                    notifyDownloadResult(mCurrentDownload, downloadResult);
-                    sendBroadcastDownloadFinished(mCurrentDownload, downloadResult, removeResult.second);
+                if (downloadKey.equals("/") || path.length <= 1) {
+                    return;
                 }
-            } else {
-                cancelPendingDownloads(mCurrentDownload.getUser().getAccountName());
+
+                if (path.length >= 2) {
+                    bucket = path[1];
+                    prefix = downloadKey.replaceAll(path[0] + "/" + path[1] + "/", "");
+                }
+
+                File newFile = new File(mCurrentDownload.getSavePath());
+                File parentFile = newFile.getParentFile();
+                if (parentFile != null && !parentFile.exists()) {
+                    parentFile.mkdirs();
+                }
+
+                /// perform the download
+                MainApp.minioClient.downloadObject(
+                    DownloadObjectArgs.builder()
+                        .bucket(bucket)
+                        .object(prefix)
+                        .filename(mCurrentDownload.getSavePath())
+                        .overwrite(true)
+                        .build());
+
+                saveDownloadedFile();
+
+            } catch (Exception e) {
+                Log_OC.e(TAG, "Error downloading", e);
+                downloadResult = new RemoteOperationResult(e);
+
+            } finally {
+                Pair<DownloadFileOperation, String> removeResult = mPendingDownloads.removePayload(
+                    mCurrentDownload.getUser().getAccountName(), mCurrentDownload.getRemotePath());
+
+                if (downloadResult == null) {
+                    downloadResult = new RemoteOperationResult(new RuntimeException("Error downloading…"));
+                }
+
+                /// notify result
+                notifyDownloadResult(mCurrentDownload, downloadResult);
+                sendBroadcastDownloadFinished(mCurrentDownload, downloadResult, removeResult.second);
             }
         }
     }
@@ -506,6 +524,13 @@ public class FileDownloader extends Service
      *  unify with code from {@link DocumentsStorageProvider} and {@link DownloadTask}.
      */
     private void saveDownloadedFile() {
+        if (mStorageManager == null) {
+            mStorageManager = new FileDataStorageManager(mCurrentDownload.getUser(), getContentResolver());
+        }
+
+        OCFile f1 = mCurrentDownload.getFile();
+        long fileid = f1.getFileId();
+
         OCFile file = mStorageManager.getFileById(mCurrentDownload.getFile().getFileId());
 
         if (file == null) {

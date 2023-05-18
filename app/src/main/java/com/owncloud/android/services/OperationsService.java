@@ -39,8 +39,10 @@ import android.os.Process;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import com.nextcloud.client.account.Server;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.account.UserAccountManager;
+import com.nextcloud.client.account.UserImpl;
 import com.nextcloud.java.util.Optional;
 import com.owncloud.android.MainApp;
 import com.owncloud.android.datamodel.FileDataStorageManager;
@@ -56,6 +58,7 @@ import com.owncloud.android.lib.resources.files.RestoreFileVersionRemoteOperatio
 import com.owncloud.android.lib.resources.files.model.FileVersion;
 import com.owncloud.android.lib.resources.shares.OCShare;
 import com.owncloud.android.lib.resources.shares.ShareType;
+import com.owncloud.android.lib.resources.status.OwnCloudVersion;
 import com.owncloud.android.lib.resources.users.GetUserInfoRemoteOperation;
 import com.owncloud.android.operations.CheckCurrentCredentialsOperation;
 import com.owncloud.android.operations.CopyFileOperation;
@@ -75,6 +78,7 @@ import com.owncloud.android.operations.UpdateSharePermissionsOperation;
 import com.owncloud.android.operations.UpdateShareViaLinkOperation;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -90,6 +94,7 @@ public class OperationsService extends Service {
 
     private static final String TAG = OperationsService.class.getSimpleName();
 
+    public static final String EXTRA_USER = "USER";
     public static final String EXTRA_ACCOUNT = "ACCOUNT";
     public static final String EXTRA_SERVER_URL = "SERVER_URL";
     public static final String EXTRA_REMOTE_PATH = "REMOTE_PATH";
@@ -142,10 +147,10 @@ public class OperationsService extends Service {
 
     private static class Target {
         public Uri mServerUrl;
-        public Account mAccount;
+        public User mUser;
 
-        public Target(Account account, Uri serverUrl) {
-            mAccount = account;
+        public Target(User user, Uri serverUrl) {
+            mUser = user;
             mServerUrl = serverUrl;
         }
     }
@@ -429,11 +434,7 @@ public class OperationsService extends Service {
                     if (mLastTarget == null || !mLastTarget.equals(next.first)) {
                         mLastTarget = next.first;
                         OwnCloudAccount ocAccount;
-                        if (mLastTarget.mAccount != null) {
-                            ocAccount = new OwnCloudAccount(mLastTarget.mAccount, mService);
-                        } else {
-                            ocAccount = new OwnCloudAccount(mLastTarget.mServerUrl, null);
-                        }
+                        ocAccount = new OwnCloudAccount(mLastTarget.mServerUrl, null);
                         mOwnCloudClient = OwnCloudClientManagerFactory.getDefaultSingleton().
                             getClientFor(ocAccount, mService);
                     }
@@ -441,30 +442,30 @@ public class OperationsService extends Service {
                     /// perform the operation
                     result = mCurrentOperation.execute(mOwnCloudClient);
                 } catch (AccountsException e) {
-                    if (mLastTarget.mAccount == null) {
-                        Log_OC.e(TAG, "Error while trying to get authorization for a NULL account",
-                                 e);
-                    } else {
-                        Log_OC.e(TAG, "Error while trying to get authorization for " +
-                            mLastTarget.mAccount.name, e);
-                    }
+//                    if (mLastTarget.mAccount == null) {
+//                        Log_OC.e(TAG, "Error while trying to get authorization for a NULL account",
+//                                 e);
+//                    } else {
+//                        Log_OC.e(TAG, "Error while trying to get authorization for " +
+//                            mLastTarget.mAccount.name, e);
+//                    }
                     result = new RemoteOperationResult(e);
 
                 } catch (IOException e) {
-                    if (mLastTarget.mAccount == null) {
-                        Log_OC.e(TAG, "Error while trying to get authorization for a NULL account",
-                                 e);
-                    } else {
-                        Log_OC.e(TAG, "Error while trying to get authorization for " +
-                            mLastTarget.mAccount.name, e);
-                    }
+//                    if (mLastTarget.mAccount == null) {
+//                        Log_OC.e(TAG, "Error while trying to get authorization for a NULL account",
+//                                 e);
+//                    } else {
+//                        Log_OC.e(TAG, "Error while trying to get authorization for " +
+//                            mLastTarget.mAccount.name, e);
+//                    }
                     result = new RemoteOperationResult(e);
                 } catch (Exception e) {
-                    if (mLastTarget.mAccount == null) {
-                        Log_OC.e(TAG, "Unexpected error for a NULL account", e);
-                    } else {
-                        Log_OC.e(TAG, "Unexpected error for " + mLastTarget.mAccount.name, e);
-                    }
+//                    if (mLastTarget.mAccount == null) {
+//                        Log_OC.e(TAG, "Unexpected error for a NULL account", e);
+//                    } else {
+//                        Log_OC.e(TAG, "Unexpected error for " + mLastTarget.mAccount.name, e);
+//                    }
                     result = new RemoteOperationResult(e);
 
                 } finally {
@@ -497,10 +498,11 @@ public class OperationsService extends Service {
                 Log_OC.e(TAG, "Not enough information provided in intent");
 
             } else {
-                Account account = operationIntent.getParcelableExtra(EXTRA_ACCOUNT);
-                User user = toUser(account);
+
                 String serverUrl = operationIntent.getStringExtra(EXTRA_SERVER_URL);
-                target = new Target(account, (serverUrl == null) ? null : Uri.parse(serverUrl));
+                Server server = new Server(URI.create("https://moja.shramba.arnes.si"), OwnCloudVersion.nextcloud_20);
+                User user = new UserImpl(this, "rokj", server);
+                target = new Target(user, (serverUrl == null) ? null : Uri.parse(serverUrl));
 
                 String action = operationIntent.getAction();
                 String remotePath;
@@ -694,6 +696,9 @@ public class OperationsService extends Service {
                     case ACTION_SYNC_FILE:
                         remotePath = operationIntent.getStringExtra(EXTRA_REMOTE_PATH);
                         boolean syncFileContents = operationIntent.getBooleanExtra(EXTRA_SYNC_FILE_CONTENTS, true);
+                        Server s1 = new Server(URI.create("https://moja.shramba.arnes.si"),
+                                                   OwnCloudVersion.nextcloud_20);
+                        user = new UserImpl(this, "rokj", s1);
                         operation = new SynchronizeFileOperation(remotePath,
                                                                  user,
                                                                  syncFileContents,

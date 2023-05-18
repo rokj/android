@@ -30,6 +30,7 @@ import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -55,12 +56,14 @@ import com.nextcloud.client.logger.Logger;
 import com.nextcloud.client.migrations.MigrationsManager;
 import com.nextcloud.client.network.ConnectivityService;
 import com.nextcloud.client.network.WalledCheckCache;
+import com.nextcloud.client.onboarding.FirstRunActivity;
 import com.nextcloud.client.onboarding.OnboardingService;
 import com.nextcloud.client.preferences.AppPreferences;
 import com.nextcloud.client.preferences.AppPreferencesImpl;
 import com.nextcloud.client.preferences.DarkMode;
 import com.owncloud.android.authentication.AuthenticatorActivity;
 import com.owncloud.android.authentication.PassCodeManager;
+import com.owncloud.android.authentication.S3LoginActivity;
 import com.owncloud.android.datamodel.ArbitraryDataProvider;
 import com.owncloud.android.datamodel.ArbitraryDataProviderImpl;
 import com.owncloud.android.datamodel.MediaFolder;
@@ -127,6 +130,11 @@ import static com.owncloud.android.ui.activity.ContactsPreferenceActivity.PREFER
  * Contains methods to build the "static" strings. These strings were before constants in different classes
  */
 public class MainApp extends MultiDexApplication implements HasAndroidInjector {
+
+    public static final String PREFS_NAME = "s3preferences";
+    public static final String PREF_HOSTNAME = "hostname";
+    public static final String PREF_ACCESS_KEY = "access_key";
+    public static final String PREF_SECRET_KEY = "secret_key";
 
     public static final OwnCloudVersion OUTDATED_SERVER_VERSION = NextcloudVersion.nextcloud_23;
     public static final OwnCloudVersion MINIMUM_SUPPORTED_SERVER_VERSION = OwnCloudVersion.nextcloud_16;
@@ -344,13 +352,12 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
 
         registerGlobalPassCodeProtection();
 
-        minioClient =
-            MinioClient.builder()
-                .endpoint("https://moja.shramba.arnes.si")
-                .credentials("EAN71J9WLBWFUIMD5ZTO", "ST39OWIyTQnwWGCGlxCM7mfoLRTyx2woiAGT6OjM")
-                .build();
-
         userAccountManager = accountManager;
+
+        if (minioClient == null) {
+            Intent fristRunActivityIntent = new Intent(this, FirstRunActivity.class);
+            startActivity(fristRunActivityIntent);
+        }
     }
 
     private void registerGlobalPassCodeProtection() {
@@ -876,4 +883,17 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
                 break;
         }
     }
+
+//    private void loadPreferences() {
+//        SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+//                                                          Context.MODE_PRIVATE);
+//
+//        // Get value
+//        UnameValue = settings.getString(PREF_UNAME, DefaultUnameValue);
+//        PasswordValue = settings.getString(PREF_PASSWORD, DefaultPasswordValue);
+//        edt_username.setText(UnameValue);
+//        edt_password.setText(PasswordValue);
+//        System.out.println("onResume load name: " + UnameValue);
+//        System.out.println("onResume load password: " + PasswordValue);
+//    }
 }

@@ -63,6 +63,7 @@
     <string name="recommend_text">I want to invite you to use %1$s on your device.\nDownload here: %2$s</string>
     <string name="recommend_urls">%1$s or %2$s</string>
 
+    <string name="hostname_hint">Hostname</string>
     <string name="access_key_hint">Access key</string>
     <string name="secret_key_hint">Secret key</string>
     <string name="auth_host_url">Server address https://…</string>
@@ -756,7 +757,7 @@
     <string name="signup_with_provider">Sign up with provider</string>
     <string name="login_with_s3_provider">Login</string>
     <string name="host_your_own_server">Host your own server</string>
-    <string name="first_run_1_text">Arnes</string>
+    <string name="first_run_1_text">S3 app</string>
     <string name="first_run_2_text">Secure collaboration &amp; file exchange</string>
     <string name="first_run_3_text">Easy-to-use web mail, calendering &amp; contacts</string>
     <string name="first_run_4_text">Screensharing, online meetings &amp; web conferences</string>

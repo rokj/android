@@ -3,6 +3,7 @@ package com.owncloud.android.authentication;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -19,6 +20,8 @@ import io.minio.MinioClient;
 import io.minio.UploadObjectArgs;
 import io.minio.errors.MinioException;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.account.UserAccountManager;
 import com.owncloud.android.MainApp;
@@ -41,6 +44,11 @@ import javax.inject.Inject;
 import androidx.appcompat.app.AppCompatActivity;
 import io.minio.messages.Bucket;
 
+import static com.owncloud.android.MainApp.PREFS_NAME;
+import static com.owncloud.android.MainApp.PREF_ACCESS_KEY;
+import static com.owncloud.android.MainApp.PREF_HOSTNAME;
+import static com.owncloud.android.MainApp.PREF_SECRET_KEY;
+
 public class S3LoginActivity extends AppCompatActivity {
     private S3LoginBinding binding;
     private Account mAccount;
@@ -62,28 +70,37 @@ public class S3LoginActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String bucketName = "tmp";
+                String hostName = "";
+                String accessKey = "";
+                String secretKey = "";
 
+                TextInputLayout hostNameInput = findViewById(R.id.s3_hostname_container);
+                hostName = hostNameInput.getEditText().getText().toString();
+                TextInputLayout accessKeyInput = findViewById(R.id.s3_access_key_container);
+                accessKey = accessKeyInput.getEditText().getText().toString();
+                TextInputLayout secretKeyInput = findViewById(R.id.s3_secret_key_container);
+                secretKey = secretKeyInput.getEditText().getText().toString();
 
                 try {
-                    // Create a minioClient with the MinIO server playground, its access key and secret key.
                     MinioClient minioClient =
                         MinioClient.builder()
-                            .endpoint("https://moja.shramba.arnes.si")
-                            .credentials("EAN71J9WLBWFUIMD5ZTO", "ST39OWIyTQnwWGCGlxCM7mfoLRTyx2woiAGT6OjM")
+                            .endpoint(hostName)
+                            .credentials(accessKey, secretKey)
                             .build();
 
                     List<Bucket> bucketList = minioClient.listBuckets();
                     for (Bucket bucket : bucketList) {
-                        System.out.println(bucket.creationDate() + ", " + bucket.name());
-                        Log.i("FAFA", bucket.name());
+                        Log.d("S3", bucket.name());
                     }
-                } catch (Exception e) {
-                    System.out.println("Error occurred: " + e);
-                    // System.out.println("HTTP trace: " + e.httpTrace());
-                }
 
-                // createAccount();
+                    MainApp.minioClient = minioClient;
+                    // TODO save preferences for "certain" time or revoke access key and secret key after some time
+                    savePreferences(hostName, accessKey, secretKey);
+                } catch (Exception e) {
+                    Log.d("S3", e.toString());
+                    // TODO show message invalid credentials or something
+                    return;
+                }
 
                 Intent i = new Intent(v.getContext(), FileDisplayActivity.class);
                 i.setAction(FileDisplayActivity.RESTART);
@@ -100,73 +117,73 @@ public class S3LoginActivity extends AppCompatActivity {
      * <p>
      * TODO Decide how to name the OAuth accounts
      */
-    @SuppressFBWarnings("DMI")
-    @SuppressLint("TrulyRandom")
-    protected boolean createAccount() {
-        String accountType = MainApp.getAccountType(this);
-
-        // TODO: add host url from UI
-        Uri uri = Uri.parse("https://moja.shramba.arnes.si");
-        // used for authenticate on every login/network connection, determined by first login (weblogin/old login)
-        // can be anything: email, name, name with whitespaces
-        String loginName = "rokj";
-
-        String accountName = com.owncloud.android.lib.common.accounts.AccountUtils.buildAccountName(uri, loginName);
-        Account newAccount = new Account(accountName, accountType);
-        if (MainApp.userAccountManager.exists(newAccount)) {
-            // fail - not a new account, but an existing one; disallow
-            RemoteOperationResult result = new RemoteOperationResult(RemoteOperationResult.ResultCode.ACCOUNT_NOT_NEW);
-
-            // updateAuthStatusIconAndText(result);
-            // showAuthStatus();
-
-            Log_OC.d("FAFA", result.getLogMessage());
-            return false;
-
-        } else {
-            mAccount = newAccount;
-            mAccountMgr.addAccountExplicitly(mAccount, "somepassword", null);
-            mAccountMgr.notifyAccountAuthenticated(mAccount);
-            // mAccountMgr.setAccountVisibility()
-
-            // add the new account as default in preferences, if there is none already
-            User defaultAccount = MainApp.userAccountManager.getUser();
-            if (defaultAccount.isAnonymous()) {
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-                editor.putString("select_oc_account", accountName);
-                editor.apply();
-            }
-
-            /// prepare result to return to the Authenticator
-            //  TODO check again what the Authenticator makes with it; probably has the same
-            //  effect as addAccountExplicitly, but it's not well done
-            final Intent intent = new Intent();
-            intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, accountType);
-            intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, mAccount.name);
-            intent.putExtra(AccountManager.KEY_USERDATA, loginName);
-
-            /// add user data to the new account; TODO probably can be done in the last parameter
-            //      addAccountExplicitly, or in KEY_USERDATA
-            // mAccountMgr.setUserData(mAccount, AccountUtils.Constants.KEY_OC_VERSION, mServerInfo.mVersion.getVersion());
-            // mAccountMgr.setUserData(mAccount, AccountUtils.Constants.KEY_OC_BASE_URL, mServerInfo.mBaseUrl);
-
-            // TODO:
-            mAccountMgr.setUserData(mAccount, AccountUtils.Constants.KEY_DISPLAY_NAME, "Rok Jaklic - test");
-            mAccountMgr.setUserData(mAccount, AccountUtils.Constants.KEY_USER_ID, "rokj");
-            mAccountMgr.setUserData(mAccount,
-                                    AccountUtils.Constants.KEY_OC_ACCOUNT_VERSION,
-                                    Integer.toString(UserAccountManager.ACCOUNT_VERSION_WITH_PROPER_ID));
-
-
-            setAccountAuthenticatorResult(intent.getExtras());
-            setResult(RESULT_OK, intent);
-
-            // notify Document Provider
-            DocumentsStorageProvider.notifyRootsChanged(this);
-
-            return true;
-        }
-    }
+//    @SuppressFBWarnings("DMI")
+//    @SuppressLint("TrulyRandom")
+//    protected boolean createAccount() {
+//        String accountType = MainApp.getAccountType(this);
+//
+//        // TODO: add host url from UI
+//        Uri uri = Uri.parse("https://moja.shramba.arnes.si");
+//        // used for authenticate on every login/network connection, determined by first login (weblogin/old login)
+//        // can be anything: email, name, name with whitespaces
+//        String loginName = "rokj";
+//
+//        String accountName = com.owncloud.android.lib.common.accounts.AccountUtils.buildAccountName(uri, loginName);
+//        Account newAccount = new Account(accountName, accountType);
+//        if (MainApp.userAccountManager.exists(newAccount)) {
+//            // fail - not a new account, but an existing one; disallow
+//            RemoteOperationResult result = new RemoteOperationResult(RemoteOperationResult.ResultCode.ACCOUNT_NOT_NEW);
+//
+//            // updateAuthStatusIconAndText(result);
+//            // showAuthStatus();
+//
+//            Log_OC.d("FAFA", result.getLogMessage());
+//            return false;
+//
+//        } else {
+//            mAccount = newAccount;
+//            mAccountMgr.addAccountExplicitly(mAccount, "somepassword", null);
+//            mAccountMgr.notifyAccountAuthenticated(mAccount);
+//            // mAccountMgr.setAccountVisibility()
+//
+//            // add the new account as default in preferences, if there is none already
+//            User defaultAccount = MainApp.userAccountManager.getUser();
+//            if (defaultAccount.isAnonymous()) {
+//                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+//                editor.putString("select_oc_account", accountName);
+//                editor.apply();
+//            }
+//
+//            /// prepare result to return to the Authenticator
+//            //  TODO check again what the Authenticator makes with it; probably has the same
+//            //  effect as addAccountExplicitly, but it's not well done
+//            final Intent intent = new Intent();
+//            intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, accountType);
+//            intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, mAccount.name);
+//            intent.putExtra(AccountManager.KEY_USERDATA, loginName);
+//
+//            /// add user data to the new account; TODO probably can be done in the last parameter
+//            //      addAccountExplicitly, or in KEY_USERDATA
+//            // mAccountMgr.setUserData(mAccount, AccountUtils.Constants.KEY_OC_VERSION, mServerInfo.mVersion.getVersion());
+//            // mAccountMgr.setUserData(mAccount, AccountUtils.Constants.KEY_OC_BASE_URL, mServerInfo.mBaseUrl);
+//
+//            // TODO:
+//            mAccountMgr.setUserData(mAccount, AccountUtils.Constants.KEY_DISPLAY_NAME, "Rok Jaklic - test");
+//            mAccountMgr.setUserData(mAccount, AccountUtils.Constants.KEY_USER_ID, "rokj");
+//            mAccountMgr.setUserData(mAccount,
+//                                    AccountUtils.Constants.KEY_OC_ACCOUNT_VERSION,
+//                                    Integer.toString(UserAccountManager.ACCOUNT_VERSION_WITH_PROPER_ID));
+//
+//
+//            setAccountAuthenticatorResult(intent.getExtras());
+//            setResult(RESULT_OK, intent);
+//
+//            // notify Document Provider
+//            DocumentsStorageProvider.notifyRootsChanged(this);
+//
+//            return true;
+//        }
+//    }
 
     /**
      * Set the result that is to be sent as the result of the request that caused this Activity to be launched.
@@ -186,5 +203,15 @@ public class S3LoginActivity extends AppCompatActivity {
     public void onBackPressed() {
         Intent authenticatorActivityIntent = new Intent(this, AuthenticatorActivity.class);
         startActivity(authenticatorActivityIntent);
+    }
+
+    private void savePreferences(String hostname, String accessKey, String secretKey) {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putString(PREF_HOSTNAME, hostname);
+        editor.putString(PREF_ACCESS_KEY, accessKey);
+        editor.putString(PREF_SECRET_KEY, secretKey);
+        editor.commit();
     }
 }

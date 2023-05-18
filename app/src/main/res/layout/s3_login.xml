@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/standard_padding"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/arnes_logo_white" />
+            android:src="@drawable/stree_orange" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -57,6 +57,38 @@
             android:minWidth="@dimen/default_login_width"
             android:orientation="vertical"
             android:padding="@dimen/standard_half_padding">
+
+            <FrameLayout
+                android:id="@+id/s3_hostname_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/s3_hostname_container"
+                    style="@style/Widget.App.Login.TextInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hostname_hint"
+                    android:theme="@style/TextInputLayoutLogin">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/s3_hostname_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
+                        android:importantForAutofill="no"
+                        android:inputType="textNoSuggestions"
+                        android:lines="1"
+                        android:minLines="1"
+                        android:paddingStart="@dimen/standard_padding"
+                        android:paddingEnd="@dimen/alternate_padding_right"
+                        android:scrollbars="vertical"
+                        android:textColor="@color/login_text_color"
+                        android:autofillHints="name"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/s3_access_key_frame"
@@ -83,7 +115,9 @@
                         android:paddingStart="@dimen/standard_padding"
                         android:paddingEnd="@dimen/alternate_padding_right"
                         android:scrollbars="vertical"
-                        android:textColor="@color/login_text_color" />
+                        android:textColor="@color/login_text_color"
+                        android:autofillHints="username"
+                        />
 
                 </com.google.android.material.textfield.TextInputLayout>
             </FrameLayout>
@@ -113,7 +147,9 @@
                         android:paddingStart="@dimen/standard_padding"
                         android:paddingEnd="@dimen/alternate_padding_right"
                         android:scrollbars="vertical"
-                        android:textColor="@color/login_text_color" />
+                        android:textColor="@color/login_text_color"
+                        android:autofillHints="password"
+                        />
 
                 </com.google.android.material.textfield.TextInputLayout>
             </FrameLayout>
