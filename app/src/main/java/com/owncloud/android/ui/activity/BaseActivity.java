@@ -14,6 +14,7 @@ import com.nextcloud.client.mixins.MixinRegistry;
 import com.nextcloud.client.mixins.SessionMixin;
 import com.nextcloud.client.preferences.AppPreferences;
 import com.nextcloud.client.preferences.DarkMode;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.lib.common.OwnCloudAccount;
@@ -41,10 +42,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
      */
     private boolean themeChangePending;
     private boolean paused;
-    protected boolean enableAccountHandling = true;
+    private boolean enableAccountHandling = false;
 
-    private MixinRegistry mixinRegistry = new MixinRegistry();
-    private SessionMixin sessionMixin;
+    protected MixinRegistry mixinRegistry = new MixinRegistry();
+    protected SessionMixin sessionMixin;
 
     @Inject UserAccountManager accountManager;
     @Inject AppPreferences preferences;
@@ -63,22 +64,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sessionMixin = new SessionMixin(this,
-                                        getContentResolver(),
-                                        accountManager);
-
-        Server server = new Server(URI.create("https://moja.shramba.arnes.si"),
-                   OwnCloudVersion.nextcloud_20);
-        User user = new UserImpl(this, "rokj", server);
-        sessionMixin.setUser(user);
-
-        // user = new User();
-        // sessionMixin.setStorageManager();
-        mixinRegistry.add(sessionMixin);
-
-        if (enableAccountHandling) {
-            mixinRegistry.onCreate(savedInstanceState);
-        }
     }
 
     @Override
@@ -185,6 +170,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
     }
 
     public FileDataStorageManager getStorageManager() {
+        if (sessionMixin == null) {
+            return null;
+        }
         return sessionMixin.getStorageManager();
     }
 }

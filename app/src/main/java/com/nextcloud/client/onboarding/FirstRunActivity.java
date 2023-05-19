@@ -56,12 +56,13 @@ import com.owncloud.android.utils.theme.ViewThemeUtils;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 /**
  * Activity displaying general feature after a fresh install.
  */
-public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageChangeListener, Injectable {
+public class FirstRunActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, Injectable {
 
     public static final String EXTRA_ALLOW_CLOSE = "ALLOW_CLOSE";
     public static final String EXTRA_EXIT = "EXIT";
@@ -79,15 +80,11 @@ public class FirstRunActivity extends BaseActivity implements ViewPager.OnPageCh
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        enableAccountHandling = false;
-
         super.onCreate(savedInstanceState);
         defaultViewThemeUtils = viewThemeUtilsFactory.withPrimaryAsBackground();
         defaultViewThemeUtils.platform.themeStatusBar(this, ColorRole.PRIMARY);
         this.binding = FirstRunActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        boolean isProviderOrOwnInstallationVisible = getResources().getBoolean(R.bool.show_provider_or_own_installation);
 
         setSlideshowSize(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 

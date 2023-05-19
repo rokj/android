@@ -561,7 +561,6 @@ public abstract class DrawerActivity extends ToolbarActivity
     public void accountClicked(int hashCode) {
         final User currentUser = accountManager.getUser();
         if (currentUser.hashCode() != hashCode && accountManager.setCurrentOwnCloudAccount(hashCode)) {
-            fetchExternalLinks(true);
             restart();
         }
     }
@@ -1025,8 +1024,6 @@ public abstract class DrawerActivity extends ToolbarActivity
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.setAction(FileDisplayActivity.RESTART);
         startActivity(i);
-
-        fetchExternalLinks(false);
     }
 
     /**
@@ -1101,65 +1098,5 @@ public abstract class DrawerActivity extends ToolbarActivity
         }
         EventBus.getDefault().unregister(this);
         super.onStop();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onAccountRemovedEvent(AccountRemovedEvent event) {
-        restart();
-    }
-
-    /**
-     * Retrieves external links via api from 'external' app
-     */
-    public void fetchExternalLinks(final boolean force) {
-        if (getBaseContext().getResources().getBoolean(R.bool.show_external_links)) {
-            Thread t = new Thread(() -> {
-                // fetch capabilities as early as possible
-                if ((getCapabilities() == null || getCapabilities().getAccountName().isEmpty())
-                    && getStorageManager() != null) {
-                    // GetCapabilitiesOperation getCapabilities = new GetCapabilitiesOperation(getStorageManager());
-                    // getCapabilities.execute(getBaseContext());
-                }
-
-                User user = accountManager.getUser();
-                if (getStorageManager() != null && CapabilityUtils.getCapability(user, this)
-                    .getExternalLinks().isTrue()) {
-
-                    int count = arbitraryDataProvider.getIntegerValue(FilesSyncHelper.GLOBAL,
-                                                                      FileActivity.APP_OPENED_COUNT);
-
-                    if (count > 10 || count == -1 || force) {
-                        if (force) {
-                            Log_OC.d("ExternalLinks", "force update");
-                        }
-
-                        arbitraryDataProvider.storeOrUpdateKeyValue(FilesSyncHelper.GLOBAL,
-                                                                    FileActivity.APP_OPENED_COUNT, "0");
-
-                        Log_OC.d("ExternalLinks", "update via api");
-                        RemoteOperation getExternalLinksOperation = new ExternalLinksOperation();
-                        RemoteOperationResult result = getExternalLinksOperation.execute(user, this);
-
-                        if (result.isSuccess() && result.getData() != null) {
-                            externalLinksProvider.deleteAllExternalLinks();
-
-                            ArrayList<ExternalLink> externalLinks = (ArrayList<ExternalLink>) (Object) result.getData();
-
-                            for (ExternalLink link : externalLinks) {
-                                externalLinksProvider.storeExternalLink(link);
-                            }
-                        }
-                    } else {
-                        arbitraryDataProvider.storeOrUpdateKeyValue(FilesSyncHelper.GLOBAL,
-                                                                    FileActivity.APP_OPENED_COUNT, String.valueOf(count + 1));
-                    }
-                } else {
-                    externalLinksProvider.deleteAllExternalLinks();
-                    Log_OC.d("ExternalLinks", "links disabled");
-                }
-                runOnUiThread(this::updateExternalLinksInDrawer);
-            });
-            t.start();
-        }
     }
 }

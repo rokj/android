@@ -39,6 +39,7 @@ import com.nextcloud.ui.fileactions.FileActionsBottomSheet;
 import com.owncloud.android.MainApp;
 import com.owncloud.android.authentication.AuthenticatorActivity;
 import com.owncloud.android.authentication.DeepLinkLoginActivity;
+import com.owncloud.android.authentication.S3LoginActivity;
 import com.owncloud.android.files.BootupBroadcastReceiver;
 import com.owncloud.android.files.services.FileDownloader;
 import com.owncloud.android.files.services.FileUploader;
@@ -137,6 +138,9 @@ import dagger.android.ContributesAndroidInjector;
  */
 @Module
 abstract class ComponentsModule {
+    @ContributesAndroidInjector
+    abstract S3LoginActivity s3LoginActivity();
+
     @ContributesAndroidInjector
     abstract ActivitiesActivity activitiesActivity();
 

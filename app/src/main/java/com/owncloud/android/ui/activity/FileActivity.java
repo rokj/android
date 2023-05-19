@@ -243,7 +243,6 @@ public abstract class FileActivity extends DrawerActivity
     @Override
     protected void onStart() {
         super.onStart();
-        fetchExternalLinks(false);
     }
 
     @Override

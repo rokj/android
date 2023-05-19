@@ -500,8 +500,10 @@ public class OperationsService extends Service {
             } else {
 
                 String serverUrl = operationIntent.getStringExtra(EXTRA_SERVER_URL);
-                Server server = new Server(URI.create("https://moja.shramba.arnes.si"), OwnCloudVersion.nextcloud_20);
-                User user = new UserImpl(this, "rokj", server);
+
+                Server server = new Server(URI.create(MainApp.s3HostName), OwnCloudVersion.nextcloud_20);
+                User user = new UserImpl(this, MainApp.s3AccessKey, server);
+
                 target = new Target(user, (serverUrl == null) ? null : Uri.parse(serverUrl));
 
                 String action = operationIntent.getAction();
@@ -696,9 +698,6 @@ public class OperationsService extends Service {
                     case ACTION_SYNC_FILE:
                         remotePath = operationIntent.getStringExtra(EXTRA_REMOTE_PATH);
                         boolean syncFileContents = operationIntent.getBooleanExtra(EXTRA_SYNC_FILE_CONTENTS, true);
-                        Server s1 = new Server(URI.create("https://moja.shramba.arnes.si"),
-                                                   OwnCloudVersion.nextcloud_20);
-                        user = new UserImpl(this, "rokj", s1);
                         operation = new SynchronizeFileOperation(remotePath,
                                                                  user,
                                                                  syncFileContents,

@@ -202,6 +202,8 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
     private static AppComponent appComponent;
 
     public static MinioClient minioClient;
+    public static String s3HostName;
+    public static String s3AccessKey;
     public static UserAccountManager userAccountManager;
 
     /**

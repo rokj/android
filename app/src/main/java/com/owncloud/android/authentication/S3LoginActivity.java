@@ -22,8 +22,12 @@ import io.minio.errors.MinioException;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.nextcloud.client.account.Server;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.account.UserAccountManager;
+import com.nextcloud.client.account.UserImpl;
+import com.nextcloud.client.di.Injectable;
+import com.nextcloud.client.mixins.SessionMixin;
 import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 
@@ -32,7 +36,9 @@ import com.owncloud.android.lib.common.UserInfo;
 import com.owncloud.android.lib.common.accounts.AccountUtils;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.utils.Log_OC;
+import com.owncloud.android.lib.resources.status.OwnCloudVersion;
 import com.owncloud.android.providers.DocumentsStorageProvider;
+import com.owncloud.android.ui.activity.BaseActivity;
 import com.owncloud.android.ui.activity.FileDisplayActivity;
 
 import java.net.URI;
@@ -49,12 +55,9 @@ import static com.owncloud.android.MainApp.PREF_ACCESS_KEY;
 import static com.owncloud.android.MainApp.PREF_HOSTNAME;
 import static com.owncloud.android.MainApp.PREF_SECRET_KEY;
 
-public class S3LoginActivity extends AppCompatActivity {
-    private S3LoginBinding binding;
-    private Account mAccount;
+public class S3LoginActivity extends BaseActivity implements Injectable {
     private AccountManager mAccountMgr;
     private Bundle mResultBundle;
-
     @Inject
     protected UserAccountManager accountManager;
 
@@ -94,8 +97,20 @@ public class S3LoginActivity extends AppCompatActivity {
                     }
 
                     MainApp.minioClient = minioClient;
+                    MainApp.s3HostName = hostName;
+                    MainApp.s3AccessKey = accessKey;
                     // TODO save preferences for "certain" time or revoke access key and secret key after some time
                     savePreferences(hostName, accessKey, secretKey);
+
+                    sessionMixin = new SessionMixin(S3LoginActivity.this,
+                                                    getContentResolver(),
+                                                    accountManager);
+                    Server server = new Server(URI.create(hostName),
+                                               OwnCloudVersion.nextcloud_20);
+                    User user = new UserImpl(S3LoginActivity.this, accessKey, server);
+                    sessionMixin.setUser(user);
+
+                    mixinRegistry.add(sessionMixin);
                 } catch (Exception e) {
                     Log.d("S3", e.toString());
                     // TODO show message invalid credentials or something

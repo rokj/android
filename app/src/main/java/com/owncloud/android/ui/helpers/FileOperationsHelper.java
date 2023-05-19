@@ -326,7 +326,7 @@ public class FileOperationsHelper {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    User user = currentAccount.getUser();
+                    User user = fileActivity.getUser();
                     FileDataStorageManager storageManager =
                         new FileDataStorageManager(user, fileActivity.getContentResolver());
                     // a fresh object is needed; many things could have occurred to the file
