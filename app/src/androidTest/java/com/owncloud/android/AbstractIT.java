@@ -122,7 +122,7 @@ public abstract class AbstractIT {
             user = optionalUser.orElseThrow(IllegalAccessError::new);
 
             client = OwnCloudClientFactory.createOwnCloudClient(account, targetContext);
-            nextcloudClient = OwnCloudClientFactory.createNextcloudClient(user, targetContext);
+            nextcloudClient = OwnCloudClientFactory.createNextcloudClient((com.nextcloud.common.User) user, targetContext);
         } catch (OperationCanceledException e) {
             e.printStackTrace();
         } catch (AuthenticatorException e) {
@@ -440,7 +440,7 @@ public abstract class AbstractIT {
         return name;
     }
 
-    public static String getUserId(User user) {
-        return AccountManager.get(targetContext).getUserData(user.toPlatformAccount(), KEY_USER_ID);
-    }
+//    public static String getUserId(User user) {
+//        return AccountManager.get(targetContext).getUserData(user.toPlatformAccount(), KEY_USER_ID);
+//    }
 }

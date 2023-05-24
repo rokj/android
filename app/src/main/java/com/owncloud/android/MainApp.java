@@ -38,11 +38,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.os.storage.StorageManager;
 import android.text.TextUtils;
 import android.view.WindowManager;
 
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.account.UserAccountManager;
+import com.nextcloud.client.account.UserImpl;
 import com.nextcloud.client.appinfo.AppInfo;
 import com.nextcloud.client.core.Clock;
 import com.nextcloud.client.device.PowerManagementService;
@@ -66,6 +68,7 @@ import com.owncloud.android.authentication.PassCodeManager;
 import com.owncloud.android.authentication.S3LoginActivity;
 import com.owncloud.android.datamodel.ArbitraryDataProvider;
 import com.owncloud.android.datamodel.ArbitraryDataProviderImpl;
+import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.MediaFolder;
 import com.owncloud.android.datamodel.MediaFolderType;
 import com.owncloud.android.datamodel.MediaProvider;
@@ -204,7 +207,9 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
     public static MinioClient minioClient;
     public static String s3HostName;
     public static String s3AccessKey;
+    public static UserImpl user;
     public static UserAccountManager userAccountManager;
+    public static FileDataStorageManager storageManager;
 
     /**
      * Temporary hack
@@ -884,6 +889,10 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
         }
+    }
+
+    public static String justHostname(String hostname) {
+        return hostname.replaceAll("https://", "");
     }
 
 //    private void loadPreferences() {

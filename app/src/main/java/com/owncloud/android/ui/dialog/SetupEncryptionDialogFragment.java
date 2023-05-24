@@ -295,7 +295,7 @@ public class SetupEncryptionDialogFragment extends DialogFragment implements Inj
             //  - decrypt private key, store unencrypted private key in database
 
             GetPublicKeyOperation publicKeyOperation = new GetPublicKeyOperation();
-            RemoteOperationResult<String> publicKeyResult = publicKeyOperation.execute(user, getContext());
+            RemoteOperationResult<String> publicKeyResult = publicKeyOperation.execute((com.nextcloud.common.User) user, getContext());
 
             if (publicKeyResult.isSuccess()) {
                 Log_OC.d(TAG, "public key successful downloaded for " + user.getAccountName());
@@ -309,7 +309,7 @@ public class SetupEncryptionDialogFragment extends DialogFragment implements Inj
             }
 
             RemoteOperationResult<com.owncloud.android.lib.ocs.responses.PrivateKey> privateKeyResult =
-                new GetPrivateKeyOperation().execute(user, getContext());
+                new GetPrivateKeyOperation().execute((com.nextcloud.common.User) user, getContext());
 
             if (privateKeyResult.isSuccess()) {
                 Log_OC.d(TAG, "private key successful downloaded for " + user.getAccountName());
@@ -356,65 +356,65 @@ public class SetupEncryptionDialogFragment extends DialogFragment implements Inj
             //  - create CSR, push to server, store returned public key in database
             //  - encrypt private key, push key to server, store unencrypted private key in database
 
-            try {
-                String publicKeyString;
-
-                // Create public/private key pair
-                KeyPair keyPair = EncryptionUtils.generateKeyPair();
-
-                // create CSR
-                AccountManager accountManager = AccountManager.get(getContext());
-                String userId = accountManager.getUserData(user.toPlatformAccount(), AccountUtils.Constants.KEY_USER_ID);
-                String urlEncoded = CsrHelper.generateCsrPemEncodedString(keyPair, userId);
-
-                SendCSROperation operation = new SendCSROperation(urlEncoded);
-                RemoteOperationResult result = operation.execute(user, getContext());
-
-                if (result.isSuccess()) {
-                    publicKeyString = (String) result.getData().get(0);
-
-                    if (!EncryptionUtils.isMatchingKeys(keyPair, publicKeyString)) {
-                        throw new RuntimeException("Wrong CSR returned");
-                    }
-
-                    Log_OC.d(TAG, "public key success");
-                } else {
-                    keyResult = KEY_FAILED;
-                    return "";
-                }
-
-                PrivateKey privateKey = keyPair.getPrivate();
-                String privateKeyString = EncryptionUtils.encodeBytesToBase64String(privateKey.getEncoded());
-                String privatePemKeyString = EncryptionUtils.privateKeyToPEM(privateKey);
-                String encryptedPrivateKey = EncryptionUtils.encryptPrivateKey(privatePemKeyString,
-                                                                               generateMnemonicString(false));
-
-                // upload encryptedPrivateKey
-                StorePrivateKeyOperation storePrivateKeyOperation = new StorePrivateKeyOperation(encryptedPrivateKey);
-                RemoteOperationResult storePrivateKeyResult = storePrivateKeyOperation.execute(user, getContext());
-
-                if (storePrivateKeyResult.isSuccess()) {
-                    Log_OC.d(TAG, "private key success");
-
-                    arbitraryDataProvider.storeOrUpdateKeyValue(user.getAccountName(),
-                                                                EncryptionUtils.PRIVATE_KEY,
-                                                                privateKeyString);
-                    arbitraryDataProvider.storeOrUpdateKeyValue(user.getAccountName(),
-                                                                EncryptionUtils.PUBLIC_KEY,
-                                                                publicKeyString);
-                    arbitraryDataProvider.storeOrUpdateKeyValue(user.getAccountName(),
-                                                                EncryptionUtils.MNEMONIC,
-                                                                generateMnemonicString(true));
-
-                    keyResult = KEY_CREATED;
-                    return (String) storePrivateKeyResult.getData().get(0);
-                } else {
-                    DeletePublicKeyOperation deletePublicKeyOperation = new DeletePublicKeyOperation();
-                    deletePublicKeyOperation.execute(user, getContext());
-                }
-            } catch (Exception e) {
-                Log_OC.e(TAG, e.getMessage());
-            }
+//            try {
+//                String publicKeyString;
+//
+//                // Create public/private key pair
+//                KeyPair keyPair = EncryptionUtils.generateKeyPair();
+//
+//                // create CSR
+//                AccountManager accountManager = AccountManager.get(getContext());
+//                String userId = accountManager.getUserData(user.toPlatformAccount(), AccountUtils.Constants.KEY_USER_ID);
+//                String urlEncoded = CsrHelper.generateCsrPemEncodedString(keyPair, userId);
+//
+//                SendCSROperation operation = new SendCSROperation(urlEncoded);
+//                RemoteOperationResult result = operation.execute(user, getContext());
+//
+//                if (result.isSuccess()) {
+//                    publicKeyString = (String) result.getData().get(0);
+//
+//                    if (!EncryptionUtils.isMatchingKeys(keyPair, publicKeyString)) {
+//                        throw new RuntimeException("Wrong CSR returned");
+//                    }
+//
+//                    Log_OC.d(TAG, "public key success");
+//                } else {
+//                    keyResult = KEY_FAILED;
+//                    return "";
+//                }
+//
+//                PrivateKey privateKey = keyPair.getPrivate();
+//                String privateKeyString = EncryptionUtils.encodeBytesToBase64String(privateKey.getEncoded());
+//                String privatePemKeyString = EncryptionUtils.privateKeyToPEM(privateKey);
+//                String encryptedPrivateKey = EncryptionUtils.encryptPrivateKey(privatePemKeyString,
+//                                                                               generateMnemonicString(false));
+//
+//                // upload encryptedPrivateKey
+//                StorePrivateKeyOperation storePrivateKeyOperation = new StorePrivateKeyOperation(encryptedPrivateKey);
+//                RemoteOperationResult storePrivateKeyResult = storePrivateKeyOperation.execute(user, getContext());
+//
+//                if (storePrivateKeyResult.isSuccess()) {
+//                    Log_OC.d(TAG, "private key success");
+//
+//                    arbitraryDataProvider.storeOrUpdateKeyValue(user.getAccountName(),
+//                                                                EncryptionUtils.PRIVATE_KEY,
+//                                                                privateKeyString);
+//                    arbitraryDataProvider.storeOrUpdateKeyValue(user.getAccountName(),
+//                                                                EncryptionUtils.PUBLIC_KEY,
+//                                                                publicKeyString);
+//                    arbitraryDataProvider.storeOrUpdateKeyValue(user.getAccountName(),
+//                                                                EncryptionUtils.MNEMONIC,
+//                                                                generateMnemonicString(true));
+//
+//                    keyResult = KEY_CREATED;
+//                    return (String) storePrivateKeyResult.getData().get(0);
+//                } else {
+//                    DeletePublicKeyOperation deletePublicKeyOperation = new DeletePublicKeyOperation();
+//                    deletePublicKeyOperation.execute(user, getContext());
+//                }
+//            } catch (Exception e) {
+//                Log_OC.e(TAG, e.getMessage());
+//            }
 
             keyResult = KEY_FAILED;
             return "";

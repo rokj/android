@@ -50,7 +50,6 @@ class SessionMixinTest {
         MockitoAnnotations.initMocks(this)
         session = spy(
             SessionMixin(
-                activity,
                 contentResolver,
                 userAccountManager
             )

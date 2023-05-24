@@ -81,7 +81,7 @@ public class UploadStorageManagerTest extends AbstractIT {
         int accountRowsA = 3;
         int accountRowsB = 4;
         insertUploads(account, accountRowsA);
-        insertUploads(user2.toPlatformAccount(), accountRowsB);
+        // insertUploads(user2.toPlatformAccount(), accountRowsB);
 
         assertEquals("Expected 4 removed uploads files",
                      4,

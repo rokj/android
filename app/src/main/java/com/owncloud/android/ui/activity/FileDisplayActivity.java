@@ -1995,7 +1995,7 @@ public class FileDisplayActivity extends FileActivity
 
         // the execution is slightly delayed to allow the activity get the window focus if it's being started
         // or if the method is called from a dialog that is being dismissed
-        if (TextUtils.isEmpty(searchQuery) && getUser() != null) {
+        if (TextUtils.isEmpty(searchQuery) && MainApp.user != null) {
             getHandler().postDelayed(
                 new Runnable() {
                     @Override
@@ -2009,8 +2009,6 @@ public class FileDisplayActivity extends FileActivity
                                                                                        currentSyncTime,
                                                                                        false,
                                                                                        ignoreETag,
-                                                                                       getStorageManager(),
-                                                                                       getUser(),
                                                                                        getApplicationContext()
                             );
 
@@ -2355,6 +2353,7 @@ public class FileDisplayActivity extends FileActivity
         super.onStart();
         // final Optional<User> optionalUser = getUser();
         final FileDataStorageManager storageManager = getStorageManager();
+        User user = this.getUser();
         if (storageManager != null) {
             /// Check whether the 'main' OCFile handled by the Activity is contained in the
             // current Account

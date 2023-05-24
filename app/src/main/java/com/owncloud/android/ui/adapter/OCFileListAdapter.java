@@ -609,7 +609,7 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      */
     @SuppressLint("NotifyDataSetChanged")
     public void swapDirectory(
-        @NonNull User account,
+        @NonNull User user,
         @NonNull OCFile directory,
         @NonNull FileDataStorageManager updatedStorageManager,
         boolean onlyOnDevice, @NonNull String limitToMimeType
@@ -618,8 +618,8 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         if (!updatedStorageManager.equals(mStorageManager)) {
             mStorageManager = updatedStorageManager;
-            ocFileListDelegate.setShowShareAvatar(CapabilityUtils.getCapability(account, activity).getVersion().isShareesOnDavSupported());
-            this.user = account;
+            ocFileListDelegate.setShowShareAvatar(CapabilityUtils.getCapability(user, activity).getVersion().isShareesOnDavSupported());
+            this.user = user;
         }
         if (mStorageManager != null) {
             mFiles = mStorageManager.getFolderContent(directory, onlyOnDevice);
@@ -767,20 +767,20 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
                 OCFile parentFolder = mStorageManager.getFileById(ocFile.getParentId());
                 if (parentFolder != null && (ocFile.isEncrypted() || parentFolder.isEncrypted())) {
-                    DecryptedFolderMetadata metadata = RefreshFolderOperation.getDecryptedFolderMetadata(
-                        true,
-                        parentFolder,
-                        OwnCloudClientFactory.createOwnCloudClient(user.toPlatformAccount(), activity),
-                        user,
-                        activity);
+//                    DecryptedFolderMetadata metadata = RefreshFolderOperation.getDecryptedFolderMetadata(
+//                        true,
+//                        parentFolder,
+//                        OwnCloudClientFactory.createOwnCloudClient(user.toPlatformAccount(), activity),
+//                        user,
+//                        activity);
 
-                    if (metadata == null) {
-                        throw new IllegalStateException("metadata is null!");
-                    }
+//                    if (metadata == null) {
+//                        throw new IllegalStateException("metadata is null!");
+//                    }
 
                     // update ocFile
-                    RefreshFolderOperation.updateFileNameForEncryptedFile(mStorageManager, metadata, ocFile);
-                    ocFile = mStorageManager.saveFileWithParent(ocFile, activity);
+//                    RefreshFolderOperation.updateFileNameForEncryptedFile(mStorageManager, metadata, ocFile);
+//                    ocFile = mStorageManager.saveFileWithParent(ocFile, activity);
                 }
 
                 if (SearchType.GALLERY_SEARCH != searchType) {
@@ -812,10 +812,10 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 contentValues.add(cv);
             } catch (
                 RemoteOperationFailedException |
-                    OperationCanceledException |
-                    AuthenticatorException |
-                    IOException |
-                    AccountUtils.AccountNotFoundException |
+//                    OperationCanceledException |
+//                    AuthenticatorException |
+//                    IOException |
+//                    AccountUtils.AccountNotFoundException |
                     IllegalStateException e) {
                 Log_OC.e(TAG, "Error saving file with parent" + e.getMessage(), e);
             }

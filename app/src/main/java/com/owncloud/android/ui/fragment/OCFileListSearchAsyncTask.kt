@@ -61,21 +61,23 @@ class OCFileListSearchAsyncTask(
         }
 
         fragment.setTitle()
-        val remoteOperationResult = remoteOperation.execute(currentUser, fragment.context)
-        if (remoteOperationResult.hasSuccessfulResult() && !isCancelled && fragment.searchFragment) {
-            fragment.searchEvent = event
-            if (remoteOperationResult.resultData.isNullOrEmpty()) {
-                fragment.setEmptyView(event)
-            } else {
-                fragment.adapter.setData(
-                    remoteOperationResult.resultData,
-                    fragment.currentSearchType,
-                    fileDataStorageManager,
-                    fragment.mFile,
-                    true
-                )
-            }
-        }
+        // val remoteOperationResult = remoteOperation.execute(currentUser, fragment.context)
+        // if (remoteOperationResult.hasSuccessfulResult() && !isCancelled && fragment.searchFragment) {
+        //     fragment.searchEvent = event
+        //     if (remoteOperationResult.resultData.isNullOrEmpty()) {
+        //         fragment.setEmptyView(event)
+        //     } else {
+        //         fragment.adapter.setData(
+        //             remoteOperationResult.resultData,
+        //             fragment.currentSearchType,
+        //             fileDataStorageManager,
+        //             fragment.mFile,
+        //             true
+        //         )
+        //     }
+        // }
+        val remoteOperationResult = RemoteOperationResult<Any?>(RemoteOperationResult.ResultCode.ETAG_UNCHANGED)
+        // RemoteOperationResult<Any?>(RemoteOperationResult.ResultCode.ETAG_UNCHANGED)
         return remoteOperationResult.isSuccess
     }
 

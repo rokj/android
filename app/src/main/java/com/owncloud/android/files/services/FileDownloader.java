@@ -291,9 +291,9 @@ public class FileDownloader extends Service
     @Override
     public void onAccountsUpdated(Account[] accounts) {
          //review the current download and cancel it if its account doesn't exist
-        if (mCurrentDownload != null && !accountManager.exists(mCurrentDownload.getUser().toPlatformAccount())) {
-            mCurrentDownload.cancel();
-        }
+//        if (mCurrentDownload != null && !accountManager.exists(mCurrentDownload.getUser().toPlatformAccount())) {
+//            mCurrentDownload.cancel();
+//        }
         // The rest of downloads are cancelled when they try to start
     }
 
@@ -699,7 +699,7 @@ public class FileDownloader extends Service
     private void configureUpdateCredentialsNotification(User user) {
         // let the user update credentials with one click
         Intent updateAccountCredentials = new Intent(this, AuthenticatorActivity.class);
-        updateAccountCredentials.putExtra(AuthenticatorActivity.EXTRA_ACCOUNT, user.toPlatformAccount());
+        updateAccountCredentials.putExtra(AuthenticatorActivity.EXTRA_ACCOUNT, user);
         updateAccountCredentials.putExtra(
                 AuthenticatorActivity.EXTRA_ACTION,
                 AuthenticatorActivity.ACTION_UPDATE_EXPIRED_TOKEN

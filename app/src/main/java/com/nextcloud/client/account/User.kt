@@ -20,12 +20,10 @@
  */
 package com.nextcloud.client.account
 
-import android.accounts.Account
 import android.os.Parcelable
-import com.owncloud.android.lib.common.OwnCloudAccount
 
-interface User : Parcelable, com.nextcloud.common.User {
-    override val accountName: String
+interface User : Parcelable {
+    val accountName: String
     val server: Server
     val isAnonymous: Boolean
 
@@ -38,20 +36,6 @@ interface User : Parcelable, com.nextcloud.common.User {
      *
      * @return Account instance that is associated with this User object.
      */
-    @Deprecated("Temporary workaround")
-    override fun toPlatformAccount(): Account
-
-    /**
-     * This is temporary helper method created to facilitate incremental refactoring.
-     * Code using legacy ownCloud account can be partially converted to instantiate User
-     * object and use account instance when required.
-     *
-     * This method calls will allow tracing code awaiting further refactoring.
-     *
-     * @return OwnCloudAccount instance that is associated with this User object.
-     */
-    @Deprecated("Temporary workaround")
-    fun toOwnCloudAccount(): OwnCloudAccount
 
     /**
      * Compare account names, case insensitive.

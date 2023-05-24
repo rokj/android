@@ -240,7 +240,7 @@ public class FileOperationsHelper {
             // check for changed eTag
             CheckEtagRemoteOperation checkEtagOperation = new CheckEtagRemoteOperation(file.getRemotePath(),
                                                                                        file.getEtag());
-            RemoteOperationResult result = checkEtagOperation.execute(user, fileActivity);
+            RemoteOperationResult result = checkEtagOperation.execute((com.nextcloud.common.User) user, fileActivity);
 
             // eTag changed, sync file
             if (result.getCode() == RemoteOperationResult.ResultCode.ETAG_CHANGED) {
@@ -456,7 +456,7 @@ public class FileOperationsHelper {
         final User user = currentAccount.getUser();
         new Thread(() -> {
             StreamMediaFileOperation sfo = new StreamMediaFileOperation(file.getLocalId());
-            RemoteOperationResult result = sfo.execute(user, fileActivity);
+            RemoteOperationResult result = sfo.execute((com.nextcloud.common.User) user, fileActivity);
 
             fileActivity.dismissLoadingDialog();
 
@@ -1002,18 +1002,18 @@ public class FileOperationsHelper {
             OperationsService.OperationsServiceBinder opsBinder =
                 fileActivity.getOperationsServiceBinder();
             if (opsBinder != null) {
-                opsBinder.cancel(currentUser.toPlatformAccount(), file);
+                // opsBinder.cancel(currentUser.toPlatformAccount(), file);
             }
         }
 
         // for both files and folders
         FileDownloaderBinder downloaderBinder = fileActivity.getFileDownloaderBinder();
         if (downloaderBinder != null && downloaderBinder.isDownloading(currentUser, file)) {
-            downloaderBinder.cancel(currentUser.toPlatformAccount(), file);
+            // downloaderBinder.cancel(currentUser.toPlatformAccount(), file);
         }
         FileUploaderBinder uploaderBinder = fileActivity.getFileUploaderBinder();
         if (uploaderBinder != null && uploaderBinder.isUploading(currentUser, file)) {
-            uploaderBinder.cancel(currentUser.toPlatformAccount(), file);
+            // uploaderBinder.cancel(currentUser.toPlatformAccount(), file);
         }
     }
 
@@ -1083,7 +1083,7 @@ public class FileOperationsHelper {
     public void checkCurrentCredentials(User user) {
         Intent service = new Intent(fileActivity, OperationsService.class);
         service.setAction(OperationsService.ACTION_CHECK_CURRENT_CREDENTIALS);
-        service.putExtra(OperationsService.EXTRA_ACCOUNT, user.toPlatformAccount());
+        // service.putExtra(OperationsService.EXTRA_ACCOUNT, user.toPlatformAccount());
         mWaitingForOpId = fileActivity.getOperationsServiceBinder().queueNewOperation(service);
 
         fileActivity.showLoadingDialog(fileActivity.getString(R.string.wait_checking_credentials));

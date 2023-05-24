@@ -15,6 +15,7 @@ import com.nextcloud.client.mixins.SessionMixin;
 import com.nextcloud.client.preferences.AppPreferences;
 import com.nextcloud.client.preferences.DarkMode;
 import com.owncloud.android.MainApp;
+import com.owncloud.android.authentication.S3LoginActivity;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.lib.common.OwnCloudAccount;
@@ -166,6 +167,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Injectab
     }
 
     public User getUser() {
+        if (sessionMixin == null) {
+            return null;
+        }
         return sessionMixin.getUser();
     }
 

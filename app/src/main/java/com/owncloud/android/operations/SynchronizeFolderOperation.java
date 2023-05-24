@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.nextcloud.client.account.User;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.datamodel.DecryptedFolderMetadata;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
@@ -324,7 +325,7 @@ public class SynchronizeFolderOperation extends SyncOperation {
 
             // update file name for encrypted files
             if (metadata != null) {
-                RefreshFolderOperation.updateFileNameForEncryptedFile(storageManager, metadata, updatedFile);
+                RefreshFolderOperation.updateFileNameForEncryptedFile(metadata, updatedFile);
             }
 
             // we parse content, so either the folder itself or its direct parent (which we check) must be encrypted
@@ -338,7 +339,7 @@ public class SynchronizeFolderOperation extends SyncOperation {
         }
 
         if (metadata != null) {
-            RefreshFolderOperation.updateFileNameForEncryptedFile(storageManager, metadata, mLocalFolder);
+            RefreshFolderOperation.updateFileNameForEncryptedFile(metadata, mLocalFolder);
         }
 
         // save updated contents in local database
@@ -535,7 +536,7 @@ public class SynchronizeFolderOperation extends SyncOperation {
     private void startSyncFolderOperation(String path){
         Intent intent = new Intent(mContext, OperationsService.class);
         intent.setAction(OperationsService.ACTION_SYNC_FOLDER);
-        intent.putExtra(OperationsService.EXTRA_ACCOUNT, user.toPlatformAccount());
+        // intent.putExtra(OperationsService.EXTRA_ACCOUNT, user.toPlatformAccount());
         intent.putExtra(OperationsService.EXTRA_REMOTE_PATH, path);
         mContext.startService(intent);
     }

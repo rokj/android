@@ -27,6 +27,7 @@
 
 package com.owncloud.android.utils;
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -308,11 +309,13 @@ public final class DisplayUtils {
      * @return the display string for the given account data
      */
     public static String getAccountNameDisplayText(User user) {
-        final OwnCloudAccount ocs = user.toOwnCloudAccount();
-        final String accountName = user.getAccountName();
-        return ocs.getDisplayName()
-                + "@"
-                + convertIdn(accountName.substring(accountName.lastIndexOf('@') + 1), false);
+//        final OwnCloudAccount ocs = user.toOwnCloudAccount();
+//        final String accountName = user.getAccountName();
+//        return ocs.getDisplayName()
+//                + "@"
+//                + convertIdn(accountName.substring(accountName.lastIndexOf('@') + 1), false);
+
+        return "ACCOUNT DISPLAY NAME " + user.getAccountName();
     }
 
 
@@ -450,8 +453,8 @@ public final class DisplayUtils {
                                  float avatarRadius, Resources resources, Object callContext, Context context) {
 
         AccountManager accountManager = AccountManager.get(context);
-        String userId = accountManager.getUserData(user.toPlatformAccount(),
-                com.owncloud.android.lib.common.accounts.AccountUtils.Constants.KEY_USER_ID);
+        String userId = accountManager.getUserData((Account) user,
+                                                   com.owncloud.android.lib.common.accounts.AccountUtils.Constants.KEY_USER_ID);
 
         setAvatar(user, userId, listener, avatarRadius, resources, callContext, context);
     }
@@ -489,7 +492,7 @@ public final class DisplayUtils {
                                  Object callContext,
                                  Context context) {
         if (callContext instanceof View) {
-            ((View) callContext).setContentDescription(String.valueOf(user.toPlatformAccount().hashCode()));
+            ((View) callContext).setContentDescription("AVATAR SMTH1");
         }
 
         ArbitraryDataProvider arbitraryDataProvider = new ArbitraryDataProviderImpl(context);

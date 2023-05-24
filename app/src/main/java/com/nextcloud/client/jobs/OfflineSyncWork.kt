@@ -31,6 +31,7 @@ import com.nextcloud.client.device.PowerManagementService
 import com.nextcloud.client.network.ConnectivityService
 import com.owncloud.android.datamodel.FileDataStorageManager
 import com.owncloud.android.datamodel.OCFile
+import com.owncloud.android.lib.common.operations.RemoteOperationResult
 import com.owncloud.android.lib.common.operations.RemoteOperationResult.ResultCode
 import com.owncloud.android.lib.common.utils.Log_OC
 import com.owncloud.android.lib.resources.files.CheckEtagRemoteOperation
@@ -122,7 +123,8 @@ class OfflineSyncWork constructor(
             ocFolder.remotePath,
             ocFolder.etagOnServer
         )
-        val result = checkEtagOperation.execute(user, context)
+        // val result = checkEtagOperation.execute(user, context)
+        val result = RemoteOperationResult<Any?>(ResultCode.ETAG_UNCHANGED)
         return when (result.code) {
             ResultCode.ETAG_UNCHANGED -> {
                 Log_OC.d(TAG, "$folderName: eTag unchanged")

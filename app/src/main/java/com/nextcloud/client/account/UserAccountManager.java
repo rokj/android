@@ -157,7 +157,7 @@ public interface UserAccountManager extends CurrentAccountProvider {
 
     @Nullable
     static String getDisplayName(User user) {
-        return AccountManager.get(MainApp.getAppContext()).getUserData(user.toPlatformAccount(),
+        return AccountManager.get(MainApp.getAppContext()).getUserData((Account) user,
                                                                        AccountUtils.Constants.KEY_DISPLAY_NAME);
     }
 

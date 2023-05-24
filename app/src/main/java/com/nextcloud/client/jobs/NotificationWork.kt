@@ -251,7 +251,7 @@ class NotificationWork constructor(
         val user = optionalUser.get()
         try {
             val client = OwnCloudClientManagerFactory.getDefaultSingleton()
-                .getClientFor(user.toOwnCloudAccount(), context)
+                .getClientFor(null, context)
             val result = GetNotificationRemoteOperation(decryptedPushMessage.nid)
                 .execute(client)
             if (result.isSuccess) {
@@ -300,7 +300,7 @@ class NotificationWork constructor(
                             if (optionalUser.isPresent) {
                                 val user = optionalUser.get()
                                 val client = OwnCloudClientManagerFactory.getDefaultSingleton()
-                                    .getClientFor(user.toOwnCloudAccount(), context)
+                                    .getClientFor(null, context)
                                 val actionType = intent.getStringExtra(KEY_NOTIFICATION_ACTION_TYPE)
                                 val actionLink = intent.getStringExtra(KEY_NOTIFICATION_ACTION_LINK)
                                 val success: Boolean = if (!actionType.isNullOrEmpty() && !actionLink.isNullOrEmpty()) {

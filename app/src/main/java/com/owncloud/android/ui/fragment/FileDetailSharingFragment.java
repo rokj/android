@@ -25,6 +25,7 @@
 
 package com.owncloud.android.ui.fragment;
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.SearchManager;
 import android.content.Context;
@@ -155,7 +156,7 @@ public class FileDetailSharingFragment extends Fragment implements ShareeListAda
         fileDataStorageManager = fileActivity.getStorageManager();
 
         AccountManager accountManager = AccountManager.get(getContext());
-        String userId = accountManager.getUserData(user.toPlatformAccount(),
+        String userId = accountManager.getUserData((Account) user,
                                                    com.owncloud.android.lib.common.accounts.AccountUtils.Constants.KEY_USER_ID);
 
         binding.sharesList.setAdapter(new ShareeListAdapter(fileActivity,

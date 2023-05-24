@@ -55,7 +55,7 @@ public class CheckCurrentCredentialsOperation extends SyncOperation {
             RemoteOperation check = new ExistenceCheckRemoteOperation(OCFile.ROOT_PATH, false);
             result = check.execute(client);
             ArrayList<Object> data = new ArrayList<>();
-            data.add(user.toPlatformAccount());
+            data.add(user);
             result.setData(data);
         }
 

@@ -54,11 +54,11 @@ internal data class RegisteredUser(
         return account.name
     }
 
-    override fun toPlatformAccount(): Account {
+    fun toPlatformAccount(): Account {
         return account
     }
 
-    override fun toOwnCloudAccount(): OwnCloudAccount {
+    fun toOwnCloudAccount(): OwnCloudAccount {
         return ownCloudAccount
     }
 

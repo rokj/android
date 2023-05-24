@@ -62,7 +62,7 @@ public class UpdateOCVersionOperation extends RemoteOperation {
     @Override
     protected RemoteOperationResult run(OwnCloudClient client) {
         AccountManager accountMngr = AccountManager.get(mContext); 
-        String statUrl = accountMngr.getUserData(user.toPlatformAccount(), Constants.KEY_OC_BASE_URL);
+        String statUrl = accountMngr.getUserData((Account) user, Constants.KEY_OC_BASE_URL);
         statUrl += STATUS_PATH;
         RemoteOperationResult result = null;
         GetMethod getMethod = null;
@@ -85,7 +85,7 @@ public class UpdateOCVersionOperation extends RemoteOperation {
                         String version = json.getString("version");
                         mOwnCloudVersion = new OwnCloudVersion(version);
                         if (mOwnCloudVersion.isVersionValid()) {
-                            accountMngr.setUserData(user.toPlatformAccount(), Constants.KEY_OC_VERSION, mOwnCloudVersion.getVersion());
+                            accountMngr.setUserData((Account) user, Constants.KEY_OC_VERSION, mOwnCloudVersion.getVersion());
                             Log_OC.d(TAG, "Got new OC version " + mOwnCloudVersion);
 
                             result = new RemoteOperationResult(ResultCode.OK);

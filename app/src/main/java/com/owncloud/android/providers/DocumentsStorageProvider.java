@@ -290,18 +290,20 @@ public class DocumentsStorageProvider extends DocumentsProvider {
     private boolean hasServerChange(Document document) throws FileNotFoundException {
         Context context = getNonNullContext();
         OCFile ocFile = document.getFile();
-        RemoteOperationResult result = new CheckEtagRemoteOperation(ocFile.getRemotePath(), ocFile.getEtag())
-            .execute(document.getUser(), context);
-        switch (result.getCode()) {
-            case ETAG_CHANGED:
-                return true;
-            case ETAG_UNCHANGED:
-                return false;
-            case FILE_NOT_FOUND:
-            default:
-                Log_OC.e(TAG, result.toString());
-                throw new FileNotFoundException("Error synchronizing file: " + ocFile.getFileName());
-        }
+//        RemoteOperationResult result = new CheckEtagRemoteOperation(ocFile.getRemotePath(), ocFile.getEtag())
+//            .execute(document.getUser(), context);
+//        switch (result.getCode()) {
+//            case ETAG_CHANGED:
+//                return true;
+//            case ETAG_UNCHANGED:
+//                return false;
+//            case FILE_NOT_FOUND:
+//            default:
+//                Log_OC.e(TAG, result.toString());
+//                throw new FileNotFoundException("Error synchronizing file: " + ocFile.getFileName());
+//        }
+
+        return true;
     }
 
     /**
@@ -839,7 +841,7 @@ public class DocumentsStorageProvider extends DocumentsProvider {
         OwnCloudClient getClient() {
             try {
 
-                OwnCloudAccount ocAccount = getUser().toOwnCloudAccount();
+                OwnCloudAccount ocAccount = null;
                 return OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(ocAccount, getContext());
             } catch (OperationCanceledException | IOException | AuthenticatorException e) {
                 Log_OC.e(TAG, "Failed to set client", e);

@@ -339,7 +339,7 @@ public final class ThumbnailsCacheManager {
                     }
                 } else {
                     try {
-                        mClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(user.toOwnCloudAccount(),
+                        mClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor((OwnCloudAccount) user,
                                                                                                   MainApp.getAppContext());
 
                         thumbnail = doResizedImageInBackground(file, storageManager);
@@ -441,7 +441,7 @@ public final class ThumbnailsCacheManager {
             file = (OCFile) params[0];
 
             try {
-                mClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(user.toOwnCloudAccount(),
+                mClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor((OwnCloudAccount) user,
                                                                                           MainApp.getAppContext());
 
                 thumbnail = doResizedImageInBackground(file, storageManager);
@@ -586,7 +586,7 @@ public final class ThumbnailsCacheManager {
             Bitmap thumbnail = null;
             try {
                 if (user != null) {
-                    OwnCloudAccount ocAccount = user.toOwnCloudAccount();
+                    OwnCloudAccount ocAccount = (OwnCloudAccount) user;
                     mClient = OwnCloudClientManagerFactory.getDefaultSingleton().
                             getClientFor(ocAccount, MainApp.getAppContext());
                 }
@@ -1060,7 +1060,7 @@ public final class ThumbnailsCacheManager {
                 GetMethod get = null;
                 try {
                     if (user != null) {
-                        OwnCloudAccount ocAccount = user.toOwnCloudAccount();
+                        OwnCloudAccount ocAccount = (OwnCloudAccount) user;
                         mClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(ocAccount, mContext);
                     }
 
@@ -1333,7 +1333,7 @@ public final class ThumbnailsCacheManager {
 
             OwnCloudClient client = mClient;
             if (client == null) {
-                OwnCloudAccount ocAccount = user.toOwnCloudAccount();
+                OwnCloudAccount ocAccount = (OwnCloudAccount) user;
                 client = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(ocAccount, context);
             }
 

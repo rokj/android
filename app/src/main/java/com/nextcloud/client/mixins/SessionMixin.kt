@@ -21,13 +21,11 @@
 package com.nextcloud.client.mixins
 
 import android.accounts.Account
-import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
 import android.os.Bundle
 import com.nextcloud.client.account.User
 import com.nextcloud.client.account.UserAccountManager
-import com.nextcloud.java.util.Optional
 import com.owncloud.android.datamodel.FileDataStorageManager
 import com.owncloud.android.lib.resources.status.OCCapability
 import com.owncloud.android.ui.activity.BaseActivity
@@ -41,7 +39,6 @@ import com.owncloud.android.ui.activity.BaseActivity
  * account handling logic.
  */
 class SessionMixin constructor(
-    private val activity: Activity,
     private val contentResolver: ContentResolver,
     private val accountManager: UserAccountManager
 ) : ActivityMixin {
@@ -90,10 +87,6 @@ class SessionMixin constructor(
     fun setStorageManager(user: User) {
         val storageManager = FileDataStorageManager(user, contentResolver)
         this.storageManager = storageManager
-    }
-
-    fun getStorageManager(user: User): FileDataStorageManager? {
-        return this.storageManager
     }
 
     /**

@@ -61,7 +61,7 @@ public class TextEditorLoadUrlTask extends AsyncTask<Void, Void, String> {
         }
 
         RemoteOperationResult result = new DirectEditingOpenFileRemoteOperation(file.getRemotePath(), editor.getId())
-            .execute(user, editorWebViewWeakReference.get());
+            .execute((com.nextcloud.common.User) user, editorWebViewWeakReference.get());
 
 
         if (!result.isSuccess()) {

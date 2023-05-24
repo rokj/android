@@ -110,7 +110,7 @@ class ChooseAccountDialogFragment :
             )
 
             // Defining user texts, accounts, etc.
-            binding.currentAccount.userName.text = user.toOwnCloudAccount().displayName
+            binding.currentAccount.userName.text = "TUKAJ MORA BITI DISPLAY NAME"
             binding.currentAccount.ticker.visibility = View.GONE
             binding.currentAccount.account.text = user.accountName
 

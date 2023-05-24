@@ -91,7 +91,7 @@ public class UserAccountManagerImpl implements UserAccountManager {
     @Override
     public boolean removeUser(User user) {
         try {
-            AccountManagerFuture<Boolean> result = accountManager.removeAccount(user.toPlatformAccount(),
+            AccountManagerFuture<Boolean> result = accountManager.removeAccount((Account) user,
                                                                                 null,
                                                                                 null);
             return result.getResult();
@@ -345,7 +345,7 @@ public class UserAccountManagerImpl implements UserAccountManager {
 
     @Override
     public boolean userOwnsFile(OCFile file, User user) {
-        return accountOwnsFile(file, user.toPlatformAccount());
+        return accountOwnsFile(file, (Account) user);
     }
 
     public boolean migrateUserId() {

@@ -444,11 +444,11 @@ internal class BackgroundJobManagerImpl(
             .putBoolean(AccountRemovalWork.REMOTE_WIPE, remoteWipe)
             .build()
 
-        val request = oneTimeRequestBuilder(AccountRemovalWork::class, JOB_ACCOUNT_REMOVAL)
-            .setInputData(data)
-            .build()
+        // val request = oneTimeRequestBuilder(AccountRemovalWork::class, JOB_ACCOUNT_REMOVAL)
+        //     .setInputData(data)
+        //     .build()
 
-        workManager.enqueue(request)
+        // workManager.enqueue(request)
     }
 
     override fun startFilesUploadJob(user: User) {

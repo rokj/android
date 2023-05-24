@@ -88,7 +88,7 @@ public class ActivitiesServiceApiImpl implements ActivitiesServiceApi {
         protected Boolean doInBackground(Void... voids) {
             final Context context = MainApp.getAppContext();
             try {
-                final OwnCloudAccount ocAccount = user.toOwnCloudAccount();
+                final OwnCloudAccount ocAccount = (OwnCloudAccount) user;
                 client = OwnCloudClientManagerFactory.getDefaultSingleton().
                     getNextcloudClientFor(ocAccount, MainApp.getAppContext());
 

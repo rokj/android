@@ -592,7 +592,7 @@ public class FileUploader extends Service
     @Override
     public void onAccountsUpdated(Account[] accounts) {
         // Review current upload, and cancel it if its account doesn't exist
-        if (mCurrentUpload != null && !accountManager.exists(mCurrentUpload.getUser().toPlatformAccount())) {
+        if (mCurrentUpload != null) {
             mCurrentUpload.cancel(ResultCode.ACCOUNT_NOT_FOUND);
         }
         // The rest of uploads are cancelled when they try to start
@@ -609,12 +609,12 @@ public class FileUploader extends Service
 
         if (mCurrentUpload != null) {
             /// Check account existence
-            if (!accountManager.exists(mCurrentUpload.getUser().toPlatformAccount())) {
-                Log_OC.w(TAG, "Account " + mCurrentUpload.getUser().getAccountName() +
-                    " does not exist anymore -> cancelling all its uploads");
-                cancelPendingUploads(mCurrentUpload.getUser().getAccountName());
-                return;
-            }
+//            if (!accountManager.exists(mCurrentUpload.getUser().toPlatformAccount())) {
+//                Log_OC.w(TAG, "Account " + mCurrentUpload.getUser().getAccountName() +
+//                    " does not exist anymore -> cancelling all its uploads");
+//                cancelPendingUploads(mCurrentUpload.getUser().getAccountName());
+//                return;
+//            }
 
             /// OK, let's upload
             mUploadsStorageManager.updateDatabaseUploadStart(mCurrentUpload);
@@ -627,10 +627,10 @@ public class FileUploader extends Service
 
             try {
                 /// prepare client object to send the request to the ownCloud server
-                if (mCurrentAccount == null || !mCurrentAccount.equals(mCurrentUpload.getUser().toPlatformAccount())) {
-                    mCurrentAccount = mCurrentUpload.getUser().toPlatformAccount();
-                    mStorageManager = new FileDataStorageManager(getCurrentUser().get(), getContentResolver());
-                }   // else, reuse storage manager from previous operation
+//                if (mCurrentAccount == null || !mCurrentAccount.equals(mCurrentUpload.getUser().toPlatformAccount())) {
+//                    mCurrentAccount = mCurrentUpload.getUser().toPlatformAccount();
+//                    mStorageManager = new FileDataStorageManager(getCurrentUser().get(), getContentResolver());
+//                }   // else, reuse storage manager from previous operation
                 // always get client from client manager, to get fresh credentials in case of update
                 OwnCloudAccount ocAccount = new OwnCloudAccount(mCurrentAccount, this);
                 mUploadClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(ocAccount, this);
@@ -809,9 +809,9 @@ public class FileUploader extends Service
             if (needsToUpdateCredentials) {
                 // let the user update credentials with one click
                 Intent updateAccountCredentials = new Intent(this, AuthenticatorActivity.class);
-                updateAccountCredentials.putExtra(
-                    AuthenticatorActivity.EXTRA_ACCOUNT, upload.getUser().toPlatformAccount()
-                );
+//                updateAccountCredentials.putExtra(
+//                    AuthenticatorActivity.EXTRA_ACCOUNT, upload.getUser().toPlatformAccount()
+//                );
                 updateAccountCredentials.putExtra(
                     AuthenticatorActivity.EXTRA_ACTION,
                     AuthenticatorActivity.ACTION_UPDATE_EXPIRED_TOKEN
@@ -927,7 +927,7 @@ public class FileUploader extends Service
         } else {
             Intent intent = new Intent(context, FileUploader.class);
 
-            intent.putExtra(FileUploader.KEY_ACCOUNT, user.toPlatformAccount());
+            // intent.putExtra(FileUploader.KEY_ACCOUNT, user.toPlatformAccount());
             intent.putExtra(FileUploader.KEY_USER, user);
             intent.putExtra(FileUploader.KEY_LOCAL_FILE, localPaths);
             intent.putExtra(FileUploader.KEY_REMOTE_FILE, remotePaths);
@@ -997,7 +997,7 @@ public class FileUploader extends Service
         Intent intent = new Intent(context, FileUploader.class);
 
         intent.putExtra(FileUploader.KEY_USER, user);
-        intent.putExtra(FileUploader.KEY_ACCOUNT, user.toPlatformAccount());
+        // intent.putExtra(FileUploader.KEY_ACCOUNT, user.toPlatformAccount());
         intent.putExtra(FileUploader.KEY_FILE, existingFiles);
         intent.putExtra(FileUploader.KEY_LOCAL_BEHAVIOUR, behaviour);
         intent.putExtra(FileUploader.KEY_NAME_COLLISION_POLICY, nameCollisionPolicy);
@@ -1021,7 +1021,7 @@ public class FileUploader extends Service
         Intent i = new Intent(context, FileUploader.class);
         i.putExtra(FileUploader.KEY_RETRY, true);
         i.putExtra(FileUploader.KEY_USER, user);
-        i.putExtra(FileUploader.KEY_ACCOUNT, user.toPlatformAccount());
+        // i.putExtra(FileUploader.KEY_ACCOUNT, user.toPlatformAccount());
         i.putExtra(FileUploader.KEY_RETRY_UPLOAD, upload);
 
         if (useFilesUploadWorker(context)) {

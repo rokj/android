@@ -116,18 +116,6 @@ public class UserImpl implements User {
         return false;
     }
 
-    @NonNull
-    @Override
-    public Account toPlatformAccount() {
-        return null;
-    }
-
-    @NonNull
-    @Override
-    public OwnCloudAccount toOwnCloudAccount() {
-        return null;
-    }
-
     @Override
     public boolean nameEquals(@Nullable User user) {
         return false;

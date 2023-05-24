@@ -195,7 +195,7 @@ class ContactsBackupWork(
                     // delete backups
                     val service = Intent(applicationContext, OperationsService::class.java)
                     service.action = OperationsService.ACTION_REMOVE
-                    service.putExtra(OperationsService.EXTRA_ACCOUNT, user.toPlatformAccount())
+                    // service.putExtra(OperationsService.EXTRA_ACCOUNT, user.toPlatformAccount())
                     service.putExtra(OperationsService.EXTRA_REMOTE_PATH, backup.remotePath)
                     service.putExtra(OperationsService.EXTRA_REMOVE_ONLY_LOCAL, false)
                     operationsServiceBinder!!.queueNewOperation(service)

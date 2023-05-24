@@ -30,6 +30,7 @@ import android.net.Uri;
 import com.nextcloud.client.account.User;
 import com.nextcloud.common.NextcloudClient;
 import com.nextcloud.common.PlainClient;
+import com.owncloud.android.lib.common.OwnCloudAccount;
 import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.OwnCloudClientFactory;
 import com.owncloud.android.lib.common.OwnCloudClientManagerFactory;
@@ -48,7 +49,7 @@ public class ClientFactoryImpl implements ClientFactory {
     @Override
     public OwnCloudClient create(User user) throws CreationException {
         try {
-            return OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(user.toOwnCloudAccount(), context);
+            return OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor((OwnCloudAccount) user, context);
         } catch (OperationCanceledException |
             AuthenticatorException |
             IOException e) {
@@ -59,7 +60,7 @@ public class ClientFactoryImpl implements ClientFactory {
     @Override
     public NextcloudClient createNextcloudClient(User user) throws CreationException {
         try {
-            return OwnCloudClientFactory.createNextcloudClient(user, context);
+            return OwnCloudClientFactory.createNextcloudClient((com.nextcloud.common.User) user, context);
         } catch (AccountUtils.AccountNotFoundException e) {
             throw new CreationException(e);
         }

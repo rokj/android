@@ -99,7 +99,7 @@ class BackgroundJobFactory @Inject constructor(
                 OfflineSyncWork::class -> createOfflineSyncWork(context, workerParameters)
                 MediaFoldersDetectionWork::class -> createMediaFoldersDetectionWork(context, workerParameters)
                 NotificationWork::class -> createNotificationWork(context, workerParameters)
-                AccountRemovalWork::class -> createAccountRemovalWork(context, workerParameters)
+                // AccountRemovalWork::class -> createAccountRemovalWork(context, workerParameters)
                 CalendarBackupWork::class -> createCalendarBackupWork(context, workerParameters)
                 CalendarImportWork::class -> createCalendarImportWork(context, workerParameters)
                 FilesExportWork::class -> createFilesExportWork(context, workerParameters)

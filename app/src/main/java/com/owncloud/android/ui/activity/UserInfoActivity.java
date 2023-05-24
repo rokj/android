@@ -314,7 +314,7 @@ public class UserInfoActivity extends DrawerActivity implements Injectable {
             NextcloudClient nextcloudClient;
 
             try {
-                nextcloudClient = OwnCloudClientFactory.createNextcloudClient(user,
+                nextcloudClient = OwnCloudClientFactory.createNextcloudClient((com.nextcloud.common.User) user,
                                                                               this);
             } catch (AccountUtils.AccountNotFoundException e) {
                 Log_OC.e(this, "Error retrieving user info", e);

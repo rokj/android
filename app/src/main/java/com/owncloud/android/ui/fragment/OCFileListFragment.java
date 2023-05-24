@@ -24,6 +24,7 @@
  */
 package com.owncloud.android.ui.fragment;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -64,6 +65,7 @@ import com.nextcloud.utils.ShortcutUtil;
 import com.nextcloud.utils.view.FastScrollUtils;
 import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
+import com.owncloud.android.authentication.S3LoginActivity;
 import com.owncloud.android.datamodel.ArbitraryDataProvider;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
@@ -538,7 +540,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
     public void createRichWorkspace() {
         new Thread(() -> {
             RemoteOperationResult result = new RichWorkspaceDirectEditingRemoteOperation(mFile.getRemotePath())
-                .execute(accountManager.getUser(), requireContext());
+                .execute((com.nextcloud.common.User) accountManager.getUser(), requireContext());
 
             if (result.isSuccess()) {
                 String url = (String) result.getSingleData();
@@ -1281,7 +1283,11 @@ public class OCFileListFragment extends ExtendedListFragment implements
      */
     public void listDirectory(OCFile directory, OCFile file, boolean onlyOnDevice, boolean fromSearch) {
         if (!searchFragment) {
-            FileDataStorageManager storageManager = mContainerActivity.getStorageManager();
+            if (MainApp.user == null) {
+                return;
+            }
+
+            final FileDataStorageManager storageManager = new FileDataStorageManager(MainApp.user, getContext().getContentResolver());
             if (storageManager != null) {
                 // Check input parameters for null
                 if (directory == null) {
@@ -1322,7 +1328,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
                 }
 
                 mAdapter.swapDirectory(
-                    accountManager.getUser(),
+                    MainApp.user,
                     directory,
                     storageManager,
                     onlyOnDevice,

@@ -98,7 +98,7 @@ public class GallerySearchTask extends AsyncTask<Void, Void, GallerySearchTask.R
                              + dateFormat.format(new Date(endDate * 1000L))
                              + " with limit: "
                              + limit);
-                RemoteOperationResult result = searchRemoteOperation.execute(user, photoFragment.getContext());
+                RemoteOperationResult result = searchRemoteOperation.execute((com.nextcloud.common.User) user, photoFragment.getContext());
 
                 if (result.isSuccess()) {
                     long lastTimeStamp = findLastTimestamp(result.getData());

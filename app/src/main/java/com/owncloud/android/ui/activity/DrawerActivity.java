@@ -82,6 +82,7 @@ import com.owncloud.android.datamodel.ExternalLinksProvider;
 import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.lib.common.ExternalLink;
 import com.owncloud.android.lib.common.ExternalLinkType;
+import com.owncloud.android.lib.common.OwnCloudAccount;
 import com.owncloud.android.lib.common.OwnCloudClientManagerFactory;
 import com.owncloud.android.lib.common.Quota;
 import com.owncloud.android.lib.common.UserInfo;
@@ -799,7 +800,7 @@ public abstract class DrawerActivity extends ToolbarActivity
             try {
                 nextcloudClient = OwnCloudClientManagerFactory
                     .getDefaultSingleton()
-                    .getNextcloudClientFor(user.toOwnCloudAccount(),
+                    .getNextcloudClientFor((OwnCloudAccount) user,
                                            context);
             } catch (OperationCanceledException | AuthenticatorException | IOException e) {
                 Log_OC.e(this, "Error retrieving user quota", e);

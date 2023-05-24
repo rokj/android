@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.nextcloud.android.lib.richWorkspace.RichWorkspaceDirectEditingRemoteOperation;
 import com.nextcloud.client.account.UserAccountManager;
+import com.nextcloud.common.User;
 import com.owncloud.android.R;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.ui.activity.FileDisplayActivity;
@@ -139,7 +140,7 @@ public class PreviewTextStringFragment extends PreviewTextFragment {
     private void edit() {
         new Thread(() -> {
             RemoteOperationResult result = new RichWorkspaceDirectEditingRemoteOperation(getFile().getRemotePath())
-                .execute(accountManager.getUser(), getContext());
+                .execute((User) accountManager.getUser(), getContext());
 
             if (result.isSuccess()) {
                 String url = (String) result.getSingleData();

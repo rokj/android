@@ -479,17 +479,17 @@ public class ManageAccountsActivity extends FileActivity implements UserListAdap
     private void openAccount(User user) {
         final Intent intent = new Intent(this, UserInfoActivity.class);
         intent.putExtra(UserInfoActivity.KEY_ACCOUNT, user);
-        OwnCloudAccount oca = user.toOwnCloudAccount();
-        intent.putExtra(KEY_DISPLAY_NAME, oca.getDisplayName());
+        // OwnCloudAccount oca = user.toOwnCloudAccount();
+        intent.putExtra(KEY_DISPLAY_NAME, "DISPLAY NAME 3");
         startActivityForResult(intent, KEY_USER_INFO_REQUEST_CODE);
     }
 
     @VisibleForTesting
     public void showUser(User user, UserInfo userInfo) {
         final Intent intent = new Intent(this, UserInfoActivity.class);
-        OwnCloudAccount oca = user.toOwnCloudAccount();
-        intent.putExtra(UserInfoActivity.KEY_ACCOUNT, user);
-        intent.putExtra(KEY_DISPLAY_NAME, oca.getDisplayName());
+        // OwnCloudAccount oca = user;
+        // intent.putExtra(UserInfoActivity.KEY_ACCOUNT, user);
+        intent.putExtra(KEY_DISPLAY_NAME, user.getAccountName());
         intent.putExtra(KEY_USER_DATA, userInfo);
         startActivityForResult(intent, KEY_USER_INFO_REQUEST_CODE);
     }

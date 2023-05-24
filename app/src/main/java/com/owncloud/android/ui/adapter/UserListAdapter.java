@@ -305,8 +305,8 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
          */
         private void setUsername(User user) {
             try {
-                OwnCloudAccount oca = user.toOwnCloudAccount();
-                binding.userName.setText(oca.getDisplayName());
+                // OwnCloudAccount oca = user.toOwnCloudAccount();
+                binding.userName.setText("USERNAME ACCOUNT DISPLAY2");
             } catch (Exception e) {
                 Log_OC.w(TAG, "Account not found right after being read; using account name instead");
                 binding.userName.setText(UserAccountManager.getUsername(user));

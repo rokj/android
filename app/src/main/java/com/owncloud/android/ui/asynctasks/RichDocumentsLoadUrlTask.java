@@ -52,7 +52,7 @@ public class RichDocumentsLoadUrlTask extends AsyncTask<Void, Void, String> {
             return "";
         }
 
-        RemoteOperationResult result = new RichDocumentsUrlOperation(file.getLocalId()).execute(user, editorWebView);
+        RemoteOperationResult result = new RichDocumentsUrlOperation(file.getLocalId()).execute((com.nextcloud.common.User) user, editorWebView);
 
         if (!result.isSuccess()) {
             return "";

@@ -153,7 +153,7 @@ class FilesUploadWorker(
             val storageManager = uploadFileOperation.storageManager
 
             // always get client from client manager, to get fresh credentials in case of update
-            val ocAccount = OwnCloudAccount(user.toPlatformAccount(), context)
+            val ocAccount = OwnCloudAccount(null, context)
             val uploadClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(ocAccount, context)
             uploadResult = uploadFileOperation.execute(uploadClient)
 

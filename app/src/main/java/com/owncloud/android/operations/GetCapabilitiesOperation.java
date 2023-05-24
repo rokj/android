@@ -62,4 +62,17 @@ public class GetCapabilitiesOperation extends SyncOperation {
         return result;
     }
 
+    public void getCapabilitiesOperation() {
+        final FileDataStorageManager storageManager = getStorageManager();
+
+        OCCapability currentCapability = null;
+        if (!storageManager.getUser().isAnonymous()) {
+            currentCapability = storageManager.getCapability(storageManager.getUser().getAccountName());
+        }
+
+        OCCapability capability = new OCCapability();
+
+        storageManager.saveCapabilities(capability);
+        CapabilityUtils.updateCapability(capability);
+    }
 }

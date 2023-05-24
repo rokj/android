@@ -237,7 +237,7 @@ public class ReceiveExternalFilesActivity extends FileActivity
 
     @Override
     public void onAccountChosen(@NonNull User user) {
-        setAccount(user.toPlatformAccount(), false);
+        // setAccount(user.toPlatformAccount(), false);
         initTargetFolder();
         populateDirectoryList();
     }

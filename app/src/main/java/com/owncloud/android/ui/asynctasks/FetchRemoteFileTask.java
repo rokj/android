@@ -60,7 +60,7 @@ public class FetchRemoteFileTask extends AsyncTask<Void, Void, String> {
                                                                                 FILE_ID_SEARCH,
                                                                                 false,
                                                                                 fileDisplayActivity.getCapabilities());
-        RemoteOperationResult remoteOperationResult = searchRemoteOperation.execute(user, fileDisplayActivity);
+        RemoteOperationResult remoteOperationResult = searchRemoteOperation.execute((com.nextcloud.common.User) user, fileDisplayActivity);
 
         if (remoteOperationResult.isSuccess() && remoteOperationResult.getData() != null) {
             if (remoteOperationResult.getData().isEmpty()) {
@@ -69,7 +69,7 @@ public class FetchRemoteFileTask extends AsyncTask<Void, Void, String> {
             String remotePath = ((RemoteFile) remoteOperationResult.getData().get(0)).getRemotePath();
 
             ReadFileRemoteOperation operation = new ReadFileRemoteOperation(remotePath);
-            RemoteOperationResult result = operation.execute(user, fileDisplayActivity);
+            RemoteOperationResult result = operation.execute((com.nextcloud.common.User) user, fileDisplayActivity);
 
             if (!result.isSuccess()) {
                 Exception exception = result.getException();

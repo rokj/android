@@ -24,6 +24,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.nextcloud.common.NextcloudClient;
+import com.nextcloud.common.User;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.operations.OnRemoteOperationListener;
@@ -61,7 +62,8 @@ public abstract class SyncOperation extends RemoteOperation {
             throw new IllegalArgumentException("Trying to execute a sync operation with a " +
                                                    "storage manager for an anonymous account");
         }
-        return super.execute(this.storageManager.getUser(), context);
+        // return super.execute(this.storageManager.getUser(), context);
+        return super.execute((User) this.storageManager.getUser(), context);
     }
 
     public RemoteOperationResult execute(@NonNull NextcloudClient client) {

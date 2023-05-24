@@ -3,11 +3,13 @@ package com.owncloud.android.authentication;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -32,11 +34,13 @@ import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 
 import com.owncloud.android.databinding.S3LoginBinding;
+import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.lib.common.UserInfo;
 import com.owncloud.android.lib.common.accounts.AccountUtils;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.status.OwnCloudVersion;
+import com.owncloud.android.operations.GetCapabilitiesOperation;
 import com.owncloud.android.providers.DocumentsStorageProvider;
 import com.owncloud.android.ui.activity.BaseActivity;
 import com.owncloud.android.ui.activity.FileDisplayActivity;
@@ -44,6 +48,7 @@ import com.owncloud.android.ui.activity.FileDisplayActivity;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -56,10 +61,11 @@ import static com.owncloud.android.MainApp.PREF_HOSTNAME;
 import static com.owncloud.android.MainApp.PREF_SECRET_KEY;
 
 public class S3LoginActivity extends BaseActivity implements Injectable {
+    private static final String TAG = S3LoginActivity.class.getSimpleName();
+    @Inject UserAccountManager accountManager;
+
     private AccountManager mAccountMgr;
     private Bundle mResultBundle;
-    @Inject
-    protected UserAccountManager accountManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,16 +79,12 @@ public class S3LoginActivity extends BaseActivity implements Injectable {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String hostName = "";
-                String accessKey = "";
-                String secretKey = "";
-
                 TextInputLayout hostNameInput = findViewById(R.id.s3_hostname_container);
-                hostName = hostNameInput.getEditText().getText().toString();
+                final String hostName = hostNameInput.getEditText().getText().toString();
                 TextInputLayout accessKeyInput = findViewById(R.id.s3_access_key_container);
-                accessKey = accessKeyInput.getEditText().getText().toString();
+                final String accessKey = accessKeyInput.getEditText().getText().toString();
                 TextInputLayout secretKeyInput = findViewById(R.id.s3_secret_key_container);
-                secretKey = secretKeyInput.getEditText().getText().toString();
+                final String secretKey = secretKeyInput.getEditText().getText().toString();
 
                 try {
                     MinioClient minioClient =
@@ -102,25 +104,34 @@ public class S3LoginActivity extends BaseActivity implements Injectable {
                     // TODO save preferences for "certain" time or revoke access key and secret key after some time
                     savePreferences(hostName, accessKey, secretKey);
 
-                    sessionMixin = new SessionMixin(S3LoginActivity.this,
-                                                    getContentResolver(),
-                                                    accountManager);
                     Server server = new Server(URI.create(hostName),
                                                OwnCloudVersion.nextcloud_20);
-                    User user = new UserImpl(S3LoginActivity.this, accessKey, server);
-                    sessionMixin.setUser(user);
+                    UserImpl user = new UserImpl(getBaseContext(), accessKey, server);
+                    MainApp.user = user;
 
-                    mixinRegistry.add(sessionMixin);
+                    final Handler handler = new Handler();
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        try {
+                            final FileDataStorageManager storageManager = new FileDataStorageManager(user, getContentResolver());
+                            MainApp.storageManager = storageManager;
+
+                            GetCapabilitiesOperation gco = new GetCapabilitiesOperation(storageManager);
+                            gco.getCapabilitiesOperation();
+
+                            handler.post(() -> {
+                                Intent i = new Intent(S3LoginActivity.this, FileDisplayActivity.class);
+                                i.setAction(FileDisplayActivity.RESTART);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(i);
+                            });
+                        } catch (Exception e) {
+                            Log_OC.e(TAG, "Failed to fetch capabilities", e);
+                        }
+                    });
                 } catch (Exception e) {
                     Log.d("S3", e.toString());
                     // TODO show message invalid credentials or something
-                    return;
                 }
-
-                Intent i = new Intent(v.getContext(), FileDisplayActivity.class);
-                i.setAction(FileDisplayActivity.RESTART);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
             }
         });
     }
@@ -228,5 +239,9 @@ public class S3LoginActivity extends BaseActivity implements Injectable {
         editor.putString(PREF_ACCESS_KEY, accessKey);
         editor.putString(PREF_SECRET_KEY, secretKey);
         editor.commit();
+    }
+
+    private void endSuccess() {
+
     }
 }

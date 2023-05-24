@@ -60,11 +60,11 @@ internal data class AnonymousUser(private val accountType: String) : User, Parce
     override val server = Server(URI.create(""), MainApp.MINIMUM_SUPPORTED_SERVER_VERSION)
     override val isAnonymous = true
 
-    override fun toPlatformAccount(): Account {
+    fun toPlatformAccount(): Account {
         return Account(accountName, accountType)
     }
 
-    override fun toOwnCloudAccount(): OwnCloudAccount {
+    fun toOwnCloudAccount(): OwnCloudAccount {
         return OwnCloudAccount(Uri.EMPTY, OwnCloudBasicCredentials("", ""))
     }
 

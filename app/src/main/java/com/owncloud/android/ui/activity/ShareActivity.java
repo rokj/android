@@ -103,17 +103,17 @@ public class ShareActivity extends FileActivity {
 
         Activity activity = this;
         new Thread(() -> {
-            RemoteOperationResult result = new ReadFileRemoteOperation(getFile().getRemotePath())
-                .execute(optionalUser,
-                         activity);
+//            RemoteOperationResult result = new ReadFileRemoteOperation(getFile().getRemotePath())
+//                .execute(optionalUser,
+//                         activity);
 
-            if (result.isSuccess()) {
-                RemoteFile remoteFile = (RemoteFile) result.getData().get(0);
-                long length = remoteFile.getLength();
+            // if (result.isSuccess()) {
+//                RemoteFile remoteFile = (RemoteFile) result.getData().get(0);
+//                long length = remoteFile.getLength();
 
-                getFile().setFileLength(length);
-                runOnUiThread(() -> binding.shareFileSize.setText(DisplayUtils.bytesToHumanReadable(length)));
-            }
+                getFile().setFileLength(1111);
+                runOnUiThread(() -> binding.shareFileSize.setText(DisplayUtils.bytesToHumanReadable(1111)));
+            // }
         }).start();
 
         if (savedInstanceState == null) {

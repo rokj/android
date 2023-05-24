@@ -275,7 +275,7 @@ public class FileDataStorageManager {
                 // remote request
                 ReadFileRemoteOperation operation = new ReadFileRemoteOperation(parentPath);
                 // TODO Deprecated
-                RemoteOperationResult result = operation.execute(getUser(), context);
+                RemoteOperationResult result = operation.execute((com.nextcloud.common.User) getUser(), context);
                 if (result.isSuccess()) {
                     OCFile remoteFolder = FileStorageUtils.fillOCFile((RemoteFile) result.getData().get(0));
 
@@ -2251,5 +2251,9 @@ public class FileDataStorageManager {
 
     public OCFile getDefaultRootPath(){
         return new OCFile(OCFile.ROOT_PATH);
+    }
+
+    public static String storageUser(String hostname, String username) {
+        return username + "@" + MainApp.justHostname(hostname);
     }
 }

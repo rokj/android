@@ -147,7 +147,7 @@ class AccountRemovalWork(
         }
 
         // delete cached OwncloudClient
-        OwnCloudClientManagerFactory.getDefaultSingleton().removeClientFor(user.toOwnCloudAccount())
+        // OwnCloudClientManagerFactory.getDefaultSingleton().removeClientFor(user.toOwnCloudAccount())
 
         if (userRemoved) {
             eventBus.post(AccountRemovedEvent())
@@ -204,7 +204,7 @@ class AccountRemovalWork(
         return try {
             val context = MainApp.getAppContext()
             val factory = OwnCloudClientManagerFactory.getDefaultSingleton()
-            val client = factory.getClientFor(user.toOwnCloudAccount(), context)
+            val client = factory.getClientFor(null, context)
             Optional.of(client)
         } catch (e: Exception) {
             Log_OC.e(this, "Could not create client", e)
@@ -217,7 +217,7 @@ class AccountRemovalWork(
         return try {
             val context = MainApp.getAppContext()
             val factory = OwnCloudClientManagerFactory.getDefaultSingleton()
-            val client = factory.getNextcloudClientFor(user.toOwnCloudAccount(), context)
+            val client = factory.getNextcloudClientFor(null, context)
             Optional.of(client)
         } catch (e: Exception) {
             Log_OC.e(this, "Could not create client", e)
