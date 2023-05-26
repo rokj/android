@@ -27,6 +27,7 @@ import android.content.Context;
 import android.graphics.Color;
 
 import com.nextcloud.android.common.ui.util.PlatformThemeUtil;
+import com.nextcloud.client.account.User;
 import com.owncloud.android.R;
 
 import static com.owncloud.android.utils.theme.CapabilityUtils.getCapability;
@@ -38,9 +39,9 @@ import static com.owncloud.android.utils.theme.CapabilityUtils.getCapability;
  */
 @Deprecated
 public class ThemeColorUtils {
-    public int unchangedPrimaryColor(Account account, Context context) {
+    public int unchangedPrimaryColor(User user, Context context) {
         try {
-            return Color.parseColor(getCapability(account, context).getServerColor());
+            return Color.parseColor(getCapability(user, context).getServerColor());
         } catch (Exception e) {
             return context.getResources().getColor(R.color.primary);
         }

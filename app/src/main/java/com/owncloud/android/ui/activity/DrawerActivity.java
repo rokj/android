@@ -65,7 +65,9 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.nextcloud.client.account.Server;
 import com.nextcloud.client.account.User;
+import com.nextcloud.client.account.UserImpl;
 import com.nextcloud.client.di.Injectable;
 import com.nextcloud.client.network.ClientFactory;
 import com.nextcloud.client.onboarding.FirstRunActivity;
@@ -92,6 +94,7 @@ import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.files.SearchRemoteOperation;
 import com.owncloud.android.lib.resources.status.OCCapability;
+import com.owncloud.android.lib.resources.status.OwnCloudVersion;
 import com.owncloud.android.lib.resources.users.GetUserInfoRemoteOperation;
 import com.owncloud.android.operations.GetCapabilitiesOperation;
 import com.owncloud.android.ui.activities.ActivitiesActivity;
@@ -121,6 +124,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -232,10 +236,10 @@ public abstract class DrawerActivity extends ToolbarActivity
 
             // Setting up drawer header
             mNavigationViewHeader = mNavigationView.getHeaderView(0);
-            updateHeader();
+            // updateHeader();
 
             setupDrawerMenu(mNavigationView);
-            getAndDisplayUserQuota();
+            // getAndDisplayUserQuota();
             setupQuotaElement();
         }
 
@@ -297,12 +301,14 @@ public abstract class DrawerActivity extends ToolbarActivity
     }
 
     public void updateHeader() {
-        if (getAccount() != null &&
-            getCapabilities().getServerBackground() != null) {
+        if (MainApp.user.getAccountName() != null) {
 
             OCCapability capability = getCapabilities();
             String logo = capability.getServerLogo();
-            int primaryColor = themeColorUtils.unchangedPrimaryColor(getAccount(), this);
+
+            Server server = new Server(URI.create(MainApp.s3HostName), OwnCloudVersion.nextcloud_20);
+            User user = new UserImpl(this, MainApp.s3AccessKey, server);
+            int primaryColor = themeColorUtils.unchangedPrimaryColor(user, this);
 
             // set background to primary color
             LinearLayout drawerHeader = mNavigationViewHeader.findViewById(R.id.drawer_header_view);
@@ -389,16 +395,19 @@ public abstract class DrawerActivity extends ToolbarActivity
                 return true;
             });
 
-        User account = accountManager.getUser();
-        filterDrawerMenu(navigationView.getMenu(), account);
+        Server server = new Server(URI.create(MainApp.s3HostName), OwnCloudVersion.nextcloud_20);
+        User user = new UserImpl(this, MainApp.s3AccessKey, server);
+
+        filterDrawerMenu(navigationView.getMenu(), user);
     }
 
     private void filterDrawerMenu(final Menu menu, @NonNull final User user) {
-        OCCapability capability = getCapabilities();
+        // TODO: Rok Jaklic
+        // OCCapability capability = getCapabilities();
 
         DrawerMenuUtil.filterSearchMenuItems(menu, user, getResources());
-        DrawerMenuUtil.filterTrashbinMenuItem(menu, capability);
-        DrawerMenuUtil.filterActivityMenuItem(menu, capability);
+        // DrawerMenuUtil.filterTrashbinMenuItem(menu, capability);
+        // DrawerMenuUtil.filterActivityMenuItem(menu, capability);
 
         DrawerMenuUtil.setupHomeMenuItem(menu, getResources());
 

@@ -486,10 +486,6 @@ public class RefreshFolderOperation {
                 remoteFile.setCreationTimestamp(item.get().lastModified().toEpochSecond());
                 remoteFile.setSize(item.get().size());
 
-                Log_OC.d("S3", "lastmodified: " + item.get().lastModified());
-                Log_OC.d("S3", "timestamp: " + item.get().lastModified().toEpochSecond());
-                Log_OC.d("S3", "size: " + item.get().size());
-
                 ShareeUser[] sharees = new ShareeUser[0];
                 remoteFile.setSharees(sharees);
 

@@ -261,7 +261,7 @@ public class FileOperationsHelper {
                                                                     true,
                                                                     fileActivity,
                                                                     storageManager);
-        RemoteOperationResult result = sfo.execute(fileActivity);
+        RemoteOperationResult result = sfo.execute(fileActivity, (com.nextcloud.common.User) user);
 
         if (result.getCode() == RemoteOperationResult.ResultCode.SYNC_CONFLICT) {
             // ISSUE 5: if the user is not running the app (this is a service!),
@@ -883,25 +883,18 @@ public class FileOperationsHelper {
         if (!file.isFolder()) {
             Intent intent = new Intent(fileActivity, OperationsService.class);
             intent.setAction(OperationsService.ACTION_SYNC_FILE);
-            intent.putExtra(OperationsService.EXTRA_ACCOUNT, fileActivity.getAccount());
+            intent.putExtra(OperationsService.EXTRA_ACCOUNT, MainApp.user.getAccountName());
             intent.putExtra(OperationsService.EXTRA_REMOTE_PATH, file.getRemotePath());
             intent.putExtra(OperationsService.EXTRA_SYNC_FILE_CONTENTS, true);
-            User user = fileActivity.getUser();
-            if (user != null) {
-                String accountName = user.getAccountName();
-
-                intent.putExtra(OperationsService.EXTRA_USER, accountName);
-                // TODO Rok Jaklic
-                // MainApp.userAccountManager
-                intent.putExtra(OperationsService.EXTRA_SERVER_URL, MainApp.s3HostName);
-                mWaitingForOpId = fileActivity.getOperationsServiceBinder().queueNewOperation(intent);
-                fileActivity.showLoadingDialog(fileActivity.getApplicationContext().
-                                                   getString(R.string.wait_a_moment));
-            }
+            intent.putExtra(OperationsService.EXTRA_USER, MainApp.user.getAccountName());
+            intent.putExtra(OperationsService.EXTRA_SERVER_URL, MainApp.s3HostName);
+            mWaitingForOpId = fileActivity.getOperationsServiceBinder().queueNewOperation(intent);
+            fileActivity.showLoadingDialog(fileActivity.getApplicationContext().
+                                               getString(R.string.wait_a_moment));
         } else {
             Intent intent = new Intent(fileActivity, OperationsService.class);
             intent.setAction(OperationsService.ACTION_SYNC_FOLDER);
-            intent.putExtra(OperationsService.EXTRA_ACCOUNT, fileActivity.getAccount());
+            intent.putExtra(OperationsService.EXTRA_ACCOUNT, MainApp.user.getAccountName());
             intent.putExtra(OperationsService.EXTRA_REMOTE_PATH, file.getRemotePath());
             fileActivity.startService(intent);
         }
