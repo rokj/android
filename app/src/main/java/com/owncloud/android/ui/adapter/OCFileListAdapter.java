@@ -435,7 +435,7 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             holder.getFileSizeSeparator().setVisibility(View.VISIBLE);
         } else {
             final long fileLength = file.getFileLength();
-            if (fileLength >= 0) {
+            if (fileLength >= 0 && !file.isFolder()) {
                 holder.getFileSize().setText(DisplayUtils.bytesToHumanReadable(fileLength));
                 holder.getFileSize().setVisibility(View.VISIBLE);
                 holder.getFileSizeSeparator().setVisibility(View.VISIBLE);
@@ -447,8 +447,7 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         final long modificationTimestamp = file.getModificationTimestamp();
         if (modificationTimestamp > 0) {
-            holder.getLastModification().setText(DisplayUtils.getRelativeTimestamp(activity,
-                                                                                   modificationTimestamp));
+            holder.getLastModification().setText(DisplayUtils.epochToDateTime(modificationTimestamp));
             holder.getLastModification().setVisibility(View.VISIBLE);
         } else if (file.getFirstShareTimestamp() > 0) {
             holder.getLastModification().setText(

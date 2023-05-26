@@ -561,20 +561,22 @@ public class DocumentsStorageProvider extends DocumentsProvider {
         // FIXME we need to update the mimeType somewhere else as well
 
         // perform the upload, no need for chunked operation as we have a empty file
-        OwnCloudClient client = targetFolder.getClient();
-        RemoteOperationResult result = new UploadFileRemoteOperation(emptyFile.getAbsolutePath(),
-                                                                     newFilePath,
-                                                                     mimeType,
-                                                                     "",
-                                                                     System.currentTimeMillis() / 1000,
-                                                                     FileUtil.getCreationTimestamp(emptyFile),
-                                                                     false)
-            .execute(client);
+//        OwnCloudClient client = targetFolder.getClient();
+//        RemoteOperationResult result = new UploadFileRemoteOperation(emptyFile.getAbsolutePath(),
+//                                                                     newFilePath,
+//                                                                     mimeType,
+//                                                                     "",
+//                                                                     System.currentTimeMillis() / 1000,
+//                                                                     FileUtil.getCreationTimestamp(emptyFile),
+//                                                                     false)
+//            .execute(client);
 
-        if (!result.isSuccess()) {
-            Log_OC.e(TAG, result.toString());
-            throw new FileNotFoundException("Failed to upload document with path " + newFilePath);
-        }
+//        RemoveFileOperation result = new RemoveFileOperation()
+//
+//        if (!result.isSuccess()) {
+//            Log_OC.e(TAG, result.toString());
+//            throw new FileNotFoundException("Failed to upload document with path " + newFilePath);
+//        }
 
         Context context = getNonNullContext();
 

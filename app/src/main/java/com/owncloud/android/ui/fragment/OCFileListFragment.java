@@ -867,24 +867,22 @@ public class OCFileListFragment extends ExtendedListFragment implements
         OCFile parentDir;
         int moveCount = 0;
 
-        if (mFile != null) {
-            FileDataStorageManager storageManager = mContainerActivity.getStorageManager();
-
+        if (mFile != null && MainApp.storageManager != null) {
             String parentPath = null;
             if (mFile.getParentId() != FileDataStorageManager.ROOT_PARENT_ID) {
                 parentPath = new File(mFile.getRemotePath()).getParent();
                 parentPath = parentPath.endsWith(OCFile.PATH_SEPARATOR) ? parentPath :
                     parentPath + OCFile.PATH_SEPARATOR;
-                parentDir = storageManager.getFileByPath(parentPath);
+                parentDir = MainApp.storageManager.getFileByPath(parentPath);
                 moveCount++;
             } else {
-                parentDir = storageManager.getFileByPath(ROOT_PATH);
+                parentDir = MainApp.storageManager.getFileByPath(ROOT_PATH);
             }
             while (parentDir == null) {
                 parentPath = new File(parentPath).getParent();
                 parentPath = parentPath.endsWith(OCFile.PATH_SEPARATOR) ? parentPath :
                     parentPath + OCFile.PATH_SEPARATOR;
-                parentDir = storageManager.getFileByPath(parentPath);
+                parentDir = MainApp.storageManager.getFileByPath(parentPath);
                 moveCount++;
             }   // exit is granted because storageManager.getFileByPath("/") never returns null
             mFile = parentDir;
@@ -1287,14 +1285,13 @@ public class OCFileListFragment extends ExtendedListFragment implements
                 return;
             }
 
-            final FileDataStorageManager storageManager = new FileDataStorageManager(MainApp.user, getContext().getContentResolver());
-            if (storageManager != null) {
+            if (MainApp.storageManager != null) {
                 // Check input parameters for null
                 if (directory == null) {
                     if (mFile != null) {
                         directory = mFile;
                     } else {
-                        directory = storageManager.getFileByPath(ROOT_PATH);
+                        directory = MainApp.storageManager.getFileByPath(ROOT_PATH);
                         if (directory == null) {
                             return; // no files, wait for sync
                         }
@@ -1304,7 +1301,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
                 // If that's not a directory -> List its parent
                 if (!directory.isFolder()) {
                     Log_OC.w(TAG, "You see, that is not a directory -> " + directory);
-                    directory = storageManager.getFileById(directory.getParentId());
+                    directory = MainApp.storageManager.getFileById(directory.getParentId());
 
                     if (directory == null) {
                         return; // no files, wait for sync
@@ -1330,7 +1327,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
                 mAdapter.swapDirectory(
                     MainApp.user,
                     directory,
-                    storageManager,
+                    MainApp.storageManager,
                     onlyOnDevice,
                     mLimitToMimeType
                                       );

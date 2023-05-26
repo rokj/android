@@ -105,7 +105,6 @@ public class RefreshFolderOperation {
     private OCFile mLocalFolder;
 
     /** Access to the local database */
-    private FileDataStorageManager mStorageManager;
 
     /** Account where the file to synchronize belongs */
     private User user;
@@ -189,7 +188,6 @@ public class RefreshFolderOperation {
         mLocalFolder = folder;
         mCurrentSyncTime = currentSyncTime;
         mSyncFullAccount = syncFullAccount;
-        mStorageManager = dataStorageManager;
         this.user = user;
         mContext = context;
         mForgottenLocalFiles = new HashMap<>();
@@ -244,7 +242,7 @@ public class RefreshFolderOperation {
         if (mRemoteFolderChanged) {
             result = fetchAndSyncRemoteFolder();
         } else {
-            mChildren = mStorageManager.getFolderContent(mLocalFolder, false);
+            mChildren = MainApp.storageManager.getFolderContent(mLocalFolder, false);
         }
 
         if (result.resultCode == NewRemoteOperationResult.ResultCode.OK) {
@@ -255,19 +253,19 @@ public class RefreshFolderOperation {
         }
 
         mLocalFolder.setLastSyncDateForData(System.currentTimeMillis());
-        mStorageManager.saveFile(mLocalFolder);
+        MainApp.storageManager.saveFile(mLocalFolder);
 
         // TODO: Rok Jaklic
-//        if (!mSyncFullAccount && mRemoteFolderChanged) {
-//            sendLocalBroadcast(
-//                EVENT_SINGLE_FOLDER_CONTENTS_SYNCED, mLocalFolder.getRemotePath(), ResultCode.OK
-//            );
-//        }
+        if (!mSyncFullAccount && mRemoteFolderChanged) {
+            sendLocalBroadcast(
+                EVENT_SINGLE_FOLDER_CONTENTS_SYNCED, mLocalFolder.getRemotePath(), new NewRemoteOperationResult(NewRemoteOperationResult.ResultCode.OK)
+            );
+        }
 
         // TODO: Rok Jaklic
-//        if (result.isSuccess() && !mSyncFullAccount && !mOnlyFileMetadata) {
-//            refreshSharesForFolder(client); // share result is ignored
-//        }
+        if (result.resultCode == NewRemoteOperationResult.ResultCode.OK && !mSyncFullAccount && !mOnlyFileMetadata) {
+            // refreshSharesForFolder(client); // share result is ignored
+        }
 
         // TODO: Rok Jaklic
 //        if (!mSyncFullAccount) {
@@ -306,9 +304,9 @@ public class RefreshFolderOperation {
         String oldDirectEditingEtag = arbitraryDataProvider.getValue(user,
                                                                      ArbitraryDataProvider.DIRECT_EDITING_ETAG);
 
-        RemoteOperationResult result = new GetCapabilitiesOperation(mStorageManager).execute(mContext);
+        RemoteOperationResult result = new GetCapabilitiesOperation(MainApp.storageManager).execute(mContext);
         if (result.isSuccess()) {
-            String newDirectEditingEtag = mStorageManager.getCapability(user.getAccountName()).getDirectEditingEtag();
+            String newDirectEditingEtag = MainApp.storageManager.getCapability(user.getAccountName()).getDirectEditingEtag();
 
             if (!oldDirectEditingEtag.equalsIgnoreCase(newDirectEditingEtag)) {
                 // updateDirectEditing(arbitraryDataProvider, newDirectEditingEtag);
@@ -485,6 +483,12 @@ public class RefreshFolderOperation {
                 remoteFile.setRemotePath(remotePathForSave);
                 remoteFile.setEtag(item.get().etag());
                 remoteFile.setModifiedTimestamp(item.get().lastModified().toEpochSecond());
+                remoteFile.setCreationTimestamp(item.get().lastModified().toEpochSecond());
+                remoteFile.setSize(item.get().size());
+
+                Log_OC.d("S3", "lastmodified: " + item.get().lastModified());
+                Log_OC.d("S3", "timestamp: " + item.get().lastModified().toEpochSecond());
+                Log_OC.d("S3", "size: " + item.get().size());
 
                 ShareeUser[] sharees = new ShareeUser[0];
                 remoteFile.setSharees(sharees);
@@ -499,9 +503,9 @@ public class RefreshFolderOperation {
     }
 
     private void removeLocalFolder() {
-        if (mStorageManager.fileExists(mLocalFolder.getFileId())) {
+        if (MainApp.storageManager.fileExists(mLocalFolder.getFileId())) {
             String currentSavePath = FileStorageUtils.getSavePath(user.getAccountName());
-            mStorageManager.removeFolder(
+            MainApp.storageManager.removeFolder(
                 mLocalFolder,
                 true,
                     mLocalFolder.isDown() && mLocalFolder.getStoragePath().startsWith(currentSavePath)
@@ -790,7 +794,7 @@ public class RefreshFolderOperation {
                     shares.add(share);
                 }
             }
-            mStorageManager.saveSharesInFolder(shares, mLocalFolder);
+            MainApp.storageManager.saveSharesInFolder(shares, mLocalFolder);
         }
 
         return result;
@@ -805,10 +809,10 @@ public class RefreshFolderOperation {
      *                      (with or without success)
      * @param result        remote operation result
      */
-    private void sendLocalBroadcast(String event, String dirRemotePath, RemoteOperationResult result) {
+    private void sendLocalBroadcast(String event, String dirRemotePath, NewRemoteOperationResult result) {
         Log_OC.d(TAG, "Send broadcast " + event);
         Intent intent = new Intent(event);
-        intent.putExtra(FileSyncAdapter.EXTRA_ACCOUNT_NAME, user.getAccountName());
+        intent.putExtra(FileSyncAdapter.EXTRA_ACCOUNT_NAME, MainApp.user.getAccountName());
 
         if (dirRemotePath != null) {
             intent.putExtra(FileSyncAdapter.EXTRA_FOLDER_PATH, dirRemotePath);

@@ -893,7 +893,7 @@ public class FileOperationsHelper {
                 intent.putExtra(OperationsService.EXTRA_USER, accountName);
                 // TODO Rok Jaklic
                 // MainApp.userAccountManager
-                intent.putExtra(OperationsService.EXTRA_SERVER_URL, "https://moja.shramba.arnes.si");
+                intent.putExtra(OperationsService.EXTRA_SERVER_URL, MainApp.s3HostName);
                 mWaitingForOpId = fileActivity.getOperationsServiceBinder().queueNewOperation(intent);
                 fileActivity.showLoadingDialog(fileActivity.getApplicationContext().
                                                    getString(R.string.wait_a_moment));

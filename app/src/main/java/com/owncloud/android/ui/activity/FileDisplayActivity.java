@@ -94,6 +94,7 @@ import com.owncloud.android.operations.RemoveFileOperation;
 import com.owncloud.android.operations.RenameFileOperation;
 import com.owncloud.android.operations.SynchronizeFileOperation;
 import com.owncloud.android.operations.UploadFileOperation;
+import com.owncloud.android.operations.common.NewRemoteOperationResult;
 import com.owncloud.android.syncadapter.FileSyncAdapter;
 import com.owncloud.android.ui.asynctasks.CheckAvailableSpaceTask;
 import com.owncloud.android.ui.asynctasks.FetchRemoteFileTask;
@@ -1222,19 +1223,20 @@ public class FileDisplayActivity extends FileActivity
 
                 String synchFolderRemotePath =
                     intent.getStringExtra(FileSyncAdapter.EXTRA_FOLDER_PATH);
-                RemoteOperationResult synchResult = (RemoteOperationResult)
+                NewRemoteOperationResult synchResult = (NewRemoteOperationResult)
                     DataHolderUtil.getInstance().retrieve(intent.getStringExtra(FileSyncAdapter.EXTRA_RESULT));
 
-                if (getStorageManager() != null) {
+                if (MainApp.storageManager != null) {
 
                     if (FileSyncAdapter.EVENT_FULL_SYNC_START.equals(event)) {
                         mSyncInProgress = true;
 
                     } else {
+                        mSyncInProgress = false;
                         OCFile currentFile = (getFile() == null) ? null :
-                            getStorageManager().getFileByPath(getFile().getRemotePath());
+                            MainApp.storageManager.getFileByPath(getFile().getRemotePath());
                         OCFile currentDir = (getCurrentDir() == null) ? null :
-                            getStorageManager().getFileByPath(getCurrentDir().getRemotePath());
+                            MainApp.storageManager.getFileByPath(getCurrentDir().getRemotePath());
 
                         if (currentDir == null) {
                             // current folder was removed from the server
@@ -1263,47 +1265,46 @@ public class FileDisplayActivity extends FileActivity
                             setFile(currentFile);
                         }
 
-                        mSyncInProgress = !FileSyncAdapter.EVENT_FULL_SYNC_END.equals(event) &&
-                            !RefreshFolderOperation.EVENT_SINGLE_FOLDER_SHARES_SYNCED.equals(event);
+//                        mSyncInProgress = !FileSyncAdapter.EVENT_FULL_SYNC_END.equals(event) &&
+//                            !RefreshFolderOperation.EVENT_SINGLE_FOLDER_SHARES_SYNCED.equals(event);
 
                         if (RefreshFolderOperation.EVENT_SINGLE_FOLDER_CONTENTS_SYNCED.equals(event) &&
                             synchResult != null) {
 
-                            if (synchResult.isSuccess()) {
+                            if (synchResult.equals(NewRemoteOperationResult.ResultCode.OK)) {
                                 hideInfoBox();
                             } else {
                                 // TODO refactor and make common
-                                if (checkForRemoteOperationError(synchResult)) {
-                                    requestCredentialsUpdate(context);
-                                } else {
-                                    switch (synchResult.getCode()) {
-                                        case SSL_RECOVERABLE_PEER_UNVERIFIED:
-                                            showUntrustedCertDialog(synchResult);
-                                            break;
-
-                                        case MAINTENANCE_MODE:
-                                            showInfoBox(R.string.maintenance_mode);
-                                            break;
-
-                                        case NO_NETWORK_CONNECTION:
-                                            showInfoBox(R.string.offline_mode);
-                                            break;
-
-                                        case HOST_NOT_AVAILABLE:
-                                            showInfoBox(R.string.host_not_available);
-                                            break;
-
-                                        default:
-                                            // nothing to do
-                                            break;
-                                    }
-                                }
+//                                if (checkForRemoteOperationError(synchResult)) {
+//                                    requestCredentialsUpdate(context);
+//                                } else {
+//                                    switch (synchResult.getCode()) {
+//                                        case SSL_RECOVERABLE_PEER_UNVERIFIED:
+//                                            showUntrustedCertDialog(synchResult);
+//                                            break;
+//
+//                                        case MAINTENANCE_MODE:
+//                                            showInfoBox(R.string.maintenance_mode);
+//                                            break;
+//
+//                                        case NO_NETWORK_CONNECTION:
+//                                            showInfoBox(R.string.offline_mode);
+//                                            break;
+//
+//                                        case HOST_NOT_AVAILABLE:
+//                                            showInfoBox(R.string.host_not_available);
+//                                            break;
+//
+//                                        default:
+//                                            // nothing to do
+//                                            break;
+//                                    }
+//                                }
                             }
                         }
                         DataHolderUtil.getInstance().delete(intent.getStringExtra(FileSyncAdapter.EXTRA_RESULT));
 
                         Log_OC.d(TAG, "Setting progress visibility to " + mSyncInProgress);
-
 
                         OCFileListFragment ocFileListFragment = getListOfFilesFragment();
                         if (ocFileListFragment != null) {
@@ -1321,9 +1322,9 @@ public class FileDisplayActivity extends FileActivity
                     }
                 }
 
-                if (synchResult != null && synchResult.getCode() == ResultCode.SSL_RECOVERABLE_PEER_UNVERIFIED) {
-                    mLastSslUntrustedServerResult = synchResult;
-                }
+//                if (synchResult != null && synchResult.getCode() == ResultCode.SSL_RECOVERABLE_PEER_UNVERIFIED) {
+//                    mLastSslUntrustedServerResult = synchResult;
+//                }
             } catch (RuntimeException e) {
                 // avoid app crashes after changing the serial id of RemoteOperationResult
                 // in owncloud library with broadcast notifications pending to process
@@ -1517,7 +1518,7 @@ public class FileDisplayActivity extends FileActivity
     public void browseToRoot() {
         OCFileListFragment listOfFiles = getListOfFilesFragment();
         if (listOfFiles != null) {  // should never be null, indeed
-            OCFile root = getStorageManager().getFileByPath(OCFile.ROOT_PATH);
+            OCFile root = MainApp.storageManager.getFileByPath(OCFile.ROOT_PATH);
             listOfFiles.listDirectory(root, MainApp.isOnlyOnDevice(), false);
             setFile(listOfFiles.getCurrentFile());
             startSyncFolderOperation(root, false);
@@ -2003,6 +2004,11 @@ public class FileDisplayActivity extends FileActivity
                         if (ignoreFocus || hasWindowFocus()) {
                             long currentSyncTime = System.currentTimeMillis();
                             mSyncInProgress = true;
+                            OCFileListFragment fragment = getListOfFilesFragment();
+
+                            if (fragment != null && !(fragment instanceof GalleryFragment)) {
+                                fragment.setLoading(true);
+                            }
 
                             // perform folder synchronization
                             RefreshFolderOperation synchFolderOp = new RefreshFolderOperation(folder,
@@ -2011,20 +2017,10 @@ public class FileDisplayActivity extends FileActivity
                                                                                        ignoreETag,
                                                                                        getApplicationContext()
                             );
-
                             synchFolderOp.run();
-//                            synchFolderOp.execute(
-//                                getUser(),
-//                                MainApp.getAppContext(),
-//                                FileDisplayActivity.this,
-//                                null,
-//                                null
-//                                                 );
-
-                            OCFileListFragment fragment = getListOfFilesFragment();
 
                             if (fragment != null && !(fragment instanceof GalleryFragment)) {
-                                fragment.setLoading(true);
+                                fragment.setLoading(false);
                             }
 
                             setBackgroundText();

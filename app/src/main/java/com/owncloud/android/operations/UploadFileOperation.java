@@ -558,30 +558,30 @@ public class UploadFileOperation extends SyncOperation {
             updateSize(size);
 
             /// perform the upload
-            if (size > ChunkedFileUploadRemoteOperation.CHUNK_SIZE_MOBILE) {
-                boolean onWifiConnection = connectivityService.getConnectivity().isWifi();
-
-                mUploadOperation = new ChunkedFileUploadRemoteOperation(encryptedTempFile.getAbsolutePath(),
-                                                                        mFile.getParentRemotePath() + encryptedFileName,
-                                                                        mFile.getMimeType(),
-                                                                        mFile.getEtagInConflict(),
-                                                                        lastModifiedTimestamp,
-                                                                        onWifiConnection,
-                                                                        token,
-                                                                        creationTimestamp,
-                                                                        mDisableRetries
-                );
-            } else {
-                mUploadOperation = new UploadFileRemoteOperation(encryptedTempFile.getAbsolutePath(),
-                                                                 mFile.getParentRemotePath() + encryptedFileName,
-                                                                 mFile.getMimeType(),
-                                                                 mFile.getEtagInConflict(),
-                                                                 lastModifiedTimestamp,
-                                                                 creationTimestamp,
-                                                                 token,
-                                                                 mDisableRetries
-                );
-            }
+//            if (size > ChunkedFileUploadRemoteOperation.CHUNK_SIZE_MOBILE) {
+//                boolean onWifiConnection = connectivityService.getConnectivity().isWifi();
+//
+//                mUploadOperation = new ChunkedFileUploadRemoteOperation(encryptedTempFile.getAbsolutePath(),
+//                                                                        mFile.getParentRemotePath() + encryptedFileName,
+//                                                                        mFile.getMimeType(),
+//                                                                        mFile.getEtagInConflict(),
+//                                                                        lastModifiedTimestamp,
+//                                                                        onWifiConnection,
+//                                                                        token,
+//                                                                        creationTimestamp,
+//                                                                        mDisableRetries
+//                );
+//            } else {
+//                mUploadOperation = new UploadFileRemoteOperation(encryptedTempFile.getAbsolutePath(),
+//                                                                 mFile.getParentRemotePath() + encryptedFileName,
+//                                                                 mFile.getMimeType(),
+//                                                                 mFile.getEtagInConflict(),
+//                                                                 lastModifiedTimestamp,
+//                                                                 creationTimestamp,
+//                                                                 token,
+//                                                                 mDisableRetries
+//                );
+//            }
 
             for (OnDatatransferProgressListener mDataTransferListener : mDataTransferListeners) {
                 mUploadOperation.addDataTransferProgressListener(mDataTransferListener);
@@ -795,27 +795,27 @@ public class UploadFileOperation extends SyncOperation {
 
             updateSize(size);
 
-            // perform the upload
-            if (size > ChunkedFileUploadRemoteOperation.CHUNK_SIZE_MOBILE) {
-                boolean onWifiConnection = connectivityService.getConnectivity().isWifi();
-
-                mUploadOperation = new ChunkedFileUploadRemoteOperation(mFile.getStoragePath(),
-                                                                        mFile.getRemotePath(),
-                                                                        mFile.getMimeType(),
-                                                                        mFile.getEtagInConflict(),
-                                                                        lastModifiedTimestamp,
-                                                                        creationTimestamp,
-                                                                        onWifiConnection,
-                                                                        mDisableRetries);
-            } else {
-                mUploadOperation = new UploadFileRemoteOperation(mFile.getStoragePath(),
-                                                                 mFile.getRemotePath(),
-                                                                 mFile.getMimeType(),
-                                                                 mFile.getEtagInConflict(),
-                                                                 lastModifiedTimestamp,
-                                                                 creationTimestamp,
-                                                                 mDisableRetries);
-            }
+//            // perform the upload
+//            if (size > ChunkedFileUploadRemoteOperation.CHUNK_SIZE_MOBILE) {
+//                boolean onWifiConnection = connectivityService.getConnectivity().isWifi();
+//
+//                mUploadOperation = new ChunkedFileUploadRemoteOperation(mFile.getStoragePath(),
+//                                                                        mFile.getRemotePath(),
+//                                                                        mFile.getMimeType(),
+//                                                                        mFile.getEtagInConflict(),
+//                                                                        lastModifiedTimestamp,
+//                                                                        creationTimestamp,
+//                                                                        onWifiConnection,
+//                                                                        mDisableRetries);
+//            } else {
+//                mUploadOperation = new UploadFileRemoteOperation(mFile.getStoragePath(),
+//                                                                 mFile.getRemotePath(),
+//                                                                 mFile.getMimeType(),
+//                                                                 mFile.getEtagInConflict(),
+//                                                                 lastModifiedTimestamp,
+//                                                                 creationTimestamp,
+//                                                                 mDisableRetries);
+//            }
 
             for (OnDatatransferProgressListener mDataTransferListener : mDataTransferListeners) {
                 mUploadOperation.addDataTransferProgressListener(mDataTransferListener);

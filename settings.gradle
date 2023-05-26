@@ -1,10 +1,16 @@
 rootProject.name = 'Nextcloud'
 
+include ':nextcloud-android-library'
+project(':nextcloud-android-library').projectDir = new File('/home/arne/development/android/nextcloud/nextcloud-android-library/')
+
 include ':app'
 include ':appscan'
+
+// project(':nc-android-library').projectDir = new File(rootDir, 'nextcloud-android-library/sample_client/')
 
 //includeBuild('../android-common') {
 //    dependencySubstitution {
 //        substitute module('com.github.nextcloud.android-common:ui') using project(':ui')
 //    }
 //}
+// include ':nc-android-library'

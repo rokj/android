@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.nextcloud.client",
+  "variantName": "genericRelease",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 30250000,
+      "versionName": "3.25.0 Alpha1",
+      "outputFile": "generic-release-30250000.apk"
+    }
+  ],
+  "elementType": "File"
+}

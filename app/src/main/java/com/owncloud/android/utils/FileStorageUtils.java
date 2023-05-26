@@ -212,11 +212,7 @@ public final class FileStorageUtils {
         OCFile file = new OCFile(remote.getRemotePath());
         file.setDecryptedRemotePath(remote.getRemotePath());
         file.setCreationTimestamp(remote.getCreationTimestamp());
-        if (MimeType.DIRECTORY.equalsIgnoreCase(remote.getMimeType())) {
-            file.setFileLength(remote.getSize());
-        } else {
-            file.setFileLength(remote.getLength());
-        }
+        file.setFileLength(remote.getSize());
         file.setMimeType(remote.getMimeType());
         file.setModificationTimestamp(remote.getModifiedTimestamp());
         file.setEtag(remote.getEtag());

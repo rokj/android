@@ -80,11 +80,14 @@ public class S3LoginActivity extends BaseActivity implements Injectable {
             @Override
             public void onClick(View v) {
                 TextInputLayout hostNameInput = findViewById(R.id.s3_hostname_container);
-                final String hostName = hostNameInput.getEditText().getText().toString();
+                // final String hostName = hostNameInput.getEditText().getText().toString();
+                final String hostName = "https://moja.shramba.arnes.si";
                 TextInputLayout accessKeyInput = findViewById(R.id.s3_access_key_container);
-                final String accessKey = accessKeyInput.getEditText().getText().toString();
+                // final String accessKey = accessKeyInput.getEditText().getText().toString();
+                final String accessKey = "EAN71J9WLBWFUIMD5ZTO";
                 TextInputLayout secretKeyInput = findViewById(R.id.s3_secret_key_container);
-                final String secretKey = secretKeyInput.getEditText().getText().toString();
+                final String secretKey = "ST39OWIyTQnwWGCGlxCM7mfoLRTyx2woiAGT6OjM";
+                // final String secretKey = secretKeyInput.getEditText().getText().toString();
 
                 try {
                     MinioClient minioClient =

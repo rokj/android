@@ -1004,4 +1004,15 @@ public final class DisplayUtils {
             throw new Exception("WindowManager not found");
         }
     }
+
+    public static CharSequence epochToDateTime(long seconds) {
+        long millis = seconds * 1000;
+
+        Date date = new Date(millis);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy hh:mm", Locale.ENGLISH);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String formattedDate = sdf.format(date);
+
+        return formattedDate;
+    }
 }
