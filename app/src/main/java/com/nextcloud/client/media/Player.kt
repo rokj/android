@@ -70,7 +70,7 @@ internal class Player(
     private val focusManager = AudioFocusManager(audioManager, this::onAudioFocusChange)
 
     private val delegate = object : PlayerStateMachine.Delegate {
-        override val isDownloaded: Boolean get() = playedFile?.isDown ?: false
+        override val isDownloaded: Boolean get() = playedFile?.isAvailableLocally ?: false
         override val isAutoplayEnabled: Boolean get() = autoPlay
         override val hasEnqueuedFile: Boolean get() = enqueuedFile != null
 
@@ -82,7 +82,7 @@ internal class Player(
                     startPositionMs = it.startPositionMs
                     autoPlay = it.autoPlay
                     user = it.user
-                    dataSource = if (it.file.isDown) it.file.storagePath else null
+                    dataSource = if (it.file.isAvailableLocally) it.file.storagePath else null
                     listener?.onRunning(it.file)
                 } else {
                     throw IllegalStateException("Player started without enqueued file.")

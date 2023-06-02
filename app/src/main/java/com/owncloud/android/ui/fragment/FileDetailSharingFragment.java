@@ -41,6 +41,7 @@ import com.nextcloud.client.account.User;
 import com.nextcloud.client.account.UserAccountManager;
 import com.nextcloud.client.di.Injectable;
 import com.nextcloud.client.network.ClientFactory;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 import com.owncloud.android.databinding.FileDetailsSharingFragmentBinding;
 import com.owncloud.android.datamodel.FileDataStorageManager;
@@ -143,8 +144,8 @@ public class FileDetailSharingFragment extends Fragment implements ShareeListAda
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        refreshCapabilitiesFromDB();
-        refreshSharesFromDB();
+        // refreshCapabilitiesFromDB();
+        // refreshSharesFromDB();
     }
 
     @Override
@@ -152,23 +153,24 @@ public class FileDetailSharingFragment extends Fragment implements ShareeListAda
         binding = FileDetailsSharingFragmentBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
-        fileOperationsHelper = fileActivity.getFileOperationsHelper();
-        fileDataStorageManager = fileActivity.getStorageManager();
-
-        AccountManager accountManager = AccountManager.get(getContext());
-        String userId = accountManager.getUserData((Account) user,
-                                                   com.owncloud.android.lib.common.accounts.AccountUtils.Constants.KEY_USER_ID);
-
-        binding.sharesList.setAdapter(new ShareeListAdapter(fileActivity,
-                                                            new ArrayList<>(),
-                                                            this,
-                                                            userId,
-                                                            user,
-                                                            viewThemeUtils,
-                                                            file.isEncrypted()));
-        binding.sharesList.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        setupView();
+        // TODO: Rok Jaklic
+//        fileOperationsHelper = fileActivity.getFileOperationsHelper();
+//        fileDataStorageManager = fileActivity.getStorageManager();
+//
+//        AccountManager accountManager = AccountManager.get(getContext());
+//        String userId = accountManager.getUserData((Account) user,
+//                                                   com.owncloud.android.lib.common.accounts.AccountUtils.Constants.KEY_USER_ID);
+//
+//        binding.sharesList.setAdapter(new ShareeListAdapter(fileActivity,
+//                                                            new ArrayList<>(),
+//                                                            this,
+//                                                            userId,
+//                                                            user,
+//                                                            viewThemeUtils,
+//                                                            file.isEncrypted()));
+//        binding.sharesList.setLayoutManager(new LinearLayoutManager(getContext()));
+//
+//        setupView();
 
         return view;
     }
@@ -405,7 +407,7 @@ public class FileDetailSharingFragment extends Fragment implements ShareeListAda
      * Get known server capabilities from DB
      */
     public void refreshCapabilitiesFromDB() {
-        capabilities = fileDataStorageManager.getCapability(user.getAccountName());
+        capabilities = fileDataStorageManager.getCapability(MainApp.user.getAccountName());
     }
 
     /**

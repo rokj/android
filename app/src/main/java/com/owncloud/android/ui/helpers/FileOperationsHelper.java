@@ -29,7 +29,6 @@
 package com.owncloud.android.ui.helpers;
 
 import android.Manifest;
-import android.accounts.Account;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -50,7 +49,6 @@ import com.nextcloud.client.account.CurrentAccountProvider;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.jobs.BackgroundJobManager;
 import com.nextcloud.client.network.ConnectivityService;
-import com.nextcloud.java.util.Optional;
 import com.nextcloud.utils.EditorUtils;
 import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
@@ -209,20 +207,16 @@ public class FileOperationsHelper {
 
     public void startSyncForFileAndIntent(OCFile file, Intent intent) {
         new Thread(() -> {
-            User user = fileActivity.getUser();
-            FileDataStorageManager storageManager = new FileDataStorageManager(user,
-                                                                               fileActivity.getContentResolver());
-
             // check if file is in conflict (this is known due to latest folder refresh)
             if (file.isInConflict()) {
-                syncFile(file, user, storageManager);
+                syncFile(file, MainApp.user, MainApp.storageManager);
                 EventBus.getDefault().post(new SyncEventFinished(intent));
 
                 return;
             }
 
             // check if latest sync is >30s ago
-            OCFile parent = storageManager.getFileById(file.getParentId());
+            OCFile parent = MainApp.storageManager.getFileById(file.getParentId());
             if (parent != null && parent.getLastSyncDateForData() + 30 * 1000 > System.currentTimeMillis()) {
                 EventBus.getDefault().post(new SyncEventFinished(intent));
 
@@ -240,11 +234,11 @@ public class FileOperationsHelper {
             // check for changed eTag
             CheckEtagRemoteOperation checkEtagOperation = new CheckEtagRemoteOperation(file.getRemotePath(),
                                                                                        file.getEtag());
-            RemoteOperationResult result = checkEtagOperation.execute((com.nextcloud.common.User) user, fileActivity);
+            RemoteOperationResult result = checkEtagOperation.execute((com.nextcloud.common.User) MainApp.user, fileActivity);
 
             // eTag changed, sync file
             if (result.getCode() == RemoteOperationResult.ResultCode.ETAG_CHANGED) {
-                syncFile(file, user, storageManager);
+                syncFile(file, MainApp.user, MainApp.storageManager);
             }
 
             EventBus.getDefault().post(new SyncEventFinished(intent));
@@ -259,9 +253,8 @@ public class FileOperationsHelper {
                                                                     null,
                                                                     user,
                                                                     true,
-                                                                    fileActivity,
-                                                                    storageManager);
-        RemoteOperationResult result = sfo.execute(fileActivity, (com.nextcloud.common.User) user);
+                                                                    fileActivity);
+        RemoteOperationResult result = sfo.execute();
 
         if (result.getCode() == RemoteOperationResult.ResultCode.SYNC_CONFLICT) {
             // ISSUE 5: if the user is not running the app (this is a service!),
@@ -274,7 +267,7 @@ public class FileOperationsHelper {
 
             fileActivity.startActivity(intent);
         } else {
-            if (file.isDown()) {
+            if (file.isAvailableLocally()) {
                 FileStorageUtils.checkIfFileFinishedSaving(file);
                 if (!result.isSuccess()) {
                     DisplayUtils.showSnackMessage(fileActivity, R.string.file_not_synced);
@@ -285,7 +278,7 @@ public class FileOperationsHelper {
                     }
                 }
             }
-        }
+         }
         fileActivity.dismissLoadingDialog();
     }
 
@@ -336,9 +329,8 @@ public class FileOperationsHelper {
                                                                                 null,
                                                                                 user,
                                                                                 true,
-                                                                                fileActivity,
-                                                                                storageManager);
-                    RemoteOperationResult result = sfo.execute(fileActivity);
+                                                                                fileActivity);
+                    RemoteOperationResult result = sfo.execute();
                     fileActivity.dismissLoadingDialog();
                     if (result.getCode() == RemoteOperationResult.ResultCode.SYNC_CONFLICT) {
                         // ISSUE 5: if the user is not running the app (this is a service!),
@@ -843,7 +835,7 @@ public class FileOperationsHelper {
             Uri uri;
 
             try {
-                if (file.isDown()) {
+                if (file.isAvailableLocally()) {
                     File externalFile = new File(file.getStoragePath());
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -467,7 +467,7 @@ public class PreviewMediaFragment extends FileFragment implements OnTouchListene
         setupVideoView();
         // load the video file in the video player
         // when done, VideoHelper#onPrepared() will be called
-        if (getFile().isDown()) {
+        if (getFile().isAvailableLocally()) {
             playVideoUri(getFile().getStorageUri());
         } else {
             try {

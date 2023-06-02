@@ -87,7 +87,7 @@ class FilesExportWork(
                     return@forEach
                 }
 
-                if (ocFile.isDown) {
+                if (ocFile.isAvailableLocally) {
                     try {
                         exportFile(ocFile)
                     } catch (e: IllegalStateException) {

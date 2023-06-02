@@ -131,7 +131,7 @@ public class ShareActivity extends FileActivity {
 
         // Load data into the list
         Log_OC.d(TAG, "Refreshing lists on account set");
-        refreshSharesFromStorageManager();
+        // refreshSharesFromStorageManager();
     }
 
     @Override
@@ -161,7 +161,7 @@ public class ShareActivity extends FileActivity {
                 )
                 ) {
             Log_OC.d(TAG, "Refreshing view on successful operation or finished refresh");
-            refreshSharesFromStorageManager();
+            // refreshSharesFromStorageManager();
         }
     }
 

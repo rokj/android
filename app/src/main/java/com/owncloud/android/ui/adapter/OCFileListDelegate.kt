@@ -319,7 +319,7 @@ class OCFileListDelegate(
                 gridViewHolder.localFileIndicator.setImageResource(R.drawable.ic_synchronizing_error)
                 gridViewHolder.localFileIndicator.visibility = View.VISIBLE
             }
-            file.isDown -> {
+            file.isAvailableLocally -> {
                 // downloaded
                 gridViewHolder.localFileIndicator.setImageResource(R.drawable.ic_synced)
                 gridViewHolder.localFileIndicator.visibility = View.VISIBLE

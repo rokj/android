@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.MenuItem;
@@ -38,7 +37,6 @@ import android.view.View;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.di.Injectable;
 import com.nextcloud.client.preferences.AppPreferences;
-import com.nextcloud.java.util.Optional;
 import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 import com.owncloud.android.datamodel.FileDataStorageManager;
@@ -52,8 +50,6 @@ import com.owncloud.android.lib.common.operations.OnRemoteOperationListener;
 import com.owncloud.android.lib.common.operations.RemoteOperation;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.utils.Log_OC;
-import com.owncloud.android.operations.RemoveFileOperation;
-import com.owncloud.android.operations.SynchronizeFileOperation;
 import com.owncloud.android.ui.activity.FileActivity;
 import com.owncloud.android.ui.activity.FileDisplayActivity;
 import com.owncloud.android.ui.fragment.FileFragment;
@@ -151,18 +147,18 @@ public class PreviewImageActivity extends FileActivity implements
                                                                      getStorageManager());
         } else {
             // get parent from path
-            OCFile parentFolder = getStorageManager().getFileById(getFile().getParentId());
+            OCFile parentFolder = MainApp.storageManager.getFileById(getFile().getParentId());
 
             if (parentFolder == null) {
                 // should not be necessary
-                parentFolder = getStorageManager().getFileByPath(OCFile.ROOT_PATH);
+                parentFolder = MainApp.storageManager.getFileByPath(OCFile.ROOT_PATH);
             }
 
             mPreviewImagePagerAdapter = new PreviewImagePagerAdapter(
                 getSupportFragmentManager(),
                 parentFolder,
                 user,
-                getStorageManager(),
+                MainApp.storageManager,
                 MainApp.isOnlyOnDevice(),
                 preferences
             );
@@ -177,7 +173,7 @@ public class PreviewImageActivity extends FileActivity implements
         mViewPager.addOnPageChangeListener(this);
         mViewPager.setCurrentItem(position);
 
-        if (position == 0 && !getFile().isDown()) {
+        if (position == 0 && !getFile().isAvailableLocally()) {
             // this is necessary because mViewPager.setCurrentItem(0) just after setting the
             // adapter does not result in a call to #onPageSelected(0)
             mRequestWaitingForBinder = true;
@@ -187,8 +183,7 @@ public class PreviewImageActivity extends FileActivity implements
     @Override
     public void onStart() {
         super.onStart();
-        User optionalUser = getUser();
-        if (optionalUser != null) {
+        if (MainApp.user != null) {
             OCFile file = getFile();
             /// Validate handled file (first image to preview)
             if (file == null) {
@@ -200,7 +195,7 @@ public class PreviewImageActivity extends FileActivity implements
 
             // Update file according to DB file, if it is possible
             if (file.getFileId() > FileDataStorageManager.ROOT_PARENT_ID) {
-                file = getStorageManager().getFileById(file.getFileId());
+                file = MainApp.storageManager.getFileById(file.getFileId());
             }
 
             if (file != null) {
@@ -208,7 +203,7 @@ public class PreviewImageActivity extends FileActivity implements
                 setFile(file);  // reset after getting it fresh from storageManager
                 getSupportActionBar().setTitle(getFile().getFileName());
                 //if (!stateWasRecovered) {
-                initViewPager(optionalUser);
+                initViewPager(MainApp.user);
                 //}
 
             } else {
@@ -229,11 +224,12 @@ public class PreviewImageActivity extends FileActivity implements
     public void onRemoteOperationFinish(RemoteOperation operation, RemoteOperationResult result) {
         super.onRemoteOperationFinish(operation, result);
 
-        if (operation instanceof RemoveFileOperation) {
-            finish();
-        } else if (operation instanceof SynchronizeFileOperation) {
-            onSynchronizeFileOperationFinish(result);
-        }
+        // TODO: Rok Jaklic
+//        if (operation instanceof RemoveFileOperation) {
+//            finish();
+//        } else if (operation instanceof SynchronizeFileOperation) {
+//            onSynchronizeFileOperationFinish(result);
+//        }
     }
 
     private void onSynchronizeFileOperationFinish(RemoteOperationResult result) {
@@ -400,7 +396,7 @@ public class PreviewImageActivity extends FileActivity implements
                 }
                 setDrawerIndicatorEnabled(false);
 
-                if (currentFile.isEncrypted() && !currentFile.isDown() &&
+                if (currentFile.isEncrypted() && !currentFile.isAvailableLocally() &&
                         !mPreviewImagePagerAdapter.pendingErrorAt(position)) {
                     requestForDownload(currentFile);
                 }

@@ -210,18 +210,18 @@ public class BackupListFragment extends FileFragment implements Injectable {
         fileDownloader.bind();
 
         for (OCFile file : ocFiles) {
-            if (!file.isDown()) {
+            if (!file.isAvailableLocally()) {
                 Request request = new DownloadRequest(user, file);
                 fileDownloader.enqueue(request);
             }
 
-            if (MimeTypeUtil.isVCard(file) && file.isDown()) {
+            if (MimeTypeUtil.isVCard(file) && file.isAvailableLocally()) {
                 setFile(file);
                 loadContactsTask = new LoadContactsTask(this, file);
                 loadContactsTask.execute();
             }
 
-            if (MimeTypeUtil.isCalendar(file) && file.isDown()) {
+            if (MimeTypeUtil.isCalendar(file) && file.isAvailableLocally()) {
                 showLoadingMessage(false);
                 listAdapter.addCalendar(file);
             }

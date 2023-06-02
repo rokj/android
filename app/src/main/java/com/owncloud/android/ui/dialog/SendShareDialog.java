@@ -229,11 +229,11 @@ public class SendShareDialog extends BottomSheetDialogFragment implements Inject
             String packageName = sendButtonDataData.getPackageName();
             String activityName = sendButtonDataData.getActivityName();
 
-            if (MimeTypeUtil.isImage(file) && !file.isDown()) {
+            if (MimeTypeUtil.isImage(file) && !file.isAvailableLocally()) {
                 fileOperationsHelper.sendCachedImage(file, packageName, activityName);
             } else {
                 // Obtain the file
-                if (file.isDown()) {
+                if (file.isAvailableLocally()) {
                     sendIntent.setComponent(new ComponentName(packageName, activityName));
                     requireActivity().startActivity(Intent.createChooser(sendIntent, getString(R.string.send)));
                 } else {  // Download the file

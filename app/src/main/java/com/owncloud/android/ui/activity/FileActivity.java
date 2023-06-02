@@ -387,8 +387,9 @@ public abstract class FileActivity extends DrawerActivity
                 );
             }
 
-        } else if (operation instanceof SynchronizeFileOperation) {
-            onSynchronizeFileOperationFinish((SynchronizeFileOperation) operation, result);
+
+//        else if (operation instanceof SynchronizeFileOperation) {
+//            onSynchronizeFileOperationFinish((SynchronizeFileOperation) operation, result);
 
         } else if (operation instanceof GetSharesForFileOperation) {
             if (result.isSuccess() || result.getCode() == ResultCode.SHARE_NOT_FOUND) {
@@ -499,27 +500,27 @@ public abstract class FileActivity extends DrawerActivity
         }
     }
 
-    private void onSynchronizeFileOperationFinish(SynchronizeFileOperation operation,
-                                                  RemoteOperationResult result) {
-        OCFile syncedFile = operation.getLocalFile();
-        if (!result.isSuccess()) {
-            if (result.getCode() == ResultCode.SYNC_CONFLICT) {
-                Intent intent = ConflictsResolveActivity.createIntent(syncedFile,
-                                                                      getUser(),
-                                                                      -1,
-                                                                      null,
-                                                                      this);
-                startActivity(intent);
-            }
-
-        } else {
-            if (!operation.transferWasRequested()) {
-                DisplayUtils.showSnackMessage(this, ErrorMessageAdapter.getErrorCauseMessage(result,
-                        operation, getResources()));
-            }
-            supportInvalidateOptionsMenu();
-        }
-    }
+//    private void onSynchronizeFileOperationFinish(SynchronizeFileOperation operation,
+//                                                  RemoteOperationResult result) {
+//        OCFile syncedFile = operation.getLocalFile();
+//        if (!result.isSuccess()) {
+//            if (result.getCode() == ResultCode.SYNC_CONFLICT) {
+//                Intent intent = ConflictsResolveActivity.createIntent(syncedFile,
+//                                                                      getUser(),
+//                                                                      -1,
+//                                                                      null,
+//                                                                      this);
+//                startActivity(intent);
+//            }
+//
+//        } else {
+//            if (!operation.transferWasRequested()) {
+//                DisplayUtils.showSnackMessage(this, ErrorMessageAdapter.getErrorCauseMessage(result,
+//                        operation, getResources()));
+//            }
+//            supportInvalidateOptionsMenu();
+//        }
+//    }
 
     protected void updateFileFromDB(){
         OCFile file = getFile();
@@ -735,14 +736,14 @@ public abstract class FileActivity extends DrawerActivity
         }
 
         if (username != null) {
-            intentToShareLink.putExtra(Intent.EXTRA_SUBJECT,
-                                       activity.getString(R.string.subject_user_shared_with_you,
-                                                          username,
-                                                          file.getFileName()));
-        } else {
-            intentToShareLink.putExtra(Intent.EXTRA_SUBJECT,
-                                       activity.getString(R.string.subject_shared_with_you,
-                                                          file.getFileName()));
+//            intentToShareLink.putExtra(Intent.EXTRA_SUBJECT,
+//                                       activity.getString(R.string.subject_user_shared_with_you,
+//                                                          username,
+//                                                          file.getFileName()));
+//        } else {
+//            intentToShareLink.putExtra(Intent.EXTRA_SUBJECT,
+//                                       activity.getString(R.string.subject_shared_with_you,
+//                                                          file.getFileName()));
         }
 
         String[] packagesToExclude = new String[]{activity.getPackageName()};

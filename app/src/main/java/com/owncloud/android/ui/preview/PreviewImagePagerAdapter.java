@@ -156,7 +156,7 @@ public class PreviewImagePagerAdapter extends FragmentStatePagerAdapter {
         if (file == null) {
             fragment = PreviewImageErrorFragment.newInstance();
 
-        } else if (file.isDown()) {
+        } else if (file.isAvailableLocally()) {
             fragment = PreviewImageFragment.newInstance(file, mObsoletePositions.contains(i), false);
         } else {
             if (mDownloadErrors.remove(i)) {

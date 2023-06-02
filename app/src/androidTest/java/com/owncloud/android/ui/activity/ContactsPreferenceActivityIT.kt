@@ -41,7 +41,7 @@ class ContactsPreferenceActivityIT : AbstractIT() {
         val vcfFile = OCFile("/contacts.vcf")
         vcfFile.storagePath = file.absolutePath
 
-        assertTrue(vcfFile.isDown)
+        assertTrue(vcfFile.isAvailableLocally)
 
         val intent = Intent()
         intent.putExtra(ContactsPreferenceActivity.EXTRA_FILE, vcfFile)

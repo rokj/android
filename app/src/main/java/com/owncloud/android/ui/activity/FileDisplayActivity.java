@@ -28,11 +28,11 @@
 
 package com.owncloud.android.ui.activity;
 
-import android.accounts.Account;
 import android.accounts.AuthenticatorException;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -55,9 +55,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.snackbar.Snackbar;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.appinfo.AppInfo;
 import com.nextcloud.client.di.Injectable;
@@ -85,7 +85,6 @@ import com.owncloud.android.lib.common.operations.RemoteOperationResult.ResultCo
 import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.files.RestoreFileVersionRemoteOperation;
 import com.owncloud.android.lib.resources.files.SearchRemoteOperation;
-import com.owncloud.android.lib.resources.status.OwnCloudVersion;
 import com.owncloud.android.operations.CopyFileOperation;
 import com.owncloud.android.operations.CreateFolderOperation;
 import com.owncloud.android.operations.MoveFileOperation;
@@ -101,7 +100,6 @@ import com.owncloud.android.ui.asynctasks.FetchRemoteFileTask;
 import com.owncloud.android.ui.dialog.SendShareDialog;
 import com.owncloud.android.ui.dialog.SortingOrderDialogFragment;
 import com.owncloud.android.ui.dialog.StoragePermissionDialogFragment;
-import com.owncloud.android.ui.events.ChangeMenuEvent;
 import com.owncloud.android.ui.events.SearchEvent;
 import com.owncloud.android.ui.events.SyncEventFinished;
 import com.owncloud.android.ui.events.TokenPushEvent;
@@ -1265,8 +1263,8 @@ public class FileDisplayActivity extends FileActivity
                             setFile(currentFile);
                         }
 
-//                        mSyncInProgress = !FileSyncAdapter.EVENT_FULL_SYNC_END.equals(event) &&
-//                            !RefreshFolderOperation.EVENT_SINGLE_FOLDER_SHARES_SYNCED.equals(event);
+                        mSyncInProgress = !FileSyncAdapter.EVENT_FULL_SYNC_END.equals(event) &&
+                            !RefreshFolderOperation.EVENT_SINGLE_FOLDER_SHARES_SYNCED.equals(event);
 
                         if (RefreshFolderOperation.EVENT_SINGLE_FOLDER_CONTENTS_SYNCED.equals(event) &&
                             synchResult != null) {
@@ -1479,7 +1477,7 @@ public class FileDisplayActivity extends FileActivity
             if (mWaitingToSend != null) {
                 // update file after downloading
                 mWaitingToSend = getStorageManager().getFileByRemoteId(mWaitingToSend.getRemoteId());
-                if (mWaitingToSend != null && mWaitingToSend.isDown() && downloadBehaviour != null) {
+                if (mWaitingToSend != null && mWaitingToSend.isAvailableLocally() && downloadBehaviour != null) {
                     switch (downloadBehaviour) {
                         case OCFileListFragment.DOWNLOAD_SEND:
                             String packageName = intent.getStringExtra(SendShareDialog.PACKAGE_NAME);
@@ -1618,7 +1616,7 @@ public class FileDisplayActivity extends FileActivity
                 if (mWaitingToPreview != null && getStorageManager() != null) {
                     // update the file
                     mWaitingToPreview = getStorageManager().getFileById(mWaitingToPreview.getFileId());
-                    if (mWaitingToPreview != null && !mWaitingToPreview.isDown()) {
+                    if (mWaitingToPreview != null && !mWaitingToPreview.isAvailableLocally()) {
                         requestForDownload();
                     }
                 }
@@ -1671,8 +1669,8 @@ public class FileDisplayActivity extends FileActivity
             onRemoveFileOperationFinish((RemoveFileOperation) operation, result);
         } else if (operation instanceof RenameFileOperation) {
             onRenameFileOperationFinish((RenameFileOperation) operation, result);
-        } else if (operation instanceof SynchronizeFileOperation) {
-            onSynchronizeFileOperationFinish((SynchronizeFileOperation) operation, result);
+//        } else if (operation instanceof SynchronizeFileOperation) {
+//            onSynchronizeFileOperationFinish((SynchronizeFileOperation) operation, result);
         } else if (operation instanceof CreateFolderOperation) {
             onCreateFolderOperationFinish((CreateFolderOperation) operation, result);
         } else if (operation instanceof MoveFileOperation) {
@@ -1753,7 +1751,7 @@ public class FileDisplayActivity extends FileActivity
             OCFile file = getFile();
 
             // delete old local copy
-            if (file.isDown()) {
+            if (file.isAvailableLocally()) {
                 List<OCFile> list = new ArrayList<>();
                 list.add(file);
                 getFileOperationsHelper().removeFiles(list, true, true);
@@ -1948,7 +1946,7 @@ public class FileDisplayActivity extends FileActivity
 
 
     private void requestForDownload() {
-        User user = getUser();
+        User user = MainApp.user;
         //if (!mWaitingToPreview.isDownloading()) {
         if (!mDownloaderBinder.isDownloading(user, mWaitingToPreview)) {
             Intent i = new Intent(this, FileDownloader.class);
@@ -2133,7 +2131,7 @@ public class FileDisplayActivity extends FileActivity
         if (user == null) {
             return; // not reachable under normal conditions
         }
-        if (showPreview && file.isDown() && !file.isDownloading() || streamMedia) {
+        if (showPreview && file.isAvailableLocally() && !file.isDownloading() || streamMedia) {
             configureToolbarForMediaPreview(file);
             Fragment mediaFragment = PreviewMediaFragment.newInstance(file, user, startPlaybackPosition, autoplay);
             setLeftFragment(mediaFragment);
@@ -2229,9 +2227,9 @@ public class FileDisplayActivity extends FileActivity
      * @param parentFolder {@link OCFile} containing above file
      */
     public void startDownloadForPreview(OCFile file, OCFile parentFolder) {
-        final User currentUser = getUser();
-        Fragment detailFragment = FileDetailFragment.newInstance(file, parentFolder, currentUser);
-        setLeftFragment(detailFragment);
+        final User currentUser = MainApp.user;
+//        Fragment detailFragment = FileDetailFragment.newInstance(file, parentFolder, currentUser);
+//        setLeftFragment(detailFragment);
         mWaitingToPreview = file;
         requestForDownload();
         updateActionBarTitleAndHomeButton(file);
@@ -2357,7 +2355,7 @@ public class FileDisplayActivity extends FileActivity
             // get parent from path
             String parentPath = "";
             if (file != null) {
-                if (file.isDown() && file.getLastSyncDateForProperties() == 0) {
+                if (file.isAvailableLocally() && file.getLastSyncDateForProperties() == 0) {
                     // upload in progress - right now, files are not inserted in the local
                     // cache until the upload is successful get parent from path
                     parentPath = file.getRemotePath().substring(0,
@@ -2520,6 +2518,60 @@ public class FileDisplayActivity extends FileActivity
             updateActionBarTitleAndHomeButton(null);
         } else {
             DisplayUtils.showSnackMessage(listOfFiles.getView(), message);
+        }
+    }
+
+    public void tryToOpenFile(String localPath) {
+        try {
+
+            Uri uri = Uri.fromFile(new File(localPath));
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            if (localPath.contains(".doc") || localPath.contains(".docx")) {
+                // Word document
+                intent.setDataAndType(uri, "application/msword");
+            } else if (localPath.contains(".pdf")) {
+                // PDF file
+                intent.setDataAndType(uri, "application/pdf");
+            } else if (localPath.contains(".ppt") || localPath.contains(".pptx")) {
+                // Powerpoint file
+                intent.setDataAndType(uri, "application/vnd.ms-powerpoint");
+            } else if (localPath.contains(".xls") || localPath.contains(".xlsx")) {
+                // Excel file
+                intent.setDataAndType(uri, "application/vnd.ms-excel");
+            } else if (localPath.contains(".zip")) {
+                // ZIP file
+                intent.setDataAndType(uri, "application/zip");
+            } else if (localPath.contains(".rar")){
+                // RAR file
+                intent.setDataAndType(uri, "application/x-rar-compressed");
+            } else if (localPath.contains(".rtf")) {
+                // RTF file
+                intent.setDataAndType(uri, "application/rtf");
+            } else if (localPath.contains(".wav") || localPath.contains(".mp3")) {
+                // WAV audio file
+                intent.setDataAndType(uri, "audio/x-wav");
+            } else if (localPath.contains(".gif")) {
+                // GIF file
+                intent.setDataAndType(uri, "image/gif");
+            } else if (localPath.contains(".jpg") || localPath.contains(".jpeg") || localPath.contains(".png")) {
+                // JPG file
+                intent.setDataAndType(uri, "image/jpeg");
+            } else if (localPath.contains(".txt")) {
+                // Text file
+                intent.setDataAndType(uri, "text/plain");
+            } else if (localPath.contains(".3gp") || localPath.contains(".mpg") ||
+                localPath.contains(".mpeg") || localPath.contains(".mpe") || localPath.contains(".mp4") || localPath.contains(".avi")) {
+                // Video files
+                intent.setDataAndType(uri, "video/*");
+            } else {
+                intent.setDataAndType(uri, "*/*");
+            }
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No application found which can open the file", Toast.LENGTH_SHORT).show();
         }
     }
 }

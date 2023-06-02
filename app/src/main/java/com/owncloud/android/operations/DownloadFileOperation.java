@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
 import com.nextcloud.client.account.User;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.datamodel.DecryptedFolderMetadata;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
@@ -108,15 +109,15 @@ public class DownloadFileOperation extends RemoteOperation {
                 return path.getAbsolutePath();
             }
         }
-        return FileStorageUtils.getDefaultSavePathFor(user.getAccountName(), file);
+        return FileStorageUtils.getDefaultSavePathFor(MainApp.user.getAccountName(), file);
     }
 
     public String getTmpPath() {
-        return FileStorageUtils.getTemporalPath(user.getAccountName()) + file.getRemotePath();
+        return FileStorageUtils.getTemporalPath(MainApp.user.getAccountName()) + file.getRemotePath();
     }
 
     public String getTmpFolder() {
-        return FileStorageUtils.getTemporalPath(user.getAccountName());
+        return FileStorageUtils.getTemporalPath(MainApp.user.getAccountName());
     }
 
     public String getRemotePath() {

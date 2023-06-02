@@ -24,7 +24,6 @@
  */
 package com.owncloud.android.ui.fragment;
 
-import android.accounts.Account;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -65,11 +64,9 @@ import com.nextcloud.utils.ShortcutUtil;
 import com.nextcloud.utils.view.FastScrollUtils;
 import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
-import com.owncloud.android.authentication.S3LoginActivity;
 import com.owncloud.android.datamodel.ArbitraryDataProvider;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
-import com.owncloud.android.datamodel.VirtualFolderType;
 import com.owncloud.android.lib.common.Creator;
 import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.operations.RemoteOperation;
@@ -102,14 +99,10 @@ import com.owncloud.android.ui.events.FileLockEvent;
 import com.owncloud.android.ui.events.SearchEvent;
 import com.owncloud.android.ui.helpers.FileOperationsHelper;
 import com.owncloud.android.ui.interfaces.OCFileListFragmentInterface;
-import com.owncloud.android.ui.preview.PreviewImageFragment;
-import com.owncloud.android.ui.preview.PreviewMediaFragment;
-import com.owncloud.android.ui.preview.PreviewTextFileFragment;
 import com.owncloud.android.utils.DisplayUtils;
 import com.owncloud.android.utils.EncryptionUtils;
 import com.owncloud.android.utils.FileSortOrder;
 import com.owncloud.android.utils.FileStorageUtils;
-import com.owncloud.android.utils.MimeTypeUtil;
 import com.owncloud.android.utils.theme.ThemeUtils;
 import com.owncloud.android.utils.theme.ViewThemeUtils;
 
@@ -1005,61 +998,62 @@ public class OCFileListFragment extends ExtendedListFragment implements
                     getActivity().setResult(Activity.RESULT_OK, intent);
                     getActivity().finish();
                 } else if (!mOnlyFoldersClickable) { // Click on a file
-                    if (PreviewImageFragment.canBePreviewed(file)) {
-                        // preview image - it handles the download, if needed
-                        if (searchFragment) {
-                            VirtualFolderType type;
-                            switch (currentSearchType) {
-                                case FAVORITE_SEARCH:
-                                    type = VirtualFolderType.FAVORITE;
-                                    break;
-                                case GALLERY_SEARCH:
-                                    type = VirtualFolderType.GALLERY;
-                                    break;
-                                default:
-                                    type = VirtualFolderType.NONE;
-                                    break;
-                            }
-                            ((FileDisplayActivity) mContainerActivity).startImagePreview(file, type, !file.isDown());
-                        } else {
-                            ((FileDisplayActivity) mContainerActivity).startImagePreview(file, !file.isDown());
-                        }
-                    } else if (file.isDown() && MimeTypeUtil.isVCard(file)) {
-                        ((FileDisplayActivity) mContainerActivity).startContactListFragment(file);
-                    } else if (file.isDown() && MimeTypeUtil.isPDF(file)) {
-                        ((FileDisplayActivity) mContainerActivity).startPdfPreview(file);
-                    } else if (PreviewTextFileFragment.canBePreviewed(file)) {
-                        setFabVisible(false);
-                        ((FileDisplayActivity) mContainerActivity).startTextPreview(file, false);
-                    } else if (file.isDown()) {
-                        if (PreviewMediaFragment.canBePreviewed(file)) {
-                            // media preview
-                            setFabVisible(false);
-                            ((FileDisplayActivity) mContainerActivity).startMediaPreview(file, 0, true, true, false);
-                        } else {
-                            mContainerActivity.getFileOperationsHelper().openFile(file);
-                        }
+                    if (file.isAvailableLocally()) {
+//                        // preview image - it handles the download, if needed
+//                        if (searchFragment) {
+//                            VirtualFolderType type;
+//                            switch (currentSearchType) {
+//                                case FAVORITE_SEARCH:
+//                                    type = VirtualFolderType.FAVORITE;
+//                                    break;
+//                                case GALLERY_SEARCH:
+//                                    type = VirtualFolderType.GALLERY;
+//                                    break;
+//                                default:
+//                                    type = VirtualFolderType.NONE;
+//                                    break;
+//                            }
+//                            ((FileDisplayActivity) mContainerActivity).startImagePreview(file, type, !file.isDown());
+//                        } else {
+//                            ((FileDisplayActivity) mContainerActivity).startImagePreview(file, !file.isDown());
+//                        }
+//                    } else if (file.isDown() && MimeTypeUtil.isVCard(file)) {
+//                        ((FileDisplayActivity) mContainerActivity).startContactListFragment(file);
+//                    } else if (file.isDown() && MimeTypeUtil.isPDF(file)) {
+//                        ((FileDisplayActivity) mContainerActivity).startPdfPreview(file);
+//                    } else if (PreviewTextFileFragment.canBePreviewed(file)) {
+//                        setFabVisible(false);
+//                        ((FileDisplayActivity) mContainerActivity).startTextPreview(file, false);
+//                    } else if (file.isDown()) {
+//                        if (PreviewMediaFragment.canBePreviewed(file)) {
+//                            // media preview
+//                            setFabVisible(false);
+//                            ((FileDisplayActivity) mContainerActivity).startMediaPreview(file, 0, true, true, false);
+//                        } else {
+//                            mContainerActivity.getFileOperationsHelper().openFile(file);
+//                        }
+                        Log_OC.d(TAG, "lets try to open file " + file.getStoragePath());
+                        ((FileDisplayActivity) mContainerActivity).tryToOpenFile(file.getStoragePath());
                     } else {
                         // file not downloaded, check for streaming, remote editing
-                        User account = accountManager.getUser();
-                        OCCapability capability = mContainerActivity.getStorageManager()
-                            .getCapability(account.getAccountName());
+                        User account = MainApp.user;
+                        OCCapability capability = MainApp.storageManager.getCapability(account.getAccountName());
 
-                        if (PreviewMediaFragment.canBePreviewed(file) && !file.isEncrypted()) {
-                            // stream media preview on >= NC14
-                            setFabVisible(false);
-                            ((FileDisplayActivity) mContainerActivity).startMediaPreview(file, 0, true, true, true);
-                        } else if (editorUtils.isEditorAvailable(accountManager.getUser(),
-                                                                 file.getMimeType()) &&
-                            !file.isEncrypted()) {
-                            mContainerActivity.getFileOperationsHelper().openFileWithTextEditor(file, getContext());
-                        } else if (capability.getRichDocumentsMimeTypeList().contains(file.getMimeType()) &&
-                            capability.getRichDocumentsDirectEditing().isTrue() && !file.isEncrypted()) {
-                            mContainerActivity.getFileOperationsHelper().openFileAsRichDocument(file, getContext());
-                        } else {
+//                        if (PreviewMediaFragment.canBePreviewed(file) && !file.isEncrypted()) {
+//                            // stream media preview on >= NC14
+//                            setFabVisible(false);
+//                            ((FileDisplayActivity) mContainerActivity).startMediaPreview(file, 0, true, true, true);
+//                        } else if (editorUtils.isEditorAvailable(accountManager.getUser(),
+//                                                                 file.getMimeType()) &&
+//                            !file.isEncrypted()) {
+//                            mContainerActivity.getFileOperationsHelper().openFileWithTextEditor(file, getContext());
+//                        } else if (capability.getRichDocumentsMimeTypeList().contains(file.getMimeType()) &&
+//                            capability.getRichDocumentsDirectEditing().isTrue() && !file.isEncrypted()) {
+//                            mContainerActivity.getFileOperationsHelper().openFileAsRichDocument(file, getContext());
+                        // } else {
                             // automatic download, preview on finish
                             ((FileDisplayActivity) mContainerActivity).startDownloadForPreview(file, mFile);
-                        }
+                        // }
                     }
                 }
             } else {

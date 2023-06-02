@@ -269,6 +269,7 @@ public class FileDetailFragment extends FileFragment implements OnClickListener,
             .show(fragmentManager, "actions");
     }
 
+    // Activities, Comments
     private void setupViewPager() {
         binding.tabLayout.removeAllTabs();
 
@@ -473,7 +474,7 @@ public class FileDetailFragment extends FileFragment implements OnClickListener,
      */
     public void updateFileDetails(boolean transferring, boolean refresh) {
         if (readyToShow()) {
-            FileDataStorageManager storageManager = containerActivity.getStorageManager();
+            FileDataStorageManager storageManager = MainApp.storageManager;
 
             if (storageManager == null) {
                 return;
@@ -506,7 +507,7 @@ public class FileDetailFragment extends FileFragment implements OnClickListener,
                     || (uploaderBinder != null && uploaderBinder.isUploading(user, file))) {
                 setButtonsForTransferring();
 
-            } else if (file.isDown()) {
+            } else if (file.isAvailableLocally()) {
 
                 setButtonsForDown();
 
@@ -517,7 +518,7 @@ public class FileDetailFragment extends FileFragment implements OnClickListener,
             }
         }
 
-        setupViewPager();
+        // setupViewPager();
 
         getView().invalidate();
     }
@@ -578,14 +579,14 @@ public class FileDetailFragment extends FileFragment implements OnClickListener,
 
                 // generate new resized image
                 if (ThumbnailsCacheManager.cancelPotentialThumbnailWork(getFile(), toolbarActivity.getPreviewImageView()) &&
-                        containerActivity.getStorageManager() != null) {
+                        MainApp.storageManager != null) {
                     final ThumbnailsCacheManager.ResizedImageGenerationTask task =
                         new ThumbnailsCacheManager.ResizedImageGenerationTask(this,
                                                                               toolbarActivity.getPreviewImageView(),
                                                                               toolbarActivity.getPreviewImageContainer(),
                                                                               containerActivity.getStorageManager(),
                                                                               connectivityService,
-                                                                              containerActivity.getStorageManager().getUser(),
+                                                                              MainApp.user,
                                                                               getResources().getColor(R.color.background_color_inverse)
                         );
 

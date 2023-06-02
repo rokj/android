@@ -28,7 +28,9 @@ import com.nextcloud.android.common.ui.theme.MaterialSchemes
 import com.nextcloud.client.account.AnonymousUser
 import com.nextcloud.client.account.User
 import com.nextcloud.client.account.UserAccountManager
+import com.nextcloud.client.account.UserImpl
 import com.nextcloud.client.logger.Logger
+import com.owncloud.android.MainApp
 import com.owncloud.android.R
 import com.owncloud.android.lib.resources.status.OCCapability
 import java.util.concurrent.ConcurrentHashMap

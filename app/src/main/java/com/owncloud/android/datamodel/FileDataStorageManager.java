@@ -378,7 +378,7 @@ public class FileDataStorageManager {
                         ContentUris.withAppendedId(ProviderTableMeta.CONTENT_URI_FILE, ocFile.getFileId()))
                                        .withSelection(where, whereArgs).build());
 
-                    if (ocFile.isDown()) {
+                    if (ocFile.isAvailableLocally()) {
                         String path = ocFile.getStoragePath();
                         if (new File(path).delete() && MimeTypeUtil.isMedia(ocFile.getMimeType())) {
                             triggerMediaScan(path, ocFile); // notify MediaScanner about removed file
@@ -539,7 +539,7 @@ public class FileDataStorageManager {
                 }
 
                 String localPath = ocFile.getStoragePath();
-                if (removeLocalCopy && ocFile.isDown() && localPath != null && success) {
+                if (removeLocalCopy && ocFile.isAvailableLocally() && localPath != null && success) {
                     success = new File(localPath).delete();
                     if (success) {
                         deleteFileInMediaScan(localPath);
@@ -606,7 +606,7 @@ public class FileDataStorageManager {
             for (OCFile ocFile : files) {
                 if (ocFile.isFolder()) {
                     success &= removeLocalFolder(ocFile);
-                } else if (ocFile.isDown()) {
+                } else if (ocFile.isAvailableLocally()) {
                     File localFile = new File(ocFile.getStoragePath());
                     success &= localFile.delete();
 
@@ -1631,7 +1631,7 @@ public class FileDataStorageManager {
 
     public void saveConflict(OCFile ocFile, String etagInConflict) {
         ContentValues cv = new ContentValues();
-        if (!ocFile.isDown()) {
+        if (!ocFile.isAvailableLocally()) {
             cv.put(ProviderTableMeta.FILE_ETAG_IN_CONFLICT, (String) null);
         } else {
             cv.put(ProviderTableMeta.FILE_ETAG_IN_CONFLICT, etagInConflict);
@@ -1661,7 +1661,7 @@ public class FileDataStorageManager {
         Log_OC.d(TAG, "Number of files updated with CONFLICT: " + updated);
 
         if (updated > 0) {
-            if (etagInConflict != null && ocFile.isDown()) {
+            if (etagInConflict != null && ocFile.isAvailableLocally()) {
                 /// set conflict in all ancestor folders
 
                 long parentId = ocFile.getParentId();

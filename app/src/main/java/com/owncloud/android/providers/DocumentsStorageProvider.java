@@ -60,19 +60,15 @@ import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.OwnCloudClientManagerFactory;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.utils.Log_OC;
-import com.owncloud.android.lib.resources.files.CheckEtagRemoteOperation;
-import com.owncloud.android.lib.resources.files.UploadFileRemoteOperation;
 import com.owncloud.android.operations.CopyFileOperation;
 import com.owncloud.android.operations.CreateFolderOperation;
 import com.owncloud.android.operations.DownloadFileOperation;
 import com.owncloud.android.operations.MoveFileOperation;
-import com.owncloud.android.operations.RefreshFolderOperation;
 import com.owncloud.android.operations.RemoveFileOperation;
 import com.owncloud.android.operations.RenameFileOperation;
 import com.owncloud.android.ui.activity.SettingsActivity;
 import com.owncloud.android.ui.helpers.FileOperationsHelper;
 import com.owncloud.android.utils.FileStorageUtils;
-import com.owncloud.android.utils.FileUtil;
 import com.owncloud.android.utils.MimeTypeUtil;
 
 import org.nextcloud.providers.cursors.FileCursor;
@@ -212,7 +208,7 @@ public class DocumentsStorageProvider extends DocumentsProvider {
         int accessMode = ParcelFileDescriptor.parseMode(mode);
         boolean writeOnly = (accessMode & MODE_WRITE_ONLY) != 0;
         boolean wasNotYetStored = ocFile.getStoragePath() == null;
-        boolean needsDownload = (!writeOnly || wasNotYetStored) && (!ocFile.isDown() || hasServerChange(document));
+        boolean needsDownload = (!writeOnly || wasNotYetStored) && (!ocFile.isAvailableLocally() || hasServerChange(document));
         if (needsDownload) {
             if (ocFile.getLocalModificationTimestamp() > ocFile.getLastSyncDateForData()) {
                 // TODO show a conflict notification with a pending intent that shows a ConflictResolveDialog
@@ -225,7 +221,7 @@ public class DocumentsStorageProvider extends DocumentsProvider {
                     DownloadFileOperation downloadFileOperation = new DownloadFileOperation(user, ocFile, context);
                     RemoteOperationResult result = downloadFileOperation.execute(document.getClient());
                     if (!result.isSuccess()) {
-                        if (ocFile.isDown()) {
+                        if (ocFile.isAvailableLocally()) {
                             Handler handler = new Handler(Looper.getMainLooper());
                             handler.post(() -> Toast.makeText(MainApp.getAppContext(),
                                                               R.string.file_not_synced,

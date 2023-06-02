@@ -441,8 +441,9 @@ public final class ThumbnailsCacheManager {
             file = (OCFile) params[0];
 
             try {
-                mClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor((OwnCloudAccount) user,
-                                                                                          MainApp.getAppContext());
+                // TODO: Rok Jaklic
+//                mClient = OwnCloudClientManagerFactory.getDefaultSingleton().getClientFor(MainApp.user,
+//                                                                                          MainApp.getAppContext());
 
                 thumbnail = doResizedImageInBackground(file, storageManager);
 
@@ -686,7 +687,7 @@ public final class ThumbnailsCacheManager {
 
                 if (file instanceof OCFile) {
                     OCFile ocFile = (OCFile) file;
-                    if (ocFile.isDown()) {
+                    if (ocFile.isAvailableLocally()) {
                         Bitmap bitmap;
                         if (MimeTypeUtil.isVideo(ocFile)) {
                             bitmap = ThumbnailUtils.createVideoThumbnail(ocFile.getStoragePath(),
@@ -1395,7 +1396,7 @@ public final class ThumbnailsCacheManager {
             int pxW = p.x;
             int pxH = p.y;
 
-            if (file.isDown()) {
+            if (file.isAvailableLocally()) {
                 Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromFile(file.getStoragePath(), pxW, pxH);
 
                 if (bitmap != null) {

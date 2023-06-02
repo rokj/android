@@ -698,11 +698,12 @@ public class OperationsService extends Service {
                     case ACTION_SYNC_FILE:
                         remotePath = operationIntent.getStringExtra(EXTRA_REMOTE_PATH);
                         boolean syncFileContents = operationIntent.getBooleanExtra(EXTRA_SYNC_FILE_CONTENTS, true);
-                        operation = new SynchronizeFileOperation(remotePath,
+                        SynchronizeFileOperation op = new SynchronizeFileOperation(remotePath,
                                                                  user,
                                                                  syncFileContents,
-                                                                 getApplicationContext(),
-                                                                 fileDataStorageManager);
+                                                                 getApplicationContext());
+                        op.execute();
+
                         break;
 
                     case ACTION_SYNC_FOLDER:

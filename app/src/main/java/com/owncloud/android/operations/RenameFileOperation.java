@@ -124,7 +124,7 @@ public class RenameFileOperation extends SyncOperation {
         }
 
         // try to rename the local copy of the file
-        if (file.isDown()) {
+        if (file.isAvailableLocally()) {
             String oldPath = file.getStoragePath();
             File f = new File(oldPath);
             String parentStoragePath = f.getParent();

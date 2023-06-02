@@ -26,24 +26,25 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.nextcloud.client.account.User;
-import com.owncloud.android.datamodel.FileDataStorageManager;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.files.services.FileDownloader;
 import com.owncloud.android.files.services.FileUploader;
 import com.owncloud.android.files.services.NameCollisionPolicy;
-import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult.ResultCode;
 import com.owncloud.android.lib.common.utils.Log_OC;
-import com.owncloud.android.lib.resources.files.ReadFileRemoteOperation;
 import com.owncloud.android.lib.resources.files.model.RemoteFile;
-import com.owncloud.android.operations.common.SyncOperation;
 import com.owncloud.android.utils.FileStorageUtils;
+
+import java.util.List;
+
+import static com.s3.s3.readRemoteFolder;
 
 /**
  * Remote operation performing the read of remote file in the ownCloud server.
  */
-public class SynchronizeFileOperation extends SyncOperation {
+public class SynchronizeFileOperation {
 
     private static final String TAG = SynchronizeFileOperation.class.getSimpleName();
 
@@ -77,13 +78,11 @@ public class SynchronizeFileOperation extends SyncOperation {
      *                         operation if needed and no conflict is detected.
      * @param context          Android context; needed to start transfers.
      */
-    public SynchronizeFileOperation(
+    public SynchronizeFileOperation (
         String remotePath,
         User user,
         boolean syncFileContents,
-        Context context,
-        FileDataStorageManager storageManager) {
-        super(storageManager);
+        Context context) {
 
         mRemotePath = remotePath;
         mLocalFile = null;
@@ -119,9 +118,7 @@ public class SynchronizeFileOperation extends SyncOperation {
         OCFile serverFile,
         User user,
         boolean syncFileContents,
-        Context context,
-        FileDataStorageManager storageManager) {
-        super(storageManager);
+        Context context) {
 
         mLocalFile = localFile;
         mServerFile = serverFile;
@@ -172,40 +169,32 @@ public class SynchronizeFileOperation extends SyncOperation {
         User user,
         boolean syncFileContents,
         boolean allowUploads,
-        Context context,
-        FileDataStorageManager storageManager) {
+        Context context) {
 
-        this(localFile, serverFile, user, syncFileContents, context, storageManager);
+        this(localFile, serverFile, user, syncFileContents, context);
         mAllowUploads = allowUploads;
     }
 
-
-    @Override
-    protected RemoteOperationResult run(OwnCloudClient client) {
-
+    public RemoteOperationResult execute() {
         RemoteOperationResult result = null;
         mTransferWasRequested = false;
 
         if (mLocalFile == null) {
             // Get local file from the DB
-            mLocalFile = getStorageManager().getFileByPath(mRemotePath);
+            mLocalFile = MainApp.storageManager.getFileByPath(mRemotePath);
         }
 
-        if (!mLocalFile.isDown()) {
+        if (!mLocalFile.isAvailableLocally()) {
             /// easy decision
             requestForDownload(mLocalFile);
-            result = new RemoteOperationResult(ResultCode.OK);
         } else {
             /// local copy in the device -> need to think a bit more before do anything
             if (mServerFile == null) {
-                ReadFileRemoteOperation operation = new ReadFileRemoteOperation(mRemotePath);
-                result = operation.execute(client);
+                List<Object> data = readRemoteFolder(mRemotePath);
 
-                if (result.isSuccess()) {
-                    mServerFile = FileStorageUtils.fillOCFile((RemoteFile) result.getData().get(0));
+                if (data.size() > 0) {
+                    mServerFile = FileStorageUtils.fillOCFile((RemoteFile) data.get(0));
                     mServerFile.setLastSyncDateForProperties(System.currentTimeMillis());
-                } else if (result.getCode() != ResultCode.FILE_NOT_FOUND) {
-                    return result;
                 }
             }
 
@@ -213,11 +202,9 @@ public class SynchronizeFileOperation extends SyncOperation {
                 /// check changes in server and local file
                 boolean serverChanged;
                 if (TextUtils.isEmpty(mLocalFile.getEtag())) {
-                    // file uploaded (null) or downloaded ("") before upgrade to version 1.8.0; check the old condition
-                    serverChanged = mServerFile.getModificationTimestamp() !=
-                            mLocalFile.getModificationTimestampAtLastSyncForData();
+                    serverChanged = true;
                 } else {
-                    serverChanged = !mServerFile.getEtag().equals(mLocalFile.getEtag());
+                    serverChanged = mServerFile.getEtag().equals(mLocalFile.getEtag());
                 }
                 boolean localChanged =
                         mLocalFile.getLocalModificationTimestamp() > mLocalFile.getLastSyncDateForData();
@@ -225,8 +212,7 @@ public class SynchronizeFileOperation extends SyncOperation {
                 /// decide action to perform depending upon changes
                 //if (!mLocalFile.getEtag().isEmpty() && localChanged && serverChanged) {
                 if (localChanged && serverChanged) {
-                    result = new RemoteOperationResult(ResultCode.SYNC_CONFLICT);
-                    getStorageManager().saveConflict(mLocalFile, mServerFile.getEtag());
+                    MainApp.storageManager.saveConflict(mLocalFile, mServerFile.getEtag());
 
                 } else if (localChanged) {
                     if (mSyncFileContents && mAllowUploads) {
@@ -241,8 +227,6 @@ public class SynchronizeFileOperation extends SyncOperation {
                         // that an upload is necessary (for instance, in FileObserverService).
                         Log_OC.d(TAG, "Nothing to do here");
                     }
-                    result = new RemoteOperationResult(ResultCode.OK);
-
                 } else if (serverChanged) {
                     mLocalFile.setRemoteId(mServerFile.getRemoteId());
 
@@ -253,42 +237,35 @@ public class SynchronizeFileOperation extends SyncOperation {
                         // service when the upload finishes
                     } else {
                         // TODO CHECK: is this really useful in some point in the code?
-                        mServerFile.setFavorite(mLocalFile.isFavorite());
-                        mServerFile.setLastSyncDateForData(mLocalFile.getLastSyncDateForData());
-                        mServerFile.setStoragePath(mLocalFile.getStoragePath());
-                        mServerFile.setParentId(mLocalFile.getParentId());
-                        mServerFile.setEtag(mLocalFile.getEtag());
-                        getStorageManager().saveFile(mServerFile);
+//                        mServerFile.setFavorite(mLocalFile.isFavorite());
+//                        mServerFile.setLastSyncDateForData(mLocalFile.getLastSyncDateForData());
+//                        mServerFile.setStoragePath(mLocalFile.getStoragePath());
+//                        mServerFile.setParentId(mLocalFile.getParentId());
+//                        mServerFile.setEtag(mLocalFile.getEtag());
+//                        MainApp.storageManager.saveFile(mServerFile);
 
                     }
-                    result = new RemoteOperationResult(ResultCode.OK);
-
-                } else {
-                    // nothing changed, nothing to do
-                    result = new RemoteOperationResult(ResultCode.OK);
                 }
 
                 // safe blanket: sync'ing a not in-conflict file will clean wrong conflict markers in ancestors
-                if (result.getCode() != ResultCode.SYNC_CONFLICT) {
-                    getStorageManager().saveConflict(mLocalFile, null);
-                }
+                // TODO: Rok Jaklic
+//                if (result.getCode() != ResultCode.SYNC_CONFLICT) {
+//                    MainApp.storageManager.saveConflict(mLocalFile, null);
+//                }
             } else {
                 // remote file does not exist, deleting local copy
-                boolean deleteResult = getStorageManager().removeFile(mLocalFile, true, true);
+                boolean deleteResult = MainApp.storageManager.removeFile(mLocalFile, true, true);
 
                 if (deleteResult) {
-                    result = new RemoteOperationResult(ResultCode.FILE_NOT_FOUND);
-                } else {
                     Log_OC.e(TAG, "Removal of local copy failed (remote file does not exist any longer).");
                 }
             }
 
         }
 
-        Log_OC.i(TAG, "Synchronizing " + mUser.getAccountName() + ", file " + mLocalFile.getRemotePath() +
-                ": " + result.getLogMessage());
+        Log_OC.i(TAG, "Synchronizing " + MainApp.user.getAccountName() + ", file " + mLocalFile.getRemotePath());
 
-        return result;
+        return new RemoteOperationResult(ResultCode.OK);
     }
 
 

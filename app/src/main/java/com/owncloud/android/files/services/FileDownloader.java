@@ -218,9 +218,9 @@ public class FileDownloader extends Service
             Log_OC.e(TAG, "Not enough information provided in intent");
             return START_NOT_STICKY;
         } else {
-            final String accountName = intent.getStringExtra(EXTRA_USER);
-            Server server = new Server(URI.create("https://moja.shramba.arnes.si"), OwnCloudVersion.nextcloud_20);
-            final User user = new UserImpl(this, accountName, server);
+            // final String accountName = intent.getStringExtra(EXTRA_USER);
+            // Server server = new Server(URI.create(MainApp.s3HostName), OwnCloudVersion.nextcloud_20);
+            // final User user = new UserImpl(this, accountName, server);
             final OCFile file = intent.getParcelableExtra(EXTRA_FILE);
             final String behaviour = intent.getStringExtra(OCFileListFragment.DOWNLOAD_BEHAVIOUR);
 
@@ -233,7 +233,7 @@ public class FileDownloader extends Service
             conflictUploadId = intent.getLongExtra(ConflictsResolveActivity.EXTRA_CONFLICT_UPLOAD_ID, -1);
             AbstractList<String> requestedDownloads = new Vector<String>();
             try {
-                DownloadFileOperation newDownload = new DownloadFileOperation(user,
+                DownloadFileOperation newDownload = new DownloadFileOperation(MainApp.user,
                                                                               file,
                                                                               behaviour,
                                                                               activityName,
@@ -242,7 +242,7 @@ public class FileDownloader extends Service
                                                                               downloadType);
                 newDownload.addDatatransferProgressListener(this);
                 newDownload.addDatatransferProgressListener((FileDownloaderBinder) mBinder);
-                Pair<String, String> putResult = mPendingDownloads.putIfAbsent(user.getAccountName(),
+                Pair<String, String> putResult = mPendingDownloads.putIfAbsent(MainApp.user.getAccountName(),
                                                                                file.getRemotePath(),
                                                                                newDownload);
                 if (putResult != null) {
@@ -464,7 +464,7 @@ public class FileDownloader extends Service
         mCurrentDownload = mPendingDownloads.get(downloadKey);
 
         if (mCurrentDownload != null) {
-            notifyDownloadStart(mCurrentDownload);
+            // notifyDownloadStart(mCurrentDownload);
             RemoteOperationResult downloadResult = null;
             try {
                 String[] path = downloadKey.split("/");
@@ -500,17 +500,13 @@ public class FileDownloader extends Service
             } catch (Exception e) {
                 Log_OC.e(TAG, "Error downloading", e);
                 downloadResult = new RemoteOperationResult(e);
-
             } finally {
+                downloadResult = new RemoteOperationResult(ResultCode.OK);
                 Pair<DownloadFileOperation, String> removeResult = mPendingDownloads.removePayload(
-                    mCurrentDownload.getUser().getAccountName(), mCurrentDownload.getRemotePath());
-
-                if (downloadResult == null) {
-                    downloadResult = new RemoteOperationResult(new RuntimeException("Error downloading…"));
-                }
+                    MainApp.user.getAccountName(), mCurrentDownload.getRemotePath());
 
                 /// notify result
-                notifyDownloadResult(mCurrentDownload, downloadResult);
+                // customNotifyDownloadResult(mCurrentDownload);
                 sendBroadcastDownloadFinished(mCurrentDownload, downloadResult, removeResult.second);
             }
         }
@@ -696,6 +692,36 @@ public class FileDownloader extends Service
         }
     }
 
+    @SuppressFBWarnings("DMI")
+    private void customNotifyDownloadResult(DownloadFileOperation download) {
+        if (mNotificationManager == null) {
+            mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        }
+
+        int tickerId = R.string.downloader_download_succeeded_ticker;
+
+        mNotificationBuilder
+            .setTicker(getString(tickerId))
+            .setContentTitle(getString(tickerId))
+            .setAutoCancel(true)
+            .setOngoing(false)
+            .setProgress(0, 0, false);
+
+            // TODO put something smart in showDetailsIntent
+            Intent showDetailsIntent = new Intent();
+            mNotificationBuilder.setContentIntent(PendingIntent.getActivity(this, (int) System.currentTimeMillis(),
+                                                                            showDetailsIntent, PendingIntent.FLAG_IMMUTABLE));
+
+        if (mNotificationManager != null) {
+            mNotificationManager.notify((new SecureRandom()).nextInt(), mNotificationBuilder.build());
+
+            // Remove success notification
+            // Sleep 2 seconds, so show the notification before remove it
+            NotificationUtils.cancelWithDelay(mNotificationManager,
+                                              R.string.downloader_download_succeeded_ticker, 2000);
+        }
+    }
+
     private void configureUpdateCredentialsNotification(User user) {
         // let the user update credentials with one click
         Intent updateAccountCredentials = new Intent(this, AuthenticatorActivity.class);
@@ -731,7 +757,7 @@ public class FileDownloader extends Service
 
         Intent end = new Intent(getDownloadFinishMessage());
         end.putExtra(EXTRA_DOWNLOAD_RESULT, downloadResult.isSuccess());
-        end.putExtra(ACCOUNT_NAME, download.getUser().getAccountName());
+        end.putExtra(ACCOUNT_NAME, MainApp.user.getAccountName());
         end.putExtra(EXTRA_REMOTE_PATH, download.getRemotePath());
         end.putExtra(OCFileListFragment.DOWNLOAD_BEHAVIOUR, download.getBehaviour());
         end.putExtra(SendShareDialog.ACTIVITY_NAME, download.getActivityName());

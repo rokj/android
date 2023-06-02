@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.nextcloud.client.account.User;
-import com.owncloud.android.MainApp;
 import com.owncloud.android.datamodel.DecryptedFolderMetadata;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
@@ -240,7 +239,7 @@ public class SynchronizeFolderOperation extends SyncOperation {
             storageManager.removeFolder(
                     mLocalFolder,
                     true,
-                    mLocalFolder.isDown() // TODO: debug, I think this is always false for folders
+                    mLocalFolder.isAvailableLocally() // TODO: debug, I think this is always false for folders
                             && mLocalFolder.getStoragePath().startsWith(currentSavePath)
             );
         }
@@ -395,10 +394,11 @@ public class SynchronizeFolderOperation extends SyncOperation {
                 remoteFile,
                 user,
                 true,
-                mContext,
-                getStorageManager()
+                mContext
             );
-            mFilesToSyncContents.add(operation);
+            // TODO: Rok Jaklic
+            // mFilesToSyncContents.add(operation);
+            // operation.execute();
         }
     }
 
@@ -418,20 +418,20 @@ public class SynchronizeFolderOperation extends SyncOperation {
 
             } else {
                 /// synchronization for regular files
-                if (!child.isDown()) {
+                if (!child.isAvailableLocally()) {
                     mFilesForDirectDownload.add(child);
 
                 } else {
-                    /// this should result in direct upload of files that were locally modified
-                    SynchronizeFileOperation operation = new SynchronizeFileOperation(
-                        child,
-                        child.getEtagInConflict() != null ? child : null,
-                        user,
-                        true,
-                        mContext,
-                        getStorageManager()
-                    );
-                    mFilesToSyncContents.add(operation);
+                    // TODO: Rok Jaklic
+//                    /// this should result in direct upload of files that were locally modified
+//                    SynchronizeFileOperation operation = new SynchronizeFileOperation(
+//                        child,
+//                        child.getEtagInConflict() != null ? child : null,
+//                        user,
+//                        true,
+//                        mContext
+//                    );
+//                    mFilesToSyncContents.add(operation);
 
                 }
 

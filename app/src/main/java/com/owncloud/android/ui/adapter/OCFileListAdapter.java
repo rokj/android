@@ -436,7 +436,7 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         } else {
             final long fileLength = file.getFileLength();
             if (fileLength >= 0 && !file.isFolder()) {
-                holder.getFileSize().setText(DisplayUtils.bytesToHumanReadable(fileLength));
+                holder.getFileSize().setText("FAFA: " + DisplayUtils.bytesToHumanReadable(fileLength));
                 holder.getFileSize().setVisibility(View.VISIBLE);
                 holder.getFileSizeSeparator().setVisibility(View.VISIBLE);
             } else {

@@ -275,17 +275,17 @@ public class FileSyncAdapter extends AbstractOwnCloudSyncAdapter {
         }
 
         // folder synchronization
-//        RefreshFolderOperation synchFolderOp = new RefreshFolderOperation(folder,
-//                                                                          mCurrentSyncTime,
-//                                                                          true,
-//                                                                          false,
-//                                                                          getStorageManager(),
-//                                                                          getUser(),
-//                                                                          getContext());
-//        RemoteOperationResult result = synchFolderOp.execute(getClient());
+        RefreshFolderOperation synchFolderOp = new RefreshFolderOperation(folder,
+                                                                          mCurrentSyncTime,
+                                                                          true,
+                                                                          false,
+                                                                          getContext());
+        synchFolderOp.run();
 
-//        // synchronized folder -> notice to UI - ALWAYS, although !result.isSuccess
-//        sendLocalBroadcast(EVENT_FULL_SYNC_FOLDER_CONTENTS_SYNCED, folder.getRemotePath(), result);
+        RemoteOperationResult result = new RemoteOperationResult(ResultCode.OK);
+
+        // synchronized folder -> notice to UI - ALWAYS, although !result.isSuccess
+        sendLocalBroadcast(EVENT_FULL_SYNC_FOLDER_CONTENTS_SYNCED, folder.getRemotePath(), result);
 //
 //        // check the result of synchronizing the folder
 //        if (result.isSuccess() || result.getCode() == ResultCode.SYNC_CONFLICT) {

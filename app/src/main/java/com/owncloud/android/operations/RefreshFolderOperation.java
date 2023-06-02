@@ -24,7 +24,6 @@ import android.content.Intent;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
-import com.nextcloud.android.lib.resources.directediting.DirectEditingObtainRemoteOperation;
 import com.nextcloud.client.account.User;
 import com.nextcloud.common.NextcloudClient;
 import com.owncloud.android.MainApp;
@@ -33,22 +32,16 @@ import com.owncloud.android.datamodel.ArbitraryDataProviderImpl;
 import com.owncloud.android.datamodel.DecryptedFolderMetadata;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
-import com.owncloud.android.lib.common.DirectEditing;
 import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.OwnCloudClientFactory;
-import com.owncloud.android.lib.common.UserInfo;
 import com.owncloud.android.lib.common.accounts.AccountUtils;
-import com.owncloud.android.lib.common.operations.RemoteOperation;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult.ResultCode;
 import com.owncloud.android.lib.common.utils.Log_OC;
-import com.owncloud.android.lib.resources.files.ReadFileRemoteOperation;
-import com.owncloud.android.lib.resources.files.ReadFolderRemoteOperation;
 import com.owncloud.android.lib.resources.files.model.RemoteFile;
 import com.owncloud.android.lib.resources.shares.GetSharesForFileRemoteOperation;
 import com.owncloud.android.lib.resources.shares.OCShare;
 import com.owncloud.android.lib.resources.shares.ShareType;
-import com.owncloud.android.lib.resources.shares.ShareeUser;
 import com.owncloud.android.lib.resources.users.GetPredefinedStatusesRemoteOperation;
 import com.owncloud.android.lib.resources.users.PredefinedStatus;
 import com.owncloud.android.operations.common.NewRemoteOperationResult;
@@ -60,7 +53,6 @@ import com.owncloud.android.utils.MimeType;
 import com.owncloud.android.utils.MimeTypeUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,14 +61,9 @@ import java.util.Vector;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import io.minio.ListObjectsArgs;
-import io.minio.Result;
-import io.minio.StatObjectArgs;
-import io.minio.StatObjectResponse;
-import io.minio.messages.Bucket;
-import io.minio.messages.Item;
 
 import static com.owncloud.android.datamodel.OCFile.PATH_SEPARATOR;
+import static com.s3.s3.readRemoteFolder;
 
 
 /**
@@ -426,85 +413,13 @@ public class RefreshFolderOperation {
         return result;
     }
 
-    private List<Object> readRemoteFolder(String remotePath) {
-        Iterable<Result<Item>> objects;
-        List<Object> data = new ArrayList<>();
-        String[] path = remotePath.split("/");
-        String bucket = "";
-        String prefix = "";
-        List<Bucket> buckets;
-
-        if (remotePath.equals("/")) {
-            try {
-                buckets = MainApp.minioClient.listBuckets();
-                for (int i = 0; i < buckets.size(); i++) {
-                    RemoteFile remoteFile = new RemoteFile();
-                    Bucket tmpBucket = buckets.get(i);
-                    remoteFile.setMimeType("DIR");
-                    remoteFile.setRemotePath("/" + tmpBucket.name());
-
-                    ShareeUser[] sharees = new ShareeUser[0];
-                    remoteFile.setSharees(sharees);
-
-                    data.add(remoteFile);
-                }
-            } catch (Exception e) {
-                Log_OC.d("minio", e.toString());
-            }
-        }
-
-        if (path.length == 0) {
-            return data;
-        }
-
-        if (path.length >= 1) {
-            bucket = path[1];
-        }
-
-        if (path.length > 2) {
-            for (int i = 0; i < path.length - 1; i++) {
-                prefix = remotePath.replaceAll(bucket + "/", "");
-            }
-        }
-
-        try {
-            objects = MainApp.minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).prefix(prefix).recursive(false).build());
-
-            for (Result<Item> item : objects) {
-                RemoteFile remoteFile = new RemoteFile();
-                if (item.get().isDir()) {
-                    remoteFile.setMimeType(MimeType.DIRECTORY);
-                } else {
-                    remoteFile.setMimeType(MimeType.FILE);
-                }
-
-                String remotePathForSave = remotePath + item.get().objectName();
-                remotePathForSave.replaceAll("[/]+", "/");
-                remoteFile.setRemotePath(remotePathForSave);
-                remoteFile.setEtag(item.get().etag());
-                remoteFile.setModifiedTimestamp(item.get().lastModified().toEpochSecond());
-                remoteFile.setCreationTimestamp(item.get().lastModified().toEpochSecond());
-                remoteFile.setSize(item.get().size());
-
-                ShareeUser[] sharees = new ShareeUser[0];
-                remoteFile.setSharees(sharees);
-
-                data.add(remoteFile);
-            }
-        } catch (Exception e) {
-            Log_OC.d("minio", e.toString());
-        }
-
-        return data;
-    }
-
     private void removeLocalFolder() {
         if (MainApp.storageManager.fileExists(mLocalFolder.getFileId())) {
             String currentSavePath = FileStorageUtils.getSavePath(user.getAccountName());
             MainApp.storageManager.removeFolder(
                 mLocalFolder,
                 true,
-                    mLocalFolder.isDown() && mLocalFolder.getStoragePath().startsWith(currentSavePath)
+                    mLocalFolder.isAvailableLocally() && mLocalFolder.getStoragePath().startsWith(currentSavePath)
             );
         }
     }
@@ -688,8 +603,11 @@ public class RefreshFolderOperation {
             }
 
             // eTag will not be updated unless file CONTENTS are synchronized
-            if (!updatedFile.isFolder() && localFile.isDown() &&
+            if (!updatedFile.isFolder() && localFile.isAvailableLocally() &&
                     !updatedFile.getEtag().equals(localFile.getEtag())) {
+                String localFileEtag = localFile.getEtag();
+                String updatedFileEtag = updatedFile.getEtag();
+
                 updatedFile.setEtagInConflict(updatedFile.getEtag());
             }
 
@@ -746,7 +664,7 @@ public class RefreshFolderOperation {
     private void startContentSynchronizations(List<SynchronizeFileOperation> filesToSyncContents) {
         RemoteOperationResult contentsResult;
         for (SynchronizeFileOperation op : filesToSyncContents) {
-            contentsResult = op.execute(mContext);   // async
+            contentsResult = op.execute();   // async
             if (!contentsResult.isSuccess()) {
                 if (contentsResult.getCode() == ResultCode.SYNC_CONFLICT) {
                     mConflictsFound++;

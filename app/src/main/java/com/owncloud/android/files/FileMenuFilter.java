@@ -24,7 +24,6 @@
 
 package com.owncloud.android.files;
 
-import android.accounts.AccountManager;
 import android.content.Context;
 import android.view.Menu;
 
@@ -531,7 +530,7 @@ public class FileMenuFilter {
 
     private boolean anyFileDown() {
         for (OCFile file : files) {
-            if (file.isDown()) {
+            if (file.isAvailableLocally()) {
                 return true;
             }
         }

@@ -126,10 +126,11 @@ public final class ErrorMessageAdapter {
         } else if (operation instanceof RenameFileOperation) {
             message = getMessageForRenameFileOperation(result, res);
 
-        } else if (operation instanceof SynchronizeFileOperation) {
-            if (!((SynchronizeFileOperation) operation).transferWasRequested()) {
-                message = res.getString(R.string.sync_file_nothing_to_do_msg);
-            }
+            // TODO: Rok Jaklic
+//        } else if (operation instanceof SynchronizeFileOperation) {
+//            if (!((SynchronizeFileOperation) operation).transferWasRequested()) {
+//                message = res.getString(R.string.sync_file_nothing_to_do_msg);
+//            }
 
         } else if (operation instanceof CreateFolderOperation) {
             message = getMessageForCreateFolderOperation(result, res);

@@ -322,7 +322,7 @@ public class OCFile implements Parcelable, Comparable<OCFile>, ServerFileInterfa
      *
      * @return true if it is
      */
-    public boolean isDown() {
+    public boolean isAvailableLocally() {
         return !isFolder() && existsOnDevice();
     }
 
@@ -567,7 +567,7 @@ public class OCFile implements Parcelable, Comparable<OCFile>, ServerFileInterfa
                              fileId,
                              getFileName(),
                              mimeType,
-                             isDown(),
+                             isAvailableLocally(),
                              localPath,
                              remotePath,
                              parentId,

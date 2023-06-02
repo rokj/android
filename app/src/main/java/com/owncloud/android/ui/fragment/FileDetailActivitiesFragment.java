@@ -38,6 +38,7 @@ import com.nextcloud.client.account.UserAccountManager;
 import com.nextcloud.client.di.Injectable;
 import com.nextcloud.client.network.ClientFactory;
 import com.nextcloud.common.NextcloudClient;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 import com.owncloud.android.databinding.FileDetailsActivitiesFragmentBinding;
 import com.owncloud.android.datamodel.FileDataStorageManager;
@@ -177,12 +178,12 @@ public class FileDetailActivitiesFragment extends Fragment implements
 
         viewThemeUtils.material.colorTextInputLayout(binding.commentInputFieldContainer);
 
-        DisplayUtils.setAvatar(user,
-                               this,
-                               getResources().getDimension(R.dimen.activity_icon_radius),
-                               getResources(),
-                               binding.avatar,
-                               getContext());
+//        DisplayUtils.setAvatar(user,
+//                               this,
+//                               getResources().getDimension(R.dimen.activity_icon_radius),
+//                               getResources(),
+//                               binding.avatar,
+//                               getContext());
 
         return view;
     }
@@ -276,7 +277,7 @@ public class FileDetailActivitiesFragment extends Fragment implements
             return;
         }
 
-        final User user = accountManager.getUser();
+        final User user = MainApp.user;
 
         if (user.isAnonymous()) {
             activity.runOnUiThread(() -> {
@@ -285,78 +286,79 @@ public class FileDetailActivitiesFragment extends Fragment implements
             return;
         }
 
-        Thread t = new Thread(() -> {
-            try {
-                ownCloudClient = clientFactory.create(user);
-                nextcloudClient = clientFactory.createNextcloudClient(user);
-
-                isLoadingActivities = true;
-
-                GetActivitiesRemoteOperation getRemoteNotificationOperation;
-
-                if (lastGiven > 0) {
-                    getRemoteNotificationOperation = new GetActivitiesRemoteOperation(file.getLocalId(), lastGiven);
-                } else {
-                    getRemoteNotificationOperation = new GetActivitiesRemoteOperation(file.getLocalId());
-                }
-
-                Log_OC.d(TAG, "BEFORE getRemoteActivitiesOperation.execute");
-                RemoteOperationResult result = nextcloudClient.execute(getRemoteNotificationOperation);
-
-                ArrayList<Object> versions = null;
-                if (restoreFileVersionSupported) {
-                    ReadFileVersionsRemoteOperation readFileVersionsOperation = new ReadFileVersionsRemoteOperation(
-                        file.getLocalId());
-
-                    RemoteOperationResult result1 = readFileVersionsOperation.execute(ownCloudClient);
-
-                    if (result1.isSuccess()) {
-                        versions = result1.getData();
-                    }
-                }
-
-                if (result.isSuccess() && result.getData() != null) {
-                    final List<Object> data = result.getData();
-                    final List<Object> activitiesAndVersions = (ArrayList) data.get(0);
-
-                    this.lastGiven = (int) data.get(1);
-
-                    if (activitiesAndVersions.isEmpty()) {
-                        this.lastGiven = END_REACHED;
-                    }
-
-                    if (restoreFileVersionSupported && versions != null) {
-                        activitiesAndVersions.addAll(versions);
-                    }
-
-                    activity.runOnUiThread(() -> {
-                        if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
-                            populateList(activitiesAndVersions, lastGiven == -1);
-                        }
-                    });
-                } else {
-                    Log_OC.d(TAG, result.getLogMessage());
-                    // show error
-                    String logMessage = result.getLogMessage();
-                    if (result.getHttpCode() == HttpStatus.SC_NOT_MODIFIED) {
-                        logMessage = getString(R.string.activities_no_results_message);
-                    }
-                    final String finalLogMessage = logMessage;
-                    activity.runOnUiThread(() -> {
-                        if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
-                            setErrorContent(finalLogMessage);
-                            isLoadingActivities = false;
-                        }
-                    });
-                }
-
-                hideRefreshLayoutLoader(activity);
-            } catch (ClientFactory.CreationException e) {
-                Log_OC.e(TAG, "Error fetching file details activities", e);
-            }
-        });
-
-        t.start();
+        // TODO: Rok Jaklic
+//        Thread t = new Thread(() -> {
+//            try {
+//                ownCloudClient = clientFactory.create(user);
+//                nextcloudClient = clientFactory.createNextcloudClient(user);
+//
+//                isLoadingActivities = true;
+//
+//                GetActivitiesRemoteOperation getRemoteNotificationOperation;
+//
+//                if (lastGiven > 0) {
+//                    getRemoteNotificationOperation = new GetActivitiesRemoteOperation(file.getLocalId(), lastGiven);
+//                } else {
+//                    getRemoteNotificationOperation = new GetActivitiesRemoteOperation(file.getLocalId());
+//                }
+//
+//                Log_OC.d(TAG, "BEFORE getRemoteActivitiesOperation.execute");
+//                RemoteOperationResult result = nextcloudClient.execute(getRemoteNotificationOperation);
+//
+//                ArrayList<Object> versions = null;
+//                if (restoreFileVersionSupported) {
+//                    ReadFileVersionsRemoteOperation readFileVersionsOperation = new ReadFileVersionsRemoteOperation(
+//                        file.getLocalId());
+//
+//                    RemoteOperationResult result1 = readFileVersionsOperation.execute(ownCloudClient);
+//
+//                    if (result1.isSuccess()) {
+//                        versions = result1.getData();
+//                    }
+//                }
+//
+//                if (result.isSuccess() && result.getData() != null) {
+//                    final List<Object> data = result.getData();
+//                    final List<Object> activitiesAndVersions = (ArrayList) data.get(0);
+//
+//                    this.lastGiven = (int) data.get(1);
+//
+//                    if (activitiesAndVersions.isEmpty()) {
+//                        this.lastGiven = END_REACHED;
+//                    }
+//
+//                    if (restoreFileVersionSupported && versions != null) {
+//                        activitiesAndVersions.addAll(versions);
+//                    }
+//
+//                    activity.runOnUiThread(() -> {
+//                        if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+//                            populateList(activitiesAndVersions, lastGiven == -1);
+//                        }
+//                    });
+//                } else {
+//                    Log_OC.d(TAG, result.getLogMessage());
+//                    // show error
+//                    String logMessage = result.getLogMessage();
+//                    if (result.getHttpCode() == HttpStatus.SC_NOT_MODIFIED) {
+//                        logMessage = getString(R.string.activities_no_results_message);
+//                    }
+//                    final String finalLogMessage = logMessage;
+//                    activity.runOnUiThread(() -> {
+//                        if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+//                            setErrorContent(finalLogMessage);
+//                            isLoadingActivities = false;
+//                        }
+//                    });
+//                }
+//
+//                hideRefreshLayoutLoader(activity);
+//            } catch (ClientFactory.CreationException e) {
+//                Log_OC.e(TAG, "Error fetching file details activities", e);
+//            }
+//        });
+//
+//        t.start();
     }
 
     public void markCommentsAsRead() {
