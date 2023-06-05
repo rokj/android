@@ -222,7 +222,7 @@ class OCFileListDelegate(
         bindGridItemLayout(file, gridViewHolder)
 
         // unread comments
-        bindUnreadComments(file, gridViewHolder)
+        // bindUnreadComments(file, gridViewHolder)
 
         // multiSelect (Checkbox)
         if (isMultiSelect) {
@@ -314,7 +314,7 @@ class OCFileListDelegate(
                 gridViewHolder.localFileIndicator.setImageResource(R.drawable.ic_synchronizing)
                 gridViewHolder.localFileIndicator.visibility = View.VISIBLE
             }
-            file.etagInConflict != null -> {
+            (file.etag == null || file.etag == "") && file.etagInConflict != null -> {
                 // conflict
                 gridViewHolder.localFileIndicator.setImageResource(R.drawable.ic_synchronizing_error)
                 gridViewHolder.localFileIndicator.visibility = View.VISIBLE

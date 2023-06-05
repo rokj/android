@@ -611,7 +611,7 @@ public class RefreshFolderOperation {
                 updatedFile.setEtagInConflict(updatedFile.getEtag());
             }
 
-            updatedFile.setEtag(localFile.getEtag());
+            // updatedFile.setEtag(localFile.getEtag());
 
             if (updatedFile.isFolder()) {
                 updatedFile.setFileLength(remoteFile.getFileLength());

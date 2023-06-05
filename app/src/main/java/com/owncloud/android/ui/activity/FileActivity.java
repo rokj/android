@@ -620,9 +620,9 @@ public abstract class FileActivity extends DrawerActivity
         if (file != null) {
             if (file.isFolder()) {
                 return file;
-            } else if (getStorageManager() != null) {
+            } else if (MainApp.storageManager != null) {
                 String parentPath = file.getParentRemotePath();
-                return getStorageManager().getFileByPath(parentPath);
+                return MainApp.storageManager.getFileByPath(parentPath);
             }
         }
         return null;

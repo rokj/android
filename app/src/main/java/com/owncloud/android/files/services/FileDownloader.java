@@ -496,7 +496,6 @@ public class FileDownloader extends Service
                         .build());
 
                 saveDownloadedFile();
-
             } catch (Exception e) {
                 Log_OC.e(TAG, "Error downloading", e);
                 downloadResult = new RemoteOperationResult(e);

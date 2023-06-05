@@ -1217,8 +1217,6 @@ public class FileDisplayActivity extends FileActivity
             try {
                 String event = intent.getAction();
                 Log_OC.d(TAG, "Received broadcast " + event);
-                String accountName = intent.getStringExtra(FileSyncAdapter.EXTRA_ACCOUNT_NAME);
-
                 String synchFolderRemotePath =
                     intent.getStringExtra(FileSyncAdapter.EXTRA_FOLDER_PATH);
                 NewRemoteOperationResult synchResult = (NewRemoteOperationResult)
@@ -1236,7 +1234,7 @@ public class FileDisplayActivity extends FileActivity
                         OCFile currentDir = (getCurrentDir() == null) ? null :
                             MainApp.storageManager.getFileByPath(getCurrentDir().getRemotePath());
 
-                        if (currentDir == null) {
+                        if (currentDir == null && !synchFolderRemotePath.equals(OCFile.ROOT_PATH)) {
                             // current folder was removed from the server
                             DisplayUtils.showSnackMessage(
                                 getActivity(),
@@ -1263,8 +1261,8 @@ public class FileDisplayActivity extends FileActivity
                             setFile(currentFile);
                         }
 
-                        mSyncInProgress = !FileSyncAdapter.EVENT_FULL_SYNC_END.equals(event) &&
-                            !RefreshFolderOperation.EVENT_SINGLE_FOLDER_SHARES_SYNCED.equals(event);
+                        mSyncInProgress = !FileSyncAdapter.EVENT_FULL_SYNC_END.equals(event);
+                            // !RefreshFolderOperation.EVENT_SINGLE_FOLDER_SHARES_SYNCED.equals(event);
 
                         if (RefreshFolderOperation.EVENT_SINGLE_FOLDER_CONTENTS_SYNCED.equals(event) &&
                             synchResult != null) {
@@ -1306,7 +1304,7 @@ public class FileDisplayActivity extends FileActivity
 
                         OCFileListFragment ocFileListFragment = getListOfFilesFragment();
                         if (ocFileListFragment != null) {
-                            ocFileListFragment.setLoading(mSyncInProgress);
+                            // ocFileListFragment.setLoading(mSyncInProgress);
                             if (!mSyncInProgress && !ocFileListFragment.isLoading()) {
                                 // update scrolling when load finishes
                                 if (ocFileListFragment.isEmpty()) {
@@ -2273,7 +2271,7 @@ public class FileDisplayActivity extends FileActivity
 
     @Override
     public void onRefresh() {
-        syncAndUpdateFolder(true);
+        syncAndUpdateFolder(false);
     }
 
     private void syncAndUpdateFolder(boolean ignoreETag) {
