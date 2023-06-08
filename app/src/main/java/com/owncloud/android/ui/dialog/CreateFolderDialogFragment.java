@@ -22,6 +22,7 @@ package com.owncloud.android.ui.dialog;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -34,12 +35,20 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Sets;
 import com.nextcloud.client.di.Injectable;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 import com.owncloud.android.databinding.EditBoxDialogBinding;
 import com.owncloud.android.datamodel.FileDataStorageManager;
 import com.owncloud.android.datamodel.OCFile;
+import com.owncloud.android.lib.common.operations.RemoteOperationResult;
+import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.files.FileUtils;
+import com.owncloud.android.operations.RefreshFolderOperation;
+import com.owncloud.android.syncadapter.FileSyncAdapter;
 import com.owncloud.android.ui.activity.ComponentsGetter;
+import com.owncloud.android.ui.activity.ExternalSiteWebView;
+import com.owncloud.android.ui.fragment.OCFileListFragment;
+import com.owncloud.android.utils.DataHolderUtil;
 import com.owncloud.android.utils.DisplayUtils;
 import com.owncloud.android.utils.KeyboardUtils;
 import com.owncloud.android.utils.theme.ViewThemeUtils;
@@ -53,6 +62,9 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import static com.owncloud.android.syncadapter.FileSyncAdapter.EVENT_FULL_SYNC_FOLDER_CONTENTS_SYNCED;
 
 /**
  * Dialog to input the name for a new folder to create.
@@ -61,6 +73,8 @@ import androidx.fragment.app.DialogFragment;
  */
 public class CreateFolderDialogFragment
     extends DialogFragment implements DialogInterface.OnClickListener, Injectable {
+
+    private static final String TAG = CreateFolderDialogFragment.class.getSimpleName();
 
     private static final String ARG_PARENT_FOLDER = "PARENT_FOLDER";
 
@@ -208,6 +222,37 @@ public class CreateFolderDialogFragment
             String path = mParentFolder.getDecryptedRemotePath() + newFolderName + OCFile.PATH_SEPARATOR;
 
             ((ComponentsGetter) requireActivity()).getFileOperationsHelper().createFolder(path);
+
+            OCFile folder = MainApp.storageManager.getFileByPath(mParentFolder.getDecryptedRemotePath());
+            RefreshFolderOperation syncFolderOp = new RefreshFolderOperation(folder,
+                                                                              System.currentTimeMillis(),
+                                                                              false,
+                                                                              false,
+                                                                              getContext());
+            syncFolderOp.run();
+
+            RemoteOperationResult result = new RemoteOperationResult(RemoteOperationResult.ResultCode.OK);
+            sendLocalBroadcast(EVENT_FULL_SYNC_FOLDER_CONTENTS_SYNCED, folder.getRemotePath(), result);
         }
+    }
+
+    private void sendLocalBroadcast(String event, String dirRemotePath,
+                                    RemoteOperationResult result) {
+        Log_OC.d(TAG, "Send broadcast " + event);
+        Intent intent = new Intent(event);
+        intent.putExtra(FileSyncAdapter.EXTRA_ACCOUNT_NAME, MainApp.user.getAccountName());
+        if (dirRemotePath != null) {
+            intent.putExtra(FileSyncAdapter.EXTRA_FOLDER_PATH, dirRemotePath);
+        }
+
+        if (result != null) {
+            DataHolderUtil dataHolderUtil = DataHolderUtil.getInstance();
+            String dataHolderItemId = dataHolderUtil.nextItemId();
+            dataHolderUtil.save(dataHolderUtil.nextItemId(), result);
+            intent.putExtra(FileSyncAdapter.EXTRA_RESULT, dataHolderItemId);
+        }
+
+        intent.setPackage(getContext().getPackageName());
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
     }
 }

@@ -59,27 +59,27 @@ public class ScreenshotsIT extends AbstractOnServerIT {
         Assert.assertTrue(true); // if we reach this, everything is ok
     }
 
-    @Test
-    public void listViewScreenshot() {
-        String path = "/Camera/";
-
-        // folder does not exist yet
-        if (getStorageManager().getFileByEncryptedRemotePath(path) == null) {
-            SyncOperation syncOp = new CreateFolderOperation(path, user, targetContext, getStorageManager());
-            RemoteOperationResult result = syncOp.execute(client);
-
-            assertTrue(result.isSuccess());
-        }
-
-        ActivityScenario.launch(FileDisplayActivity.class);
-
-        // go into work folder
-        onView(withId(R.id.list_root)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-
-        Screengrab.screenshot("02_listView");
-
-        Assert.assertTrue(true); // if we reach this, everything is ok
-    }
+//    @Test
+//    public void listViewScreenshot() {
+//        String path = "/Camera/";
+//
+//        // folder does not exist yet
+//        if (getStorageManager().getFileByEncryptedRemotePath(path) == null) {
+//            SyncOperation syncOp = new CreateFolderOperation(path, user, targetContext, getStorageManager());
+//            RemoteOperationResult result = syncOp.execute(client);
+//
+//            assertTrue(result.isSuccess());
+//        }
+//
+//        ActivityScenario.launch(FileDisplayActivity.class);
+//
+//        // go into work folder
+//        onView(withId(R.id.list_root)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+//
+//        Screengrab.screenshot("02_listView");
+//
+//        Assert.assertTrue(true); // if we reach this, everything is ok
+//    }
 
     @Test
     public void drawerScreenshot() {

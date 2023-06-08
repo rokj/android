@@ -25,6 +25,7 @@ import android.content.Context;
 import android.util.Pair;
 
 import com.nextcloud.client.account.User;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.datamodel.ArbitraryDataProvider;
 import com.owncloud.android.datamodel.ArbitraryDataProviderImpl;
 import com.owncloud.android.datamodel.DecryptedFolderMetadata;
@@ -45,10 +46,22 @@ import com.owncloud.android.utils.EncryptionUtils;
 import com.owncloud.android.utils.FileStorageUtils;
 import com.owncloud.android.utils.MimeType;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
+import io.minio.MakeBucketArgs;
+import io.minio.PutObjectArgs;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
 
 import static com.owncloud.android.datamodel.OCFile.PATH_SEPARATOR;
 import static com.owncloud.android.datamodel.OCFile.ROOT_PATH;
@@ -57,7 +70,7 @@ import static com.owncloud.android.datamodel.OCFile.ROOT_PATH;
  * Access to remote operation performing the creation of a new folder in the ownCloud server.
  * Save the new folder in Database.
  */
-public class CreateFolderOperation extends SyncOperation implements OnRemoteOperationListener {
+public class CreateFolderOperation {
 
     private static final String TAG = CreateFolderOperation.class.getSimpleName();
 
@@ -70,20 +83,17 @@ public class CreateFolderOperation extends SyncOperation implements OnRemoteOper
      * Constructor
      */
     public CreateFolderOperation(String remotePath, User user, Context context, FileDataStorageManager storageManager) {
-        super(storageManager);
-
         this.remotePath = remotePath;
         this.user = user;
         this.context = context;
     }
 
-    @Override
-    protected RemoteOperationResult run(OwnCloudClient client) {
-        String remoteParentPath = new File(getRemotePath()).getParent();
+    public void run() {
+        String remoteParentPath = new File(remotePath).getParent();
         remoteParentPath = remoteParentPath.endsWith(PATH_SEPARATOR) ?
             remoteParentPath : remoteParentPath + PATH_SEPARATOR;
 
-        OCFile parent = getStorageManager().getFileByDecryptedRemotePath(remoteParentPath);
+        OCFile parent = MainApp.storageManager.getFileByDecryptedRemotePath(remoteParentPath);
 
         String tempRemoteParentPath = remoteParentPath;
         while (parent == null) {
@@ -93,17 +103,78 @@ public class CreateFolderOperation extends SyncOperation implements OnRemoteOper
                 tempRemoteParentPath = tempRemoteParentPath + PATH_SEPARATOR;
             }
 
-            parent = getStorageManager().getFileByDecryptedRemotePath(tempRemoteParentPath);
+            parent = MainApp.storageManager.getFileByDecryptedRemotePath(tempRemoteParentPath);
         }
 
-        // check if any parent is encrypted
-        boolean encryptedAncestor = FileStorageUtils.checkEncryptionStatus(parent, getStorageManager());
+        if (remoteParentPath.equals(ROOT_PATH)) {
+            try {
+                String bucket = getBucket();
+                String path = getPath();
 
-        if (encryptedAncestor) {
-            return encryptedCreate(parent, client);
+                if (bucket == null) {
+                    return;
+                }
+
+                if (path == null || path.equals("") || path.equals("/")) {
+                    MainApp.minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+                    saveFolderInDB();
+
+                    return;
+                }
+
+                MainApp.minioClient.putObject(
+                    PutObjectArgs.builder().bucket(bucket).object(path).stream(
+                            new ByteArrayInputStream(new byte[]{}), 0, -1)
+                        .build());
+            }  catch (Exception e) {
+                Log_OC.d("minio", e.toString());
+            }
         } else {
-            return normalCreate(client);
+//            try {
+//                String bucket = getBucket();
+//
+//                MainApp.minioClient.putObject(
+//                    PutObjectArgs.builder().bucket("my-bucketname").object("path/to/").stream(
+//                            new ByteArrayInputStream(new byte[]{}), 0, -1)
+//                        .build());
+//            }  catch (Exception e) {
+//                Log_OC.d("minio", e.toString());
+//            }
         }
+    }
+
+    private String getBucket() {
+        if (remotePath == null || remotePath.equals("")) {
+            return null;
+        }
+
+        String[] path = remotePath.split("/");
+        if (path.length == 0) {
+            return null;
+        }
+
+        if (path.length >= 1) {
+            return path[1];
+        }
+
+        Log_OC.d("minio", "could not get bucket from " + remotePath);
+
+        return null;
+    }
+
+    private String getPath() {
+        if (remotePath == null || remotePath.equals("")) {
+            return null;
+        }
+
+        String path = remotePath.replace(getBucket(), "");
+        path = path.replaceAll("[/]+", "/");
+
+        if (path.equals("/")) {
+            return null;
+        }
+
+        return path;
     }
 
     private RemoteOperationResult encryptedCreate(OCFile parent, OwnCloudClient client) {
@@ -177,7 +248,7 @@ public class CreateFolderOperation extends SyncOperation implements OnRemoteOper
 
                 createdRemoteFolder = (RemoteFile) remoteFolderOperationResult.getData().get(0);
                 OCFile newDir = createRemoteFolderOcFile(parent, filename, createdRemoteFolder);
-                getStorageManager().saveFile(newDir);
+                MainApp.storageManager.saveFile(newDir);
 
                 RemoteOperationResult encryptionOperationResult = new ToggleEncryptionRemoteOperation(
                     newDir.getLocalId(),
@@ -299,7 +370,6 @@ public class CreateFolderOperation extends SyncOperation implements OnRemoteOper
         return result;
     }
 
-    @Override
     public void onRemoteOperationFinish(RemoteOperation operation, RemoteOperationResult result) {
         if (operation instanceof CreateFolderRemoteOperation) {
             onCreateRemoteFolderOperationFinish(result);
@@ -318,7 +388,7 @@ public class CreateFolderOperation extends SyncOperation implements OnRemoteOper
      * Save new directory in local database.
      */
     private void saveFolderInDB() {
-        if (getStorageManager().getFileByPath(FileStorageUtils.getParentPath(remotePath)) == null) {
+        if (MainApp.storageManager.getFileByPath(FileStorageUtils.getParentPath(remotePath)) == null) {
             // When parent of remote path is not created
             String[] subFolders = remotePath.split(PATH_SEPARATOR);
             String composedRemotePath = ROOT_PATH;
@@ -334,13 +404,13 @@ public class CreateFolderOperation extends SyncOperation implements OnRemoteOper
         } else { // Create directory on DB
             OCFile newDir = new OCFile(remotePath);
             newDir.setMimeType(MimeType.DIRECTORY);
-            long parentId = getStorageManager().getFileByPath(FileStorageUtils.getParentPath(remotePath)).getFileId();
+            long parentId = MainApp.storageManager.getFileByPath(FileStorageUtils.getParentPath(remotePath)).getFileId();
             newDir.setParentId(parentId);
-            newDir.setRemoteId(createdRemoteFolder.getRemoteId());
+            // newDir.setRemoteId(createdRemoteFolder.getRemoteId());
             newDir.setModificationTimestamp(System.currentTimeMillis());
-            newDir.setEncrypted(FileStorageUtils.checkEncryptionStatus(newDir, getStorageManager()));
-            newDir.setPermissions(createdRemoteFolder.getPermissions());
-            getStorageManager().saveFile(newDir);
+            newDir.setEncrypted(FileStorageUtils.checkEncryptionStatus(newDir, MainApp.storageManager));
+            // newDir.setPermissions(createdRemoteFolder.getPermissions());
+            MainApp.storageManager.saveFile(newDir);
 
             Log_OC.d(TAG, "Create directory " + remotePath + " in Database");
         }

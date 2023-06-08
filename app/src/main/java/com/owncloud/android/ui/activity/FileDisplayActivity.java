@@ -1230,8 +1230,9 @@ public class FileDisplayActivity extends FileActivity
                     } else {
                         mSyncInProgress = false;
                         OCFile currentFile = (getFile() == null) ? null :
-                            MainApp.storageManager.getFileByPath(getFile().getRemotePath());
-                        OCFile currentDir = (getCurrentDir() == null) ? null :
+                            MainApp.storageManager.getFileByPath(synchFolderRemotePath);
+                        OCFile currentDir = (getCurrentDir() == null) ?
+                            MainApp.storageManager.getFileByPath(synchFolderRemotePath) :
                             MainApp.storageManager.getFileByPath(getCurrentDir().getRemotePath());
 
                         if (currentDir == null && !synchFolderRemotePath.equals(OCFile.ROOT_PATH)) {
@@ -1245,19 +1246,18 @@ public class FileDisplayActivity extends FileActivity
                             browseToRoot();
 
                         } else {
-                            if (currentFile == null && !getFile().isFolder()) {
+                            if (currentFile == null && getFile() != null && !getFile().isFolder()) {
                                 // currently selected file was removed in the server, and now we
                                 // know it
                                 resetTitleBarAndScrolling();
                                 currentFile = currentDir;
                             }
 
-                            if (currentDir.getRemotePath().equals(synchFolderRemotePath)) {
-                                OCFileListFragment fileListFragment = getListOfFilesFragment();
-                                if (fileListFragment != null) {
-                                    fileListFragment.listDirectory(currentDir, MainApp.isOnlyOnDevice(), false);
-                                }
+                            OCFileListFragment fileListFragment = getListOfFilesFragment();
+                            if (fileListFragment != null) {
+                                fileListFragment.listDirectory(currentDir, MainApp.isOnlyOnDevice(), false);
                             }
+
                             setFile(currentFile);
                         }
 
@@ -1348,7 +1348,7 @@ public class FileDisplayActivity extends FileActivity
         final OCFileListFragment ocFileListFragment = getListOfFilesFragment();
         if (ocFileListFragment != null) {
             if (mSyncInProgress ||
-                getFile().getFileLength() > 0 && getStorageManager().getFolderContent(getFile(), false).isEmpty()) {
+                getFile() != null && getFile().getFileLength() > 0 && MainApp.storageManager.getFolderContent(getFile(), false).isEmpty()) {
                 ocFileListFragment.setEmptyListLoadingMessage();
             } else {
                 if (MainApp.isOnlyOnDevice()) {
@@ -1667,10 +1667,11 @@ public class FileDisplayActivity extends FileActivity
             onRemoveFileOperationFinish((RemoveFileOperation) operation, result);
         } else if (operation instanceof RenameFileOperation) {
             onRenameFileOperationFinish((RenameFileOperation) operation, result);
+            // TODO: Rok Jaklic
 //        } else if (operation instanceof SynchronizeFileOperation) {
 //            onSynchronizeFileOperationFinish((SynchronizeFileOperation) operation, result);
-        } else if (operation instanceof CreateFolderOperation) {
-            onCreateFolderOperationFinish((CreateFolderOperation) operation, result);
+//        } else if (operation instanceof CreateFolderOperation) {
+//            onCreateFolderOperationFinish((CreateFolderOperation) operation, result);
         } else if (operation instanceof MoveFileOperation) {
             onMoveFileOperationFinish((MoveFileOperation) operation, result);
         } else if (operation instanceof CopyFileOperation) {
@@ -1908,10 +1909,11 @@ public class FileDisplayActivity extends FileActivity
             try {
                 if (ResultCode.FOLDER_ALREADY_EXISTS == result.getCode()) {
                     DisplayUtils.showSnackMessage(this, R.string.folder_already_exists);
-                } else {
-                    DisplayUtils.showSnackMessage(this, ErrorMessageAdapter.getErrorCauseMessage(result, operation,
-                                                                                                 getResources()));
                 }
+//                else {
+//                    DisplayUtils.showSnackMessage(this, ErrorMessageAdapter.getErrorCauseMessage(result, operation,
+//                                                                                                 getResources()));
+//                }
             } catch (NotFoundException e) {
                 Log_OC.e(TAG, "Error while trying to show fail message ", e);
             }
@@ -2018,6 +2020,7 @@ public class FileDisplayActivity extends FileActivity
                             if (fragment != null && !(fragment instanceof GalleryFragment)) {
                                 fragment.setLoading(false);
                             }
+                            mSyncInProgress = false;
 
                             setBackgroundText();
 

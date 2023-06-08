@@ -363,6 +363,7 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
 
         if (minioClient == null) {
             Intent fristRunActivityIntent = new Intent(this, FirstRunActivity.class);
+            fristRunActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(fristRunActivityIntent);
         }
     }

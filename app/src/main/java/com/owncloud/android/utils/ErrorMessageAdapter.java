@@ -132,8 +132,8 @@ public final class ErrorMessageAdapter {
 //                message = res.getString(R.string.sync_file_nothing_to_do_msg);
 //            }
 
-        } else if (operation instanceof CreateFolderOperation) {
-            message = getMessageForCreateFolderOperation(result, res);
+//        } else if (operation instanceof CreateFolderOperation) {
+//            message = getMessageForCreateFolderOperation(result, res);
 
         } else if (operation instanceof CreateShareViaLinkOperation ||
                 operation instanceof CreateShareWithShareeOperation) {
@@ -477,8 +477,9 @@ public final class ErrorMessageAdapter {
         } else if (operation instanceof RenameFileOperation) {
             message = res.getString(R.string.rename_server_fail_msg);
 
-        } else if (operation instanceof CreateFolderOperation) {
-            message = res.getString(R.string.create_dir_fail_msg);
+            // TODO: Rok Jaklic
+//        } else if (operation instanceof CreateFolderOperation) {
+//            message = res.getString(R.string.create_dir_fail_msg);
 
         } else if (operation instanceof CreateShareViaLinkOperation ||
                 operation instanceof CreateShareWithShareeOperation

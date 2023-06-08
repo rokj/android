@@ -952,9 +952,9 @@ public class ReceiveExternalFilesActivity extends FileActivity
         super.onRemoteOperationFinish(operation, result);
 
 
-        if (operation instanceof CreateFolderOperation) {
-            onCreateFolderOperationFinish((CreateFolderOperation) operation, result);
-        }
+//        if (operation instanceof CreateFolderOperation) {
+//            onCreateFolderOperationFinish((CreateFolderOperation) operation, result);
+//        }
 
     }
 
@@ -972,14 +972,14 @@ public class ReceiveExternalFilesActivity extends FileActivity
             mParents.push(newFolder);
             populateDirectoryList();
         } else {
-            try {
-                DisplayUtils.showSnackMessage(
-                    this, ErrorMessageAdapter.getErrorCauseMessage(result, operation, getResources())
-                                             );
-
-            } catch (NotFoundException e) {
-                Log_OC.e(TAG, "Error while trying to show fail message ", e);
-            }
+//            try {
+//                DisplayUtils.showSnackMessage(
+//                    this, ErrorMessageAdapter.getErrorCauseMessage(result, operation, getResources())
+//                                             );
+//
+//            } catch (NotFoundException e) {
+//                Log_OC.e(TAG, "Error while trying to show fail message ", e);
+//            }
         }
     }
 

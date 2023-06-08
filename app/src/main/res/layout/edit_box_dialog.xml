@@ -37,7 +37,7 @@
             android:ems="10"
             android:gravity="top"
             android:importantForAutofill="no"
-            android:inputType="textNoSuggestions|textCapSentences"
+            android:inputType="textNoSuggestions"
             android:scrollbars="vertical" />
 
     </com.google.android.material.textfield.TextInputLayout>

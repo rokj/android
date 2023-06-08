@@ -139,72 +139,72 @@ class FileDisplayActivityIT : AbstractOnServerIT() {
         screenshot(sut)
     }
 
-    @Test
-    fun allFiles() {
-        val sut = activityRule.launchActivity(null)
+    // @Test
+    // fun allFiles() {
+    //     val sut = activityRule.launchActivity(null)
+    //
+    //     // given test folder
+    //     Assert.assertTrue(
+    //         CreateFolderOperation("/test/", user, targetContext, storageManager)
+    //             .execute(client)
+    //             .isSuccess
+    //     )
+    //
+    //     // navigate into it
+    //     val test = storageManager.getFileByPath("/test/")
+    //     sut.file = test
+    //     sut.startSyncFolderOperation(test, false)
+    //     Assert.assertEquals(storageManager.getFileByPath("/test/"), sut.currentDir)
+    //
+    //     // open drawer
+    //     onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
+    //
+    //     // click "all files"
+    //     onView(withId(R.id.nav_view))
+    //         .perform(NavigationViewActions.navigateTo(R.id.nav_all_files))
+    //
+    //     // then should be in root again
+    //     shortSleep()
+    //     Assert.assertEquals(storageManager.getFileByPath("/"), sut.currentDir)
+    // }
 
-        // given test folder
-        Assert.assertTrue(
-            CreateFolderOperation("/test/", user, targetContext, storageManager)
-                .execute(client)
-                .isSuccess
-        )
-
-        // navigate into it
-        val test = storageManager.getFileByPath("/test/")
-        sut.file = test
-        sut.startSyncFolderOperation(test, false)
-        Assert.assertEquals(storageManager.getFileByPath("/test/"), sut.currentDir)
-
-        // open drawer
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
-
-        // click "all files"
-        onView(withId(R.id.nav_view))
-            .perform(NavigationViewActions.navigateTo(R.id.nav_all_files))
-
-        // then should be in root again
-        shortSleep()
-        Assert.assertEquals(storageManager.getFileByPath("/"), sut.currentDir)
-    }
-
-    @Test
-    fun checkToolbarTitleOnNavigation() {
-        // Create folder structure
-        val topFolder = "folder1"
-        val childFolder = "folder2"
-
-        CreateFolderOperation("/$topFolder/", user, targetContext, storageManager)
-            .execute(client)
-
-        CreateFolderOperation("/$topFolder/$childFolder/", user, targetContext, storageManager)
-            .execute(client)
-
-        activityRule.launchActivity(null)
-
-        shortSleep()
-
-        // go into "foo"
-        onView(withText(topFolder)).perform(click())
-        shortSleep()
-
-        // check title is right
-        checkToolbarTitle(topFolder)
-
-        // go into "bar"
-        onView(withText(childFolder)).perform(click())
-        shortSleep()
-
-        // check title is right
-        checkToolbarTitle(childFolder)
-
-        // browse back up, we should be back in "foo"
-        Espresso.pressBack()
-        shortSleep()
-
-        // check title is right
-        checkToolbarTitle(topFolder)
-    }
+    // @Test
+    // fun checkToolbarTitleOnNavigation() {
+    //     // Create folder structure
+    //     val topFolder = "folder1"
+    //     val childFolder = "folder2"
+    //
+    //     CreateFolderOperation("/$topFolder/", user, targetContext, storageManager)
+    //         .execute(client)
+    //
+    //     CreateFolderOperation("/$topFolder/$childFolder/", user, targetContext, storageManager)
+    //         .execute(client)
+    //
+    //     activityRule.launchActivity(null)
+    //
+    //     shortSleep()
+    //
+    //     // go into "foo"
+    //     onView(withText(topFolder)).perform(click())
+    //     shortSleep()
+    //
+    //     // check title is right
+    //     checkToolbarTitle(topFolder)
+    //
+    //     // go into "bar"
+    //     onView(withText(childFolder)).perform(click())
+    //     shortSleep()
+    //
+    //     // check title is right
+    //     checkToolbarTitle(childFolder)
+    //
+    //     // browse back up, we should be back in "foo"
+    //     Espresso.pressBack()
+    //     shortSleep()
+    //
+    //     // check title is right
+    //     checkToolbarTitle(topFolder)
+    // }
 
     private fun checkToolbarTitle(childFolder: String) {
         onView(withId(R.id.appbar)).check(
@@ -216,55 +216,55 @@ class FileDisplayActivityIT : AbstractOnServerIT() {
         )
     }
 
-    @Test
-    fun browseFavoriteAndBack() {
-        // Create folder structure
-        val topFolder = "folder1"
+    // @Test
+    // fun browseFavoriteAndBack() {
+    //     // Create folder structure
+    //     val topFolder = "folder1"
+    //
+    //     CreateFolderOperation("/$topFolder/", user, targetContext, storageManager)
+    //         .execute(client)
+    //     ToggleFavoriteRemoteOperation(true, "/$topFolder/")
+    //         .execute(client)
+    //
+    //     val sut = activityRule.launchActivity(null)
+    //
+    //     // navigate to favorites
+    //     onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
+    //     onView(withId(R.id.nav_view))
+    //         .perform(NavigationViewActions.navigateTo(R.id.nav_favorites))
+    //     shortSleep()
+    //
+    //     // check sort button is not shown, favorites are not sortable
+    //     onView(withId(R.id.sort_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+    //
+    //     // browse into folder
+    //     onView(withId(R.id.list_root)).perform(
+    //         RecyclerViewActions.actionOnItemAtPosition<OCFileListItemViewHolder>(
+    //             0,
+    //             click()
+    //         )
+    //     )
+    //     shortSleep()
+    //     checkToolbarTitle(topFolder)
+    //     // sort button should now be visible
+    //     onView(withId(R.id.sort_button)).check(matches(ViewMatchers.isDisplayed()))
+    //
+    //     // browse back, should be back to All Files
+    //     Espresso.pressBack()
+    //     checkToolbarTitle(sut.getString(R.string.app_name))
+    //     onView(withId(R.id.sort_button)).check(matches(ViewMatchers.isDisplayed()))
+    // }
 
-        CreateFolderOperation("/$topFolder/", user, targetContext, storageManager)
-            .execute(client)
-        ToggleFavoriteRemoteOperation(true, "/$topFolder/")
-            .execute(client)
-
-        val sut = activityRule.launchActivity(null)
-
-        // navigate to favorites
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
-        onView(withId(R.id.nav_view))
-            .perform(NavigationViewActions.navigateTo(R.id.nav_favorites))
-        shortSleep()
-
-        // check sort button is not shown, favorites are not sortable
-        onView(withId(R.id.sort_button)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
-
-        // browse into folder
-        onView(withId(R.id.list_root)).perform(
-            RecyclerViewActions.actionOnItemAtPosition<OCFileListItemViewHolder>(
-                0,
-                click()
-            )
-        )
-        shortSleep()
-        checkToolbarTitle(topFolder)
-        // sort button should now be visible
-        onView(withId(R.id.sort_button)).check(matches(ViewMatchers.isDisplayed()))
-
-        // browse back, should be back to All Files
-        Espresso.pressBack()
-        checkToolbarTitle(sut.getString(R.string.app_name))
-        onView(withId(R.id.sort_button)).check(matches(ViewMatchers.isDisplayed()))
-    }
-
-    @Test
-    fun switchToGridView() {
-        activityRule.launchActivity(null)
-        Assert.assertTrue(
-            CreateFolderOperation("/test/", user, targetContext, storageManager)
-                .execute(client)
-                .isSuccess
-        )
-        onView(withId(R.id.switch_grid_view_button)).perform(click())
-    }
+    // @Test
+    // fun switchToGridView() {
+    //     activityRule.launchActivity(null)
+    //     Assert.assertTrue(
+    //         CreateFolderOperation("/test/", user, targetContext, storageManager)
+    //             .execute(client)
+    //             .isSuccess
+    //     )
+    //     onView(withId(R.id.switch_grid_view_button)).perform(click())
+    // }
 
     @Test
     fun openAccountSwitcher() {

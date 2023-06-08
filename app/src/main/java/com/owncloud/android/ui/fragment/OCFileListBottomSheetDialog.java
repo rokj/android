@@ -90,7 +90,7 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
         setContentView(binding.getRoot());
 
         viewThemeUtils.platform.colorImageView(binding.menuIconUploadFiles);
-        viewThemeUtils.platform.colorImageView(binding.menuIconUploadFromApp);
+        // viewThemeUtils.platform.colorImageView(binding.menuIconUploadFromApp);
         viewThemeUtils.platform.colorImageView(binding.menuIconDirectCameraUpload);
         viewThemeUtils.platform.colorImageView(binding.menuIconScanDocUpload);
         viewThemeUtils.platform.colorImageView(binding.menuIconMkdir);
@@ -99,14 +99,14 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
         binding.addToCloud.setText(getContext().getResources().getString(R.string.add_to_cloud,
                                                                          themeUtils.getDefaultDisplayNameForRootFolder(getContext())));
 
-        OCCapability capability = fileActivity.getCapabilities();
-        if (capability != null &&
-            capability.getRichDocuments().isTrue() &&
-            capability.getRichDocumentsDirectEditing().isTrue() &&
-            capability.getRichDocumentsTemplatesAvailable().isTrue() &&
-            !file.isEncrypted()) {
-            binding.templates.setVisibility(View.VISIBLE);
-        }
+//        OCCapability capability = fileActivity.getCapabilities();
+//        if (capability != null &&
+//            capability.getRichDocuments().isTrue() &&
+//            capability.getRichDocumentsDirectEditing().isTrue() &&
+//            capability.getRichDocumentsTemplatesAvailable().isTrue() &&
+//            !file.isEncrypted()) {
+//            binding.templates.setVisibility(View.VISIBLE);
+//        }
 
         String json = new ArbitraryDataProviderImpl(getContext())
             .getValue(user, ArbitraryDataProvider.DIRECT_EDITING);
@@ -183,10 +183,10 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
             dismiss();
         });
 
-        binding.menuUploadFromApp.setOnClickListener(v -> {
-            actions.uploadFromApp();
-            dismiss();
-        });
+//        binding.menuUploadFromApp.setOnClickListener(v -> {
+//            actions.uploadFromApp();
+//            dismiss();
+//        });
 
         binding.menuDirectCameraUpload.setOnClickListener(v -> {
             actions.directCameraUpload();

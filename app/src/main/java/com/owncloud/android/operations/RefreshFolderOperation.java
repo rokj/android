@@ -242,6 +242,8 @@ public class RefreshFolderOperation {
         mLocalFolder.setLastSyncDateForData(System.currentTimeMillis());
         MainApp.storageManager.saveFile(mLocalFolder);
 
+        String tmp = mLocalFolder.getRemotePath();
+
         // TODO: Rok Jaklic
         if (!mSyncFullAccount && mRemoteFolderChanged) {
             sendLocalBroadcast(

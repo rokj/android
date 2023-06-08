@@ -498,17 +498,17 @@ public class DocumentsStorageProvider extends DocumentsProvider {
         String newDirPath = targetFolder.getRemotePath() + displayName + PATH_SEPARATOR;
         FileDataStorageManager storageManager = targetFolder.getStorageManager();
 
-        RemoteOperationResult result = new CreateFolderOperation(newDirPath,
+        CreateFolderOperation createFolderOperation = new CreateFolderOperation(newDirPath,
                                                                  accountManager.getUser(),
                                                                  context,
-                                                                 storageManager)
-            .execute(targetFolder.getClient());
+                                                                 storageManager);
+        createFolderOperation.run();
 
-        if (!result.isSuccess()) {
-            Log_OC.e(TAG, result.toString());
-            throw new FileNotFoundException("Failed to create document with name " +
-                                                displayName + " and documentId " + targetFolder.getDocumentId());
-        }
+//        if (!result.isSuccess()) {
+//            Log_OC.e(TAG, result.toString());
+//            throw new FileNotFoundException("Failed to create document with name " +
+//                                                displayName + " and documentId " + targetFolder.getDocumentId());
+//        }
 
 //        RemoteOperationResult updateParent = new RefreshFolderOperation(targetFolder.getFile(), System.currentTimeMillis(),
 //                                                                        false, false, true, storageManager,

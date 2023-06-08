@@ -437,16 +437,18 @@ open class FolderPickerActivity :
         if (result.isSuccess) {
             val fileListFragment = listOfFilesFragment
             fileListFragment?.onItemClicked(storageManager.getFileByPath(operation.remotePath))
-        } else {
-            try {
-                DisplayUtils.showSnackMessage(
-                    this,
-                    ErrorMessageAdapter.getErrorCauseMessage(result, operation, resources)
-                )
-            } catch (e: Resources.NotFoundException) {
-                Log_OC.e(TAG, "Error while trying to show fail message ", e)
-            }
         }
+        // TODO: Rok Jaklic
+        // else {
+        //     try {
+        //         DisplayUtils.showSnackMessage(
+        //             this,
+        //             ErrorMessageAdapter.getErrorCauseMessage(result, operation, resources)
+        //         )
+        //     } catch (e: Resources.NotFoundException) {
+        //         Log_OC.e(TAG, "Error while trying to show fail message ", e)
+        //     }
+        // }
     }
 
     fun search(query: String?) {

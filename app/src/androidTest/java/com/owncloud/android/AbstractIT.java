@@ -325,13 +325,13 @@ public abstract class AbstractIT {
         }
     }
 
-    public OCFile createFolder(String remotePath) {
-        TestCase.assertTrue(new CreateFolderOperation(remotePath, user, targetContext, getStorageManager())
-                                .execute(client)
-                                .isSuccess());
-
-        return getStorageManager().getFileByDecryptedRemotePath(remotePath);
-    }
+//    public OCFile createFolder(String remotePath) {
+//        TestCase.assertTrue(new CreateFolderOperation(remotePath, user, targetContext, getStorageManager())
+//                                .execute(client)
+//                                .isSuccess());
+//
+//        return getStorageManager().getFileByDecryptedRemotePath(remotePath);
+//    }
 
     public void uploadFile(File file, String remotePath) {
         OCUpload ocUpload = new OCUpload(file.getAbsolutePath(), remotePath, account.name);

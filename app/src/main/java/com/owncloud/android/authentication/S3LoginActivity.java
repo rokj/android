@@ -84,9 +84,11 @@ public class S3LoginActivity extends BaseActivity implements Injectable {
                 final String hostName = "https://moja.shramba.arnes.si";
                 TextInputLayout accessKeyInput = findViewById(R.id.s3_access_key_container);
                 // final String accessKey = accessKeyInput.getEditText().getText().toString();
-                final String accessKey = "EAN71J9WLBWFUIMD5ZTO";
+                // final String accessKey = "EAN71J9WLBWFUIMD5ZTO";
+                final String accessKey = "GO2JL1QUZRLI22ZJPS26";
                 TextInputLayout secretKeyInput = findViewById(R.id.s3_secret_key_container);
-                final String secretKey = "ST39OWIyTQnwWGCGlxCM7mfoLRTyx2woiAGT6OjM";
+                // final String secretKey = "ST39OWIyTQnwWGCGlxCM7mfoLRTyx2woiAGT6OjM";
+                final String secretKey = "SyV8BhcFCyZCJ9GfffxWx4ddL9a3zlqfvZkvJnyw";
                 // final String secretKey = secretKeyInput.getEditText().getText().toString();
 
                 try {

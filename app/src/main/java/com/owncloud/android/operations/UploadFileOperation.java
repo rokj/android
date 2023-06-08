@@ -1037,23 +1037,26 @@ public class UploadFileOperation extends SyncOperation {
      * will be uploaded.
      */
     private RemoteOperationResult grantFolderExistence(String pathToGrant, OwnCloudClient client) {
-        RemoteOperation operation = new ExistenceCheckRemoteOperation(pathToGrant, false);
-        RemoteOperationResult result = operation.execute(client);
-        if (!result.isSuccess() && result.getCode() == ResultCode.FILE_NOT_FOUND && mRemoteFolderToBeCreated) {
-            SyncOperation syncOp = new CreateFolderOperation(pathToGrant, user, getContext(), getStorageManager());
-            result = syncOp.execute(client);
-        }
-        if (result.isSuccess()) {
-            OCFile parentDir = getStorageManager().getFileByPath(pathToGrant);
-            if (parentDir == null) {
-                parentDir = createLocalFolder(pathToGrant);
-            }
-            if (parentDir != null) {
-                result = new RemoteOperationResult(ResultCode.OK);
-            } else {
-                result = new RemoteOperationResult(ResultCode.CANNOT_CREATE_FILE);
-            }
-        }
+        // TODO: Rok Jaklic
+//        RemoteOperation operation = new ExistenceCheckRemoteOperation(pathToGrant, false);
+//        RemoteOperationResult result = operation.execute(client);
+//        if (!result.isSuccess() && result.getCode() == ResultCode.FILE_NOT_FOUND && mRemoteFolderToBeCreated) {
+//            SyncOperation syncOp = new CreateFolderOperation(pathToGrant, user, getContext(), getStorageManager());
+//            result = syncOp.execute(client);
+//        }
+//        if (result.isSuccess()) {
+//            OCFile parentDir = getStorageManager().getFileByPath(pathToGrant);
+//            if (parentDir == null) {
+//                parentDir = createLocalFolder(pathToGrant);
+//            }
+//            if (parentDir != null) {
+//                result = new RemoteOperationResult(ResultCode.OK);
+//            } else {
+//                result = new RemoteOperationResult(ResultCode.CANNOT_CREATE_FILE);
+//            }
+//        }
+        RemoteOperationResult result = new RemoteOperationResult(ResultCode.OK);
+
         return result;
     }
 

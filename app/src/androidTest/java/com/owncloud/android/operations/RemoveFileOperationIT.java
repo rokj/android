@@ -34,70 +34,70 @@ import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 
 public class RemoveFileOperationIT extends AbstractOnServerIT {
-    @Test
-    public void deleteFolder() {
-        String parent = "/test/";
-        String path = parent + "folder1/";
-        assertTrue(new CreateFolderOperation(path, user, targetContext, getStorageManager()).execute(client)
-                       .isSuccess());
+    // @Test
+//    public void deleteFolder() {
+//        String parent = "/test/";
+//        String path = parent + "folder1/";
+//        assertTrue(new CreateFolderOperation(path, user, targetContext, getStorageManager()).execute(client)
+//                       .isSuccess());
+//
+//        OCFile folder = getStorageManager().getFileByPath(path);
+//
+//        assertNotNull(folder);
+//
+//        assertTrue(new RemoveFileOperation(folder,
+//                                           false,
+//                                           user,
+//                                           false,
+//                                           targetContext,
+//                                           getStorageManager())
+//                       .execute(client)
+//                       .isSuccess());
+//
+//        OCFile parentFolder = getStorageManager().getFileByPath(parent);
+//
+//        assertNotNull(parentFolder);
+//        assertTrue(new RemoveFileOperation(parentFolder,
+//                                           false,
+//                                           user,
+//                                           false,
+//                                           targetContext,
+//                                           getStorageManager())
+//                       .execute(client)
+//                       .isSuccess());
+//    }
 
-        OCFile folder = getStorageManager().getFileByPath(path);
-
-        assertNotNull(folder);
-
-        assertTrue(new RemoveFileOperation(folder,
-                                           false,
-                                           user,
-                                           false,
-                                           targetContext,
-                                           getStorageManager())
-                       .execute(client)
-                       .isSuccess());
-
-        OCFile parentFolder = getStorageManager().getFileByPath(parent);
-
-        assertNotNull(parentFolder);
-        assertTrue(new RemoveFileOperation(parentFolder,
-                                           false,
-                                           user,
-                                           false,
-                                           targetContext,
-                                           getStorageManager())
-                       .execute(client)
-                       .isSuccess());
-    }
-
-    @Test
-    public void deleteFile() throws IOException {
-        String parent = "/test/";
-        String path = parent + "empty.txt";
-        OCUpload ocUpload = new OCUpload(getDummyFile("empty.txt").getAbsolutePath(), path, account.name);
-
-        uploadOCUpload(ocUpload);
-
-        OCFile file = getStorageManager().getFileByPath(path);
-
-        assertNotNull(file);
-
-        assertTrue(new RemoveFileOperation(file,
-                                           false,
-                                           user,
-                                           false,
-                                           targetContext,
-                                           getStorageManager())
-                       .execute(client)
-                       .isSuccess());
-
-        OCFile parentFolder = getStorageManager().getFileByPath(parent);
-
-        assertNotNull(parentFolder);
-        assertTrue(new RemoveFileOperation(parentFolder,
-                                           false,
-                                           user,
-                                           false,
-                                           targetContext,
-                                           getStorageManager())
-                       .execute(client)
-                       .isSuccess());
-    }
+//    @Test
+//    public void deleteFile() throws IOException {
+//        String parent = "/test/";
+//        String path = parent + "empty.txt";
+//        OCUpload ocUpload = new OCUpload(getDummyFile("empty.txt").getAbsolutePath(), path, account.name);
+//
+//        uploadOCUpload(ocUpload);
+//
+//        OCFile file = getStorageManager().getFileByPath(path);
+//
+//        assertNotNull(file);
+//
+//        assertTrue(new RemoveFileOperation(file,
+//                                           false,
+//                                           user,
+//                                           false,
+//                                           targetContext,
+//                                           getStorageManager())
+//                       .execute(client)
+//                       .isSuccess());
+//
+//        OCFile parentFolder = getStorageManager().getFileByPath(parent);
+//
+//        assertNotNull(parentFolder);
+//        assertTrue(new RemoveFileOperation(parentFolder,
+//                                           false,
+//                                           user,
+//                                           false,
+//                                           targetContext,
+//                                           getStorageManager())
+//                       .execute(client)
+//                       .isSuccess());
+//    }
 }

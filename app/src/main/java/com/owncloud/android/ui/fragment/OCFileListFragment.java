@@ -26,6 +26,7 @@ package com.owncloud.android.ui.fragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -125,6 +126,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -456,7 +458,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
         FileActivity activity = (FileActivity) getActivity();
 
         if (mFabMain != null) { // is not available in FolderPickerActivity
-            viewThemeUtils.material.themeFAB(mFabMain);
+            // viewThemeUtils.material.themeFAB(mFabMain);
             mFabMain.setOnClickListener(v -> {
                 final OCFileListBottomSheetDialogFragment dialog =
                     new OCFileListBottomSheetDialogFragment(activity,
@@ -1373,11 +1375,11 @@ public class OCFileListFragment extends ExtendedListFragment implements
             setFabVisible(false);
         } else {
             setFabVisible(true);
-            // registerFabListener();
+            registerFabListener();
         }
 
         // FAB
-        setFabEnabled(mFile != null && mFile.canWrite());
+        // setFabEnabled(mFile != null && mFile.canWrite());
 
         invalidateActionMode();
     }
@@ -1933,10 +1935,10 @@ public class OCFileListFragment extends ExtendedListFragment implements
             getActivity().runOnUiThread(() -> {
                 if (enabled) {
                     mFabMain.setEnabled(true);
-                    viewThemeUtils.material.themeFAB(mFabMain);
+                    // viewThemeUtils.material.themeFAB(mFabMain);
                 } else {
                     mFabMain.setEnabled(false);
-                    viewThemeUtils.material.themeFAB(mFabMain);
+                    // viewThemeUtils.material.themeFAB(mFabMain);
                 }
             });
         }

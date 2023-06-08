@@ -22,6 +22,7 @@
 
 package com.owncloud.android.ui.preview;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -44,6 +45,7 @@ import com.owncloud.android.utils.theme.ViewThemeUtils;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuItemCompat;
 

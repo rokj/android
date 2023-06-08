@@ -689,10 +689,11 @@ public class OperationsService extends Service {
 
                     case ACTION_CREATE_FOLDER:
                         remotePath = operationIntent.getStringExtra(EXTRA_REMOTE_PATH);
-                        operation = new CreateFolderOperation(remotePath,
+                        CreateFolderOperation createFolderOperation = new CreateFolderOperation(remotePath,
                                                               user,
                                                               getApplicationContext(),
                                                               fileDataStorageManager);
+                        createFolderOperation.run();
                         break;
 
                     case ACTION_SYNC_FILE:
