@@ -408,7 +408,8 @@ public class DialogFragmentIT extends AbstractIT {
                                                                                   action,
                                                                                   info,
                                                                                   user,
-                                                                                  ocFile);
+                                                                                  ocFile,
+                                                                                          false);
 
         sut.show(fda.getSupportFragmentManager(), "");
 

@@ -38,7 +38,6 @@ import com.owncloud.android.datamodel.ArbitraryDataProviderImpl;
 import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.lib.common.Creator;
 import com.owncloud.android.lib.common.DirectEditing;
-import com.owncloud.android.lib.resources.status.OCCapability;
 import com.owncloud.android.ui.activity.FileActivity;
 import com.owncloud.android.utils.MimeTypeUtil;
 import com.owncloud.android.utils.theme.ThemeUtils;
@@ -49,7 +48,7 @@ import com.owncloud.android.utils.theme.ViewThemeUtils;
  */
 public class OCFileListBottomSheetDialog extends BottomSheetDialog implements Injectable {
 
-    private FileListActionsBottomSheetFragmentBinding binding;
+    public FileListActionsBottomSheetFragmentBinding binding;
     private final OCFileListBottomSheetActions actions;
     private final FileActivity fileActivity;
     private final DeviceInfo deviceInfo;
@@ -60,6 +59,8 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
     private final EditorUtils editorUtils;
 
     private final AppScanOptionalFeature appScanOptionalFeature;
+
+    private Boolean hideUploadIcons = false;
 
 
     public OCFileListBottomSheetDialog(FileActivity fileActivity,
@@ -83,6 +84,29 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
         this.appScanOptionalFeature = appScanOptionalFeature;
     }
 
+    public OCFileListBottomSheetDialog(FileActivity fileActivity,
+                                       OCFileListBottomSheetActions actions,
+                                       DeviceInfo deviceInfo,
+                                       User user,
+                                       OCFile file,
+                                       ThemeUtils themeUtils,
+                                       ViewThemeUtils viewThemeUtils,
+                                       EditorUtils editorUtils,
+                                       AppScanOptionalFeature appScanOptionalFeature,
+                                       Boolean hideUploadIcons) {
+        super(fileActivity);
+        this.actions = actions;
+        this.fileActivity = fileActivity;
+        this.deviceInfo = deviceInfo;
+        this.user = user;
+        this.file = file;
+        this.themeUtils = themeUtils;
+        this.viewThemeUtils = viewThemeUtils;
+        this.editorUtils = editorUtils;
+        this.appScanOptionalFeature = appScanOptionalFeature;
+        this.hideUploadIcons = hideUploadIcons;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +119,14 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
         viewThemeUtils.platform.colorImageView(binding.menuIconScanDocUpload);
         viewThemeUtils.platform.colorImageView(binding.menuIconMkdir);
         viewThemeUtils.platform.colorImageView(binding.menuIconAddFolderInfo);
+
+        if (hideUploadIcons) {
+            binding.menuIconUploadFiles.setVisibility(View.GONE);
+            binding.menuIconDirectCameraUpload.setVisibility(View.GONE);
+        } else {
+            binding.menuIconUploadFiles.setVisibility(View.VISIBLE);
+            binding.menuIconDirectCameraUpload.setVisibility(View.VISIBLE);
+        }
 
         binding.addToCloud.setText(getContext().getResources().getString(R.string.add_to_cloud,
                                                                          themeUtils.getDefaultDisplayNameForRootFolder(getContext())));

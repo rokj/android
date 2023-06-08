@@ -38,6 +38,7 @@ import android.widget.TextView;
 import com.nextcloud.client.account.User;
 import com.nextcloud.client.di.Injectable;
 import com.nextcloud.client.preferences.AppPreferences;
+import com.owncloud.android.MainApp;
 import com.owncloud.android.R;
 import com.owncloud.android.databinding.UploadFilesLayoutBinding;
 import com.owncloud.android.files.services.FileUploader;
@@ -168,7 +169,7 @@ public class UploadFilesActivity extends DrawerActivity implements LocalFileList
             }
         }
 
-        mAccountOnCreation = getAccount();
+        // mAccountOnCreation = MainApp.user.getAccountName();
 
         /// USER INTERFACE
 
@@ -680,13 +681,12 @@ public class UploadFilesActivity extends DrawerActivity implements LocalFileList
     @Override
     protected void onStart() {
         super.onStart();
-        final Account account = getAccount();
-        if (mAccountOnCreation != null && mAccountOnCreation.equals(account)) {
-            requestPermissions();
-        } else {
-            setResult(RESULT_CANCELED);
-            finish();
-        }
+        requestPermissions();
+
+//        } else {
+//            setResult(RESULT_CANCELED);
+//            finish();
+//        }
     }
 
     private boolean isGridView() {

@@ -30,10 +30,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.nextcloud.client.di.Injectable;
 import com.nextcloud.client.preferences.AppPreferences;
 import com.owncloud.android.R;
+import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.ui.adapter.LocalFileListAdapter;
 import com.owncloud.android.ui.interfaces.LocalFileListFragmentInterface;
@@ -127,6 +129,16 @@ public class LocalFileListFragment extends ExtendedListFragment implements
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log_OC.i(TAG, "onActivityCreated() start");
+
+        // Toast.makeText(getContext(), R.string.e2e_not_yet_setup, Toast.LENGTH_LONG).show();
+        File fafa = mContainerActivity.getInitialDirectory();
+        File lele = mDirectory;
+        Context fefe1 = getContext();
+        Activity fefe2 = getActivity();
+
+        if (getCurrentDirectory() != null && getCurrentDirectory().equals("/")) {
+            Toast.makeText(getContext(), "NEKAJ MORAM POKAZAT", Toast.LENGTH_LONG).show();
+        }
 
         super.onActivityCreated(savedInstanceState);
 

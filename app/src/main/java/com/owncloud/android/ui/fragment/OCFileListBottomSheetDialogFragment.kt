@@ -40,7 +40,8 @@ class OCFileListBottomSheetDialogFragment(
     private val actions: OCFileListBottomSheetActions,
     private val deviceInfo: DeviceInfo,
     private val user: User,
-    private val file: OCFile
+    private val file: OCFile,
+    private val hideUploadIcons: Boolean
 ) : DialogFragment(), Injectable {
 
     @Inject
@@ -55,8 +56,10 @@ class OCFileListBottomSheetDialogFragment(
     @Inject
     lateinit var appScanOptionalFeature: AppScanOptionalFeature
 
+    lateinit var dialog: OCFileListBottomSheetDialog
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return OCFileListBottomSheetDialog(
+        dialog = OCFileListBottomSheetDialog(
             fileActivity,
             actions,
             deviceInfo,
@@ -65,7 +68,10 @@ class OCFileListBottomSheetDialogFragment(
             themeUtils,
             viewThemeUtils,
             editorUtils,
-            appScanOptionalFeature
+            appScanOptionalFeature,
+            hideUploadIcons
         )
+
+        return dialog
     }
 }

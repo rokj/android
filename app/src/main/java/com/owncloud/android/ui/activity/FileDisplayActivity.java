@@ -918,7 +918,7 @@ public class FileDisplayActivity extends FileActivity
 
             FileUploader.uploadNewFile(
                 this,
-                getUser(),
+                MainApp.user,
                 filePaths,
                 remotePaths,
                 null,           // MIME type will be detected from file name
@@ -1258,7 +1258,13 @@ public class FileDisplayActivity extends FileActivity
                                 fileListFragment.listDirectory(currentDir, MainApp.isOnlyOnDevice(), false);
                             }
 
-                            setFile(currentFile);
+                            if (currentFile != null) {
+                                setFile(currentFile);
+                            }
+
+                            if (currentFile == null && getFile() == null && currentDir != null) {
+                                setFile(currentDir);
+                            }
                         }
 
                         mSyncInProgress = !FileSyncAdapter.EVENT_FULL_SYNC_END.equals(event);
