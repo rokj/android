@@ -460,10 +460,10 @@ public class OCFileListFragment extends ExtendedListFragment implements
         if (mFabMain != null) { // is not available in FolderPickerActivity
             // viewThemeUtils.material.themeFAB(mFabMain);
             mFabMain.setOnClickListener(v -> {
-                boolean hideUploadIcon = false;
+                boolean hideUploadActions = false;
                 OCFile currentDir = activity.getCurrentDir();
                 if (currentDir.getRemotePath().equals(ROOT_PATH)) {
-                    hideUploadIcon = true;
+                    hideUploadActions = true;
                 }
 
                 final OCFileListBottomSheetDialogFragment dialog =
@@ -472,7 +472,7 @@ public class OCFileListFragment extends ExtendedListFragment implements
                                                             deviceInfo,
                                                             accountManager.getUser(),
                                                             getCurrentFile(),
-                                                            hideUploadIcon);
+                                                            hideUploadActions);
                 dialog.show(getActivity().getSupportFragmentManager(), DIALOG_BOTTOM_SHEET);
             });
         }

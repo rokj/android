@@ -60,7 +60,7 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
 
     private final AppScanOptionalFeature appScanOptionalFeature;
 
-    private Boolean hideUploadIcons = false;
+    private Boolean hideUploadActions = false;
 
 
     public OCFileListBottomSheetDialog(FileActivity fileActivity,
@@ -93,7 +93,7 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
                                        ViewThemeUtils viewThemeUtils,
                                        EditorUtils editorUtils,
                                        AppScanOptionalFeature appScanOptionalFeature,
-                                       Boolean hideUploadIcons) {
+                                       Boolean hideUploadActions) {
         super(fileActivity);
         this.actions = actions;
         this.fileActivity = fileActivity;
@@ -104,7 +104,7 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
         this.viewThemeUtils = viewThemeUtils;
         this.editorUtils = editorUtils;
         this.appScanOptionalFeature = appScanOptionalFeature;
-        this.hideUploadIcons = hideUploadIcons;
+        this.hideUploadActions = hideUploadActions;
     }
 
     @Override
@@ -120,12 +120,16 @@ public class OCFileListBottomSheetDialog extends BottomSheetDialog implements In
         viewThemeUtils.platform.colorImageView(binding.menuIconMkdir);
         viewThemeUtils.platform.colorImageView(binding.menuIconAddFolderInfo);
 
-        if (hideUploadIcons) {
+        if (hideUploadActions) {
             binding.menuIconUploadFiles.setVisibility(View.GONE);
             binding.menuIconDirectCameraUpload.setVisibility(View.GONE);
+            binding.menuUploadFiles.setVisibility(View.GONE);
+            binding.menuDirectCameraUpload.setVisibility(View.GONE);
         } else {
             binding.menuIconUploadFiles.setVisibility(View.VISIBLE);
             binding.menuIconDirectCameraUpload.setVisibility(View.VISIBLE);
+            binding.menuUploadFiles.setVisibility(View.VISIBLE);
+            binding.menuDirectCameraUpload.setVisibility(View.VISIBLE);
         }
 
         binding.addToCloud.setText(getContext().getResources().getString(R.string.add_to_cloud,

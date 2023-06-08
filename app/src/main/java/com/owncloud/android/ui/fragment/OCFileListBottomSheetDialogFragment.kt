@@ -41,7 +41,7 @@ class OCFileListBottomSheetDialogFragment(
     private val deviceInfo: DeviceInfo,
     private val user: User,
     private val file: OCFile,
-    private val hideUploadIcons: Boolean
+    private val hideUploadActions: Boolean
 ) : DialogFragment(), Injectable {
 
     @Inject
@@ -69,7 +69,7 @@ class OCFileListBottomSheetDialogFragment(
             viewThemeUtils,
             editorUtils,
             appScanOptionalFeature,
-            hideUploadIcons
+            hideUploadActions
         )
 
         return dialog
